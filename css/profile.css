@@ -1,0 +1,201 @@
+/* Profile Section Styling */
+.profile-section {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.profile-section.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.profile-card {
+    background-color: var(--bg-color, #1a1a1a);
+    color: var(--text-color, #ffffff);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    position: relative;
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.profile-section.active .profile-card {
+    transform: scale(1);
+}
+
+.profile-card .close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+    font-size: 24px;
+    color: var(--text-color, #ffffff);
+}
+
+.profile-header {
+    margin-bottom: 25px;
+}
+
+.profile-avatar-large {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 48px;
+    font-weight: bold;
+    margin: 0 auto 15px;
+    color: white;
+}
+
+.profile-username {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    display: inline-block;
+}
+
+.edit-username-container {
+    display: none;
+    margin-top: 10px;
+}
+
+.new-username-input {
+    width: 60%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-right: 10px;
+}
+
+.save-username-btn,
+.cancel-edit-username-btn {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.save-username-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.cancel-edit-username-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+#editUsernameBtn {
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.profile-info {
+    text-align: right;
+    margin-top: 20px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.info-item svg {
+    width: 20px;
+    height: 20px;
+    margin-left: 15px;
+    fill: var(--text-color, #ffffff);
+}
+
+.delete-account-section {
+    margin-top: 30px;
+    border-top: 1px solid var(--border-color, #444);
+    padding-top: 20px;
+}
+
+.delete-account-btn {
+    background-color: #e53935;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 16px;
+}
+
+.delete-account-btn:hover {
+    background-color: #c62828;
+}
+
+/* Confirmation Modal */
+.confirmation-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 1100;
+}
+
+.confirmation-dialog {
+    background: var(--bg-color, #2c2c2c);
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+}
+
+.confirmation-dialog h3 {
+    margin-top: 0;
+    font-size: 22px;
+}
+
+.confirmation-dialog p {
+    margin-bottom: 25px;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.confirmation-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 0 10px;
+}
+
+#confirm-delete-btn {
+    background-color: #d32f2f;
+    color: white;
+}
+
+#cancel-delete-btn {
+    background-color: #555;
+    color: white;
+}

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آفلاین - فروشگاه خودروی لوکس</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .offline-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        h1 { 
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        p { 
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .retry-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-family: 'Vazirmatn', sans-serif;
+            transition: background 0.3s;
+        }
+        
+        .retry-button:hover {
+            background: #3e8e41;
+        }
+        
+        .cached-pages {
+            margin-top: 30px;
+            text-align: right;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        
+        .cached-pages h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .cached-pages ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .cached-pages li {
+            margin-bottom: 10px;
+        }
+        
+        .cached-pages a {
+            color: #2196F3;
+            text-decoration: none;
+            display: block;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        
+        .cached-pages a:hover {
+            background: #f0f0f0;
+        }
+        
+        .offline-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .connection-status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            background: #ffcc00;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <svg class="offline-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+            <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+            <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+            <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+            <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+            <line x1="12" y1="20" x2="12.01" y2="20"></line>
+        </svg>
+        
+        <h1>شما آفلاین هستید</h1>
+        <p>لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید.</p>
+        <button class="retry-button" onclick="checkConnection()">تلاش مجدد</button>
+        
+        <div id="connection-status" class="connection-status">
+            در حال بررسی اتصال...
+        </div>
+        
+        <div class="cached-pages">
+            <h2>صفحات قابل دسترسی در حالت آفلاین:</h2>
+            <ul id="cached-pages-list">
+                <li><a href="/">صفحه اصلی</a></li>
+                <li><a href="/login.html">ورود</a></li>
+                <li><a href="/signup.html">ثبت نام</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Check if we're back online
+        function checkConnection() {
+            const statusElement = document.getElementById('connection-status');
+            statusElement.style.display = 'block';
+            
+            if (navigator.onLine) {
+                statusElement.textContent = 'اتصال برقرار شد! در حال بارگذاری مجدد...';
+                statusElement.style.background = '#4CAF50';
+                statusElement.style.color = 'white';
+                
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                statusElement.textContent = 'هنوز آفلاین هستید. لطفاً اتصال اینترنت خود را بررسی کنید.';
+                statusElement.style.background = '#ffcc00';
+                statusElement.style.color = 'black';
+                
+                setTimeout(() => {
+                    statusElement.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // Listen for online status changes
+        window.addEventListener('online', () => {
+            const statusElement = document.getElementById('connection-status');
+            statusElement.textContent = 'اتصال برقرار شد! در حال بارگذاری مجدد...';
+            statusElement.style.display = 'block';
+            statusElement.style.background = '#4CAF50';
+            statusElement.style.color = 'white';
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        });
+        
+        // Dynamically list cached pages if possible
+        if ('caches' in window) {
+            caches.open('sukuna-pwa-v6').then(cache => {
+                cache.keys().then(requests => {
+                    const htmlRequests = requests.filter(request => {
+                        const url = new URL(request.url);
+                        return url.pathname.endsWith('.html') || url.pathname === '/' || 
+                               (url.pathname.indexOf('.') === -1 && !url.pathname.endsWith('/'));
+                    });
+                    
+                    if (htmlRequests.length > 0) {
+                        const cachedList = document.getElementById('cached-pages-list');
+                        cachedList.innerHTML = '';
+                        
+                        // Track unique pages to avoid duplicates
+                        const uniquePages = new Map();
+                        
+                        htmlRequests.forEach(request => {
+                            const url = new URL(request.url);
+                            let displayPath = url.pathname;
+                            let normalizedPath = displayPath;
+                            
+                            // Skip the offline page itself
+                            if (displayPath === '/offline.html') {
+                                return;
+                            }
+                            
+                            // Normalize paths to avoid duplicates
+                            if (displayPath === '/' || displayPath === '/index.html') {
+                                normalizedPath = '/';
+                                displayPath = 'صفحه اصلی';
+                            } else {
+                                // Remove .html extension for display
+                                displayPath = displayPath.replace('.html', '');
+                                // Remove leading slash
+                                displayPath = displayPath.replace(/^\//, '');
+                                // Capitalize first letter
+                                displayPath = displayPath.charAt(0).toUpperCase() + displayPath.slice(1);
+                                
+                                // Normalize path for uniqueness check
+                                normalizedPath = normalizedPath.replace('.html', '');
+                            }
+                            
+                            // Only add if we haven't seen this page before
+                            if (!uniquePages.has(normalizedPath)) {
+                                uniquePages.set(normalizedPath, {
+                                    href: url.pathname,
+                                    text: displayPath
+                                });
+                            }
+                        });
+                        
+                        // Add unique pages to the list
+                        uniquePages.forEach(page => {
+                            const li = document.createElement('li');
+                            const a = document.createElement('a');
+                            a.href = page.href;
+                            a.textContent = page.text;
+                            li.appendChild(a);
+                            cachedList.appendChild(li);
+                        });
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
