@@ -1,9 +1,25 @@
-/* 
- * Verification Page CSS
- * Matches the website's existing style
- */
+:root {
 
-/* Code input styling */
+  
+  --bg-color: #ffffff;
+  --primary-color: #000000;
+  --card-bg: #ffffff;
+  --secondary-text: #555555;
+
+
+}
+
+body.darkmode {
+  --bg-color: #000000; 
+  --card-bg: #111111;
+  --primary-color: #ffffff;
+  --secondary-text: #aaaaaa;
+
+
+ 
+}
+
+
 #verification_code {
   letter-spacing: 0.5rem;
   font-size: 1.5rem;
@@ -11,7 +27,6 @@
   font-weight: bold;
 }
 
-/* Countdown timer styling */
 #resend-timer-message {
   color: var(--secondary-text);
   margin-bottom: 0.5rem;
@@ -22,7 +37,6 @@
   color: var(--primary-color);
 }
 
-/* Resend button styling */
 #resend-code-btn {
   background: none;
   border: none;
@@ -45,7 +59,6 @@
   cursor: not-allowed;
 }
 
-/* Code input container */
 .code-input-container {
   display: flex;
   justify-content: center;
@@ -53,7 +66,6 @@
   margin: 1.5rem 0;
 }
 
-/* Success and error messages */
 .success-message {
   color: #4CAF50;
   font-weight: bold;
@@ -68,15 +80,80 @@
   text-align: center;
 }
 
-/* Dark mode support */
 body.darkmode #resend-code-btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Responsive adjustments */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: var(--bg-color);
+  transition: all 0.3s ease;
+}
+
+.auth-wrapper {
+  background: var(--card-bg);
+  padding: 2.5rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  width: 100%;
+  max-width: 450px;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-title {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  position: relative;
+}
+
+.auth-subtitle {
+  color: var(--secondary-text);
+  font-size: 0.9rem;
+}
+.form-switch {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: var(--secondary-text);
+}
+
+.mon {
+  border-radius: 100%;
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+  float: right;
+  z-index: 7; 
+  position: relative;
+}
+
 @media (max-width: 480px) {
   #verification_code {
     letter-spacing: 0.3rem;
     font-size: 1.2rem;
   }
+}
+
+html, body {
+  font-family: 'Vazirmatn', sans-serif !important;
 }

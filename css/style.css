@@ -257,7 +257,7 @@ ul{
   height: 80%;
   background-color: var(--primary-color);
   color: var(--bg-color);
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-family: vazirmatn, sans-serif !important;
   font-variant: small-caps;
   font-size: small;
   border-radius: 8px;
@@ -2758,5 +2758,17 @@ ul{
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+html, body {
+  font-family: 'Vazirmatn', sans-serif !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Vazirmatn', sans-serif !important;
+}
+
+ul, ol, li {
+  font-family: 'Vazirmatn', sans-serif !important;
 }
 

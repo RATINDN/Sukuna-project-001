@@ -393,3 +393,7 @@ display: flex;
     font-size: smaller !important;
   }
 }
+
+html, body {
+  font-family: 'Vazirmatn', sans-serif !important;
+}

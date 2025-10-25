@@ -532,3 +532,7 @@ body.dark-mode .theme-toggle:hover {
         padding: 12px 15px;
     }
 }
+
+html, body {
+    font-family: 'Vazirmatn', sans-serif !important;
+  }

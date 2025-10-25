@@ -310,63 +310,74 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['verification_code'])) 
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تایید کد</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/auth.css"> <!-- Re-use auth.css for base styling -->
-    <link rel="stylesheet" href="css/verify.css">
-    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تایید کد</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/verify.css">
+  <link rel="stylesheet" href="css/loginstyle.css">
+  <link rel="stylesheet" href="css/signup.css">
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
 </head>
+
 <body>
-    <div class="auth-container">
-        <div class="auth-wrapper">
-            <div class="mon" id="model">
-                <svg onclick="darkmode()" xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="moon2" id="moon2" viewBox="0 0 16 16">
-                    <path d="M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277q.792-.001 1.533-.16a.79.79 0 0 1 .81.316.73.73 0 0 1-.031.893A8.35 8.35 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.75.75 0 0 1 6 .278"/>
-                </svg>
-                <svg onclick="darkmode()" xmlns="http://www.w3.org/2000/svg" width="35" height="35" id="sun2" fill="currentColor" class="sun2" style="display: none;" viewBox="0 0 16 16">
-                    <path d="M12 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0M8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0m0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13m8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5M3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8m10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0m-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0m9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707M4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708"/>
-                </svg>
-            </div>
-            <div class="auth-header">
-                <h1 class="auth-title">تایید ایمیل</h1>
-                <p class="auth-subtitle">یک کد 6 رقمی به ایمیل <?php echo htmlspecialchars($email_to_verify); ?> ارسال شده است. لطفاً آن را وارد کنید.</p>
-                
-                <?php if(isset($_SESSION['email_just_sent'])): ?>
-                <?php unset($_SESSION['email_just_sent']); // Clear the message without showing it ?>
-                <?php endif; ?>
-                
-                <?php if(isset($errors['email_send'])): ?>
-                <div class="error-message"><?php echo htmlspecialchars($errors['email_send']); ?></div>
-                <?php endif; ?>
-            </div>
+  <div class="auth-container">
+    <div class="auth-wrapper">
+      <div class="mon" id="model">
+        <svg onclick="darkmode()" xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor"
+          class="moon2" id="moon2" viewBox="0 0 16 16">
+          <path
+            d="M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277q.792-.001 1.533-.16a.79.79 0 0 1 .81.316.73.73 0 0 1-.031.893A8.35 8.35 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.75.75 0 0 1 6 .278" />
+        </svg>
+        <svg onclick="darkmode()" xmlns="http://www.w3.org/2000/svg" width="35" height="35" id="sun2"
+          fill="currentColor" class="sun2" style="display: none;" viewBox="0 0 16 16">
+          <path
+            d="M12 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0M8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0m0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13m8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5M3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8m10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0m-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0m9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707M4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708" />
+        </svg>
+      </div>
+      <div class="auth-header">
+        <h1 class="auth-title">تایید ایمیل</h1>
+        <p class="auth-subtitle">یک کد 6 رقمی به ایمیل <?php echo htmlspecialchars($email_to_verify); ?> ارسال شده است.
+          لطفاً آن را وارد کنید.</p>
 
-            <form id="verification-form" class="auth-form" method="post" action="verify.php?type=<?php echo htmlspecialchars($verification_type); ?>">
-                <div class="input-group">
-                    <label for="verification_code">کد تایید</label>
-                    <input type="text" id="verification_code" name="verification_code" placeholder="------" maxlength="6" pattern="\d{6}" inputmode="numeric" required>
-                    <div class="error-container">
-                        <?php if(isset($errors['code'])) echo htmlspecialchars($errors['code']); ?>
-                        <?php if(isset($errors['database'])) echo htmlspecialchars($errors['database']); ?>
-                        <?php if(isset($errors['user_not_found'])) echo htmlspecialchars($errors['user_not_found']); ?>
-                        <?php if(isset($errors['state'])) echo htmlspecialchars($errors['state']); ?>
-                    </div>
-                </div>
-                <button type="submit" class="auth-btn">تایید کد</button>
-            </form>
+        <?php if(isset($_SESSION['email_just_sent'])): ?>
+        <?php unset($_SESSION['email_just_sent']); // Clear the message without showing it ?>
+        <?php endif; ?>
 
-            <div class="form-switch" style="margin-top: 1rem;">
-                <p id="resend-timer-message">ارسال مجدد کد تا <span id="countdown">30</span> ثانیه دیگر.</p>
-                <button id="resend-code-btn" class="switch-link" disabled>ارسال مجدد کد</button>
-            </div>
-             <div class="form-switch" style="margin-top: 0.5rem;">
-                <a href="auth.php" class="switch-link">بازگشت به صفحه ورود</a>
-            </div>
+        <?php if(isset($errors['email_send'])): ?>
+        <div class="error-message"><?php echo htmlspecialchars($errors['email_send']); ?></div>
+        <?php endif; ?>
+      </div>
+
+      <form id="verification-form" class="auth-form" method="post"
+        action="verify.php?type=<?php echo htmlspecialchars($verification_type); ?>">
+        <div class="input-group">
+          <label for="verification_code">کد تایید</label>
+          <input type="text" id="verification_code" name="verification_code" placeholder="------" maxlength="6"
+            pattern="\d{6}" inputmode="numeric" required>
+          <div class="error-container">
+            <?php if(isset($errors['code'])) echo htmlspecialchars($errors['code']); ?>
+            <?php if(isset($errors['database'])) echo htmlspecialchars($errors['database']); ?>
+            <?php if(isset($errors['user_not_found'])) echo htmlspecialchars($errors['user_not_found']); ?>
+            <?php if(isset($errors['state'])) echo htmlspecialchars($errors['state']); ?>
+          </div>
         </div>
+        <button type="submit" class="auth-btn">تایید کد</button>
+      </form>
+
+      <div class="form-switch" style="margin-top: 1rem;">
+        <p id="resend-timer-message">ارسال مجدد کد تا <span id="countdown">30</span> ثانیه دیگر.</p>
+        <button id="resend-code-btn" class="switch-link" disabled>ارسال مجدد کد</button>
+      </div>
+      <div class="form-switch" style="margin-top: 0.5rem;">
+        <a href="login.php" class="switch-link">بازگشت به صفحه ورود</a>
+      </div>
     </div>
-    <script src="js/verify.js"></script>
-    <script src="js/login signup.js"></script>
+  </div>
+  <script src="js/verify.js"></script>
+  <script src="js/login signup.js"></script>
 </body>
+
 </html>
