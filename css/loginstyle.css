@@ -74,12 +74,13 @@
 
 .input-group input {
   padding: 0.8rem 1rem;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--text-color);
   border-radius: 8px;
   background: var(--input-bg);
   color: var(--label-color) !important;
   font-family: 'Vazirmatn', sans-serif;
   transition: all 0.3s ease;
+  box-shadow: 5px 5px 10px var(--border-color);
 }
 
 .input-group input:focus {
@@ -239,7 +240,7 @@ border-radius: 0px 8px 8px 0px  !important;
   justify-content: center;
   align-items: center;
   background-color: transparent;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--text-color);
   border-radius: 8px 0px 0px 8px !important;
 
 }

@@ -1059,7 +1059,7 @@ opacity: 0.9;
   width: 200px;
   cursor: pointer;
   height: 50px;
-  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  font-family: vazirmatn, sans-serif !important;
   font-variant: small-caps;
   font-size: 20px;
   font-weight: bold;
@@ -1086,7 +1086,7 @@ opacity: 0.9;
   width: 200px;
   cursor: pointer;
   height: 50px;
-  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  font-family: vazirmatn, sans-serif !important;
   font-variant: small-caps;
   font-size: 20px;
   font-weight: bold;
@@ -1242,7 +1242,7 @@ color: var(--text-color);
 .button2{
   width: 200px;
   height: 50px;
-  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  font-family: vazirmatn, sans-serif !important;
   font-size: 20px;
   font-weight: 100;
   border: none;
@@ -2768,7 +2768,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Vazirmatn', sans-serif !important;
 }
 
-ul, ol, li {
+
+button, input, select, textarea {
   font-family: 'Vazirmatn', sans-serif !important;
 }
-

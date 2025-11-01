@@ -737,12 +737,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const dropdownUserInitial = document.getElementById('dropdownUserInitial');
   const dropdownUsername = document.getElementById('dropdownUsername');
 
-  // Animation duration from CSS
-  const animDuration = getComputedStyle(document.documentElement)
-      .getPropertyValue('--dropdown-anim-duration').trim() || '0.3s';
-  const animMs = animDuration.endsWith('s')
-      ? parseFloat(animDuration) * 1000
-      : parseInt(animDuration);
+// Use a fixed animation duration in milliseconds
+const animMs = 300; // 300ms = 0.3 seconds
 
   // Only run if user is logged in and elements exist
   if (!(avatar && dropdown && typeof userName !== 'undefined' && userName)) return;

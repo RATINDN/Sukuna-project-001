@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const profileAvatarLarge = document.getElementById('profileAvatarLarge');
     const profileUsername = document.getElementById('profileUsername');
     const profileEmail = document.getElementById('profileEmail');
-    const profilePhone = document.getElementById('profilePhone');
+    const profileID = document.getElementById('profileID');
     const editUsernameBtn = document.getElementById('editUsernameBtn');
     const editUsernameContainer = document.getElementById('editUsernameContainer');
     const newUsernameInput = document.getElementById('newUsername');
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 profileAvatarLarge.textContent = data.username.charAt(0).toUpperCase();
                 profileUsername.textContent = data.username;
                 profileEmail.textContent = data.email;
-                profilePhone.textContent = data.phone || 'Not provided';
+                profileID.textContent = 'شناسه کاربری : ' + data.user_id || 'Not provided';
             } else {
                 console.error('Error:', data.error);
             }

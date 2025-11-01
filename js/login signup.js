@@ -1,12 +1,12 @@
+
+
 function darkmode() {
   const body = document.body;
-  body.classList.toggle("darkmode");
-
-  const isDark = body.classList.contains("darkmode");
-  localStorage.setItem("darkMode", isDark);
-
   const moon = document.getElementById("moon2");
   const sun = document.getElementById("sun2");
+
+  const isDark = body.classList.toggle("darkmode");
+  localStorage.setItem("darkMode", isDark);
 
   if (moon && sun) {
     if (isDark) {

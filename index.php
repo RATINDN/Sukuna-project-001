@@ -328,10 +328,12 @@ if (isset($_SESSION['user_id'])) {
 
             <div class="parent">
               <!-- خودرو ۱ -->
+
               <div class="box" data-title="آئودی A6 e-tron 2024">
                 <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/car-1.webp);">
                   <a href="" style="width: 100%;">
                     <div class="child">
+
                       <h1 style="font-weight: 400;">+</h1>
                     </div>
                   </a>
@@ -542,12 +544,11 @@ if (isset($_SESSION['user_id'])) {
       <div class="bow" id="bow">
         <?php if ($logged_in): ?>
         <div class="profile-avatar-container">
-          <div class="profile-avatar" id="profileAvatar">
-            <span id="userInitial"></span>
+        <div class="profile-avatar" id="profileAvatar" style="background-image: url('images/dog.jpg'); background-position: center; background-size: cover; background-repeat: no-repeat; "  >            <span id="userInitial"></span>
           </div>
           <div class="profile-dropdown" id="profileDropdown">
             <div class="dropdown-profile-header">
-              <div class="dropdown-avatar">
+              <div class="dropdown-avatar" style="background-image: url('images/dog.jpg'); background-position: center; background-size: cover; background-repeat: no-repeat; " >
                 <span id="dropdownUserInitial"></span>
               </div>
               <div class="dropdown-username" id="dropdownUsername"></div>
@@ -1057,7 +1058,8 @@ if (isset($_SESSION['user_id'])) {
     <div class="profile-card">
       <span id="closeProfileBtn" class="close-btn">&times;</span>
       <div class="profile-header">
-        <div id="profileAvatarLarge" class="profile-avatar-large"></div>
+        <div id="profileAvatarLarge" class="profile-avatar-large" style="background-image: url('images/dog.jpg'); background-position: center; background-size: cover; background-repeat: no-repeat; " >
+        </div>
         <h2 id="profileUsername" class="profile-username"></h2>
         <div id="editUsernameContainer" class="edit-username-container">
           <input type="text" id="newUsername" class="new-username-input">
@@ -1075,17 +1077,16 @@ if (isset($_SESSION['user_id'])) {
       <div class="profile-info">
         <div class="info-item">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path
-              d="M12 12.25c1.24 0 2.25-1.01 2.25-2.25S13.24 7.75 12 7.75 9.75 8.76 9.75 10s1.01 2.25 2.25 2.25zm4.5 4c0-1.5-3-2.25-4.5-2.25s-4.5.75-4.5 2.25v.75h9v-.75zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
+          <path
+            d="M12 12.25c1.24 0 2.25-1.01 2.25-2.25S13.24 7.75 12 7.75 9.75 8.76 9.75 10s1.01 2.25 2.25 2.25zm4.5 4c0-1.5-3-2.25-4.5-2.25s-4.5.75-4.5 2.25v.75h9v-.75zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
           </svg>
           <span id="profileEmail"></span>
         </div>
         <div class="info-item">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path
-              d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.02.74-.25 1.02l-2.2 2.2z" />
-          </svg>
-          <span id="profilePhone"></span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-vcard-fill" viewBox="0 0 16 16">
+  <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm9 1.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1h-4a.5.5 0 0 0-.5.5M9 8a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1h-4A.5.5 0 0 0 9 8m1 2.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 0-1h-3a.5.5 0 0 0-.5.5m-1 2C9 10.567 7.21 9 5 9c-2.086 0-3.8 1.398-3.984 3.181A1 1 0 0 0 2 13h6.96q.04-.245.04-.5M7 6a2 2 0 1 0-4 0 2 2 0 0 0 4 0"/>
+</svg>
+          <span id="profileID"></span>
         </div>
       </div>
       <div class="delete-account-section">
@@ -1098,7 +1099,8 @@ if (isset($_SESSION['user_id'])) {
   <div id="confirmationModal" class="confirmation-modal">
     <div class="confirmation-dialog">
       <h3>تایید حذف حساب</h3>
-      <p>آیا از حذف حساب کاربری خود مطمئن هستید؟ این عمل غیرقابل بازگشت است و تمام اطلاعات شما برای همیشه پاک خواهد شد.
+      <p>آیا از حذف حساب کاربری خود مطمئن هستید؟ این عمل غیرقابل بازگشت است و تمام اطلاعات شما برای همیشه پاک خواهد
+        شد.
       </p>
       <div class="confirmation-buttons">
         <button id="cancelDeleteBtn">انصراف</button>

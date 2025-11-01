@@ -36,6 +36,8 @@ try {
         $response['username'] = $_SESSION['user_name'];
         $response['avatar_color'] = $_SESSION['avatar_color'];
         $response['role'] = $_SESSION['role'];
+        $response['user_id'] = $userId; // Add this line
+
         
         // Still need to get email and phone from database
         $stmt = $pdo->prepare("SELECT email, phone FROM car WHERE id = ?");
