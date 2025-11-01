@@ -148,7 +148,7 @@ if (isset($_SESSION['login_success'])) {
         <div class="input-group">
           <label for="password">رمز عبور</label>
           <div class="holder">
-          <input type="password" id="password" class="pass" name="password" placeholder="••••••••">
+          <input type="password" id="password" class="pass" name="password" placeholder="">
           <span class="toggle-password" onclick="togglePasswordVisibility('password')">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" style="cursor: pointer;" class="bi-eye" viewBox="0 0 16 16">
               <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM8 3a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5z"/>
