@@ -152,7 +152,7 @@ try {
     $mail->Body = '
     <div style="font-family: \'Vazirmatn\', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 5px; direction: rtl; text-align: right;">
         <h2 style="color: #333; text-align: center;">کد تایید</h2>
-        <p style="font-size: 16px; line-height: 1.5; color: #666;">سلام ' . htmlspecialchars($username) . '،</p>
+        <p style="font-size: 16px; line-height: 1.5; color: #666;">درود ' . htmlspecialchars($username) . '،</p>
         <p style="font-size: 16px; line-height: 1.5; color: #666;">با تشکر از شما برای استفاده از وبسایت خودروهای لوکس. لطفاً از کد زیر برای تایید حساب کاربری خود استفاده کنید:</p>
         <div style="text-align: center; margin: 30px 0;">
             <div style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #333; padding: 15px; background-color: #f7f7f7; border-radius: 5px; display: inline-block;">' . $verification_code . '</div>
@@ -165,7 +165,7 @@ try {
     </div>';
     
     // Plain text version
-    $mail->AltBody = "سلام $username\nکد تایید شما: $verification_code\nاین کد تا 15 دقیقه دیگر معتبر است.";
+    $mail->AltBody = "درود $username\nکد تایید شما: $verification_code\nاین کد تا 15 دقیقه دیگر معتبر است.";
     
     // Send email
     $mail->send();
