@@ -109,11 +109,44 @@ body {
     margin-bottom: 30px;
     padding-bottom: 15px;
     border-bottom: 1px solid var(--admin-border-color);
-}
+    
+    
+    }
 
 .header-left {
     display: flex;
     align-items: center;
+width: 70%;    
+/* background-color: #1976d2; */
+}
+
+#admin-search{
+ 
+    z-index: 1;
+   
+    background: transparent;
+    height: 70%;
+    width: 100% !important;
+    font-size: normal;
+    text-align: right;
+    outline: none;
+    font-family: 'Vazirmatn', Arial, sans-serif;
+    font-variant: small-caps;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+  border-radius: 0 !important;
+  border: none;
+    border-bottom: 1px solid var(--admin-text-color) !important;
+    padding-right: 3px;
+
+   
+}
+
+
+
+#admin-search::placeholder{
+    font-size: smaller !important;
 }
 
 .admin-header h2 {
@@ -435,7 +468,6 @@ body.dark-mode .theme-toggle:hover {
     }
     
     .admin-header {
-        position: relative;
         padding-bottom: 15px;
         margin-bottom: 20px;
     }
@@ -533,6 +565,14 @@ body.dark-mode .theme-toggle:hover {
         padding: 12px 15px;
     }
 }
+
+input[type="search"]::-webkit-search-cancel-button {
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><line x1='4' y1='4' x2='12' y2='12' stroke='red' stroke-width='2'/><line x1='12' y1='4' x2='4' y2='12' stroke='red' stroke-width='2'/></svg>") no-repeat center center;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    -webkit-appearance: none;
+  }
 
 html, body {
     font-family: 'Vazirmatn', sans-serif !important;
