@@ -219,19 +219,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <form class="signup-form" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" id="signup-form">
         <div class="input-group">
           <label for="fullname">نام کامل</label>
-          <input type="text" id="fullname" name="fullname" placeholder="نام و نام خانوادگی" value="<?php echo isset($fullname) ? htmlspecialchars($fullname) : ''; ?>">
+          <input type="text" id="fullname" name="fullname" placeholder="" value="<?php echo isset($fullname) ? htmlspecialchars($fullname) : ''; ?>">
           <div class="error-container"><?php echo isset($errors['fullname']) ? $errors['fullname'] : ''; ?></div>
         </div>
 
         <div class="input-group">
           <label for="email">ایمیل</label>
-          <input type="email" id="email" name="email" placeholder="example@domain.com" value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>">
+          <input type="email" id="email" name="email" placeholder="" value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>">
           <div class="error-container"><?php echo isset($errors['email']) ? $errors['email'] : ''; ?></div>
         </div>
 
         <div class="input-group">
           <label for="phone">شماره تلفن</label>
-          <input type="tel" id="phone" name="phone" placeholder="09123456789" value="<?php echo isset($phone) ? htmlspecialchars($phone) : ''; ?>">
+          <input type="tel" id="phone" name="phone" placeholder="" value="<?php echo isset($phone) ? htmlspecialchars($phone) : ''; ?>">
           <div class="error-container"><?php echo isset($errors['phone']) ? $errors['phone'] : ''; ?></div>
         </div>
 
@@ -257,7 +257,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="input-group">
           <label for="confirm-password">تکرار رمز عبور</label>
           <div class="holder">
-            <input type="password" id="confirm-password" class="pass" name="confirm-password" placeholder="••••••••">
+            <input type="password" id="confirm-password" class="pass" name="confirm-password" placeholder="">
             <span class="toggle-password" onclick="togglePasswordVisibility('confirm-password')">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" style="cursor: pointer;" class="bi-eye" viewBox="0 0 16 16">
                 <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM8 3a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5z"/>

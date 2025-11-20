@@ -141,7 +141,7 @@ if (isset($_SESSION['login_success'])) {
       <form class="login-form" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" id="login-form">
         <div class="input-group">
           <label for="email">ایمیل</label>
-          <input type="email" id="email" name="email"  placeholder="example@domain.com" >
+          <input type="email" id="email" name="email"  placeholder="" >
           <div class="error-container"></div>
         </div>
 
