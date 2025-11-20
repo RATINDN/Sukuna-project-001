@@ -21,7 +21,7 @@
 }
 
 .profile-card {
-    background-color: var(--bg-color, #1a1a1a);
+    background-color: var(--profile-bg, #1a1a1a);
     color: var(--text-color, #ffffff);
     padding: 30px;
     border-radius: 15px;
@@ -162,7 +162,7 @@
 }
 
 .confirmation-dialog {
-    background: var(--bg-color, #2c2c2c);
+    background: var(--profile-bg, #2c2c2c);
     padding: 30px;
     border-radius: 10px;
     text-align: center;
@@ -199,4 +199,3 @@
     background-color: #555;
     color: white;
 }
-

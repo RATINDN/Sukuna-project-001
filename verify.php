@@ -376,8 +376,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['verification_code'])) 
       </div>
     </div>
   </div>
+ 
   <script src="js/verify.js"></script>
   <script src="js/login signup.js"></script>
+  <script src="js/settings.js"></script>
 </body>
 
 </html>

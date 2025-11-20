@@ -25,10 +25,19 @@
   --footer-text: #ffffff;
   --search-bg: rgba(255, 255, 255, 0.635);
   --modal-bg: rgba(0, 0, 0, 0.5);
-  --opposite-color: #ffffff;
+  --opposite-color: #ffffff !important;
   --blur-background:  rgba(255, 255, 255, 0.635);
-  
+
   --hover-color-li:rgba(0, 0, 0, 0.13);
+
+  /* Theme Colors - Default (Current Theme) */
+  --theme-primary: #000000;
+  --theme-bg: #ffffff;
+  --theme-text: #000000;
+  --theme-card: #ffffff;
+  --theme-border: #dddddd;
+  --theme-hover: #333333;
+  --theme-accent: #000000;
 }
 
 .darkmode {
@@ -45,7 +54,7 @@
   --menu-bg: #161616;
   --veil-bg: #161616;
   --scroll-bg: #ffffff;
-  --opposite-color:#000000;
+  --opposite-color:#000000 !important;
   --blur-background:  rgba(22, 22, 22, 0.8);
   --hover-color-li:rgba(255, 255, 255, 0.13);
 
@@ -58,11 +67,356 @@
   --modal-bg: rgba(0, 0, 0, 0.7);
 }
 
+/* Settings Modal Styles */
+.settings-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.settings-modal.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.settings-modal-content {
+  background-color: var(--card-bg);
+  border-radius: 15px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+/* Settings modal background follows profile background in light mode */
+body:not(.darkmode) .settings-modal-content {
+  background-color: var(--profile-bg) !important;
+}
+
+.settings-modal.active .settings-modal-content {
+  transform: scale(1);
+}
+
+.settings-modal-header {
+  padding: 20px 25px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.settings-modal-header h2 {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.settings-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--text-color);
+  padding: 5px;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.settings-modal-close:hover {
+  background-color: var(--hover-color-li);
+}
+
+.settings-modal-body {
+  padding: 25px;
+}
+
+.settings-section {
+  margin-bottom: 30px;
+}
+
+.settings-section h3 {
+  color: var(--text-color);
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.theme-option {
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  background-color: var(--card-bg);
+}
+
+.theme-option:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.theme-option.selected {
+  border-color: var(--primary-color);
+  background-color: var(--primary-color);
+  color: var(--opposite-color);
+}
+.darkmode .theme-option.selected {
+  background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white or your accent color */
+  color: var(--text-color); /* Use theme text color */
+  border-color: var(--primary-color); /* Keep border */
+}
+
+
+.theme-option .theme-name {
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--text-color);
+}
+
+.theme-preview {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.color-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+}
+
+.custom-colors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.color-picker-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.color-picker-group label {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.color-input {
+  width: 100%;
+  height: 40px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: var(--input-bg);
+}
+
+.settings-modal-footer {
+  padding: 20px 25px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.settings-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Vazirmatn', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.settings-btn-primary {
+  background-color: var(--primary-color);
+  color: var(--opposite-color);
+}
+
+.settings-btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.settings-btn-secondary {
+  background-color: transparent;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+.settings-btn-secondary:hover {
+  background-color: var(--hover-color-li);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .settings-modal-content {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .settings-modal-header,
+  .settings-modal-body,
+  .settings-modal-footer {
+    padding: 15px 20px;
+  }
+
+  .theme-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .custom-colors {
+    grid-template-columns: 1fr;
+  }
+}
+
 body{
   background-color: var(--bg-body-color) !important;
   color: var(--text-color);
 }
 
+/* Apply theme colors to footer - light mode only */
+body:not(.darkmode) footer {
+  background-color:white;
+  color: white;
+}
+
+body:not(.darkmode) footer a,
+body:not(.darkmode) footer h5,
+body:not(.darkmode) footer .h33 {
+  color: white ;
+}
+
+body:not(.darkmode) footer .a2:hover {
+  color: white;
+}
+
+/* Apply theme colors to additional elements */
+.auth-container {
+  background-color: var(--bg-color) !important;
+}
+
+.auth-wrapper {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color) !important;
+}
+
+.auth-wrapper * {
+  color: var(--text-color) !important;
+}
+
+.auth-btn {
+  background-color: var(--primary-color) !important;
+  color: var(--opposite-color) !important;
+}
+
+.auth-btn:hover {
+  background-color: var(--primary-hover) !important;
+}
+
+.switch-link {
+  color: var(--primary-color) !important;
+}
+
+.switch-link:hover {
+  color: var(--primary-hover) !important;
+}
+
+/* Accent color application for light mode only */
+body:not(.darkmode) .button:hover {
+  border-color: var(--theme-accent) !important;
+}
+
+body:not(.darkmode) .button2:hover {
+  border-color: var(--theme-accent) !important;
+}
+
+body:not(.darkmode) .order:hover {
+  border-color: var(--theme-accent) !important;
+}
+
+body:not(.darkmode) .card:hover {
+  border-color: var(--theme-accent) !important;
+}
+
+/* Link hover effects with accent color */
+body:not(.darkmode) a:hover {
+  color: var(--theme-accent) !important;
+}
+
+/* Settings modal close button hover */
+body:not(.darkmode) .settings-modal-close:hover {
+  background-color: var(--theme-accent) !important;
+}
+
+/* Search input focus accent */
+body:not(.darkmode) .search-input:focus,
+body:not(.darkmode) #search:focus {
+  border-bottom-color: var(--theme-accent) !important;
+}
+
+/* Theme option hover effect */
+body:not(.darkmode) .theme-option:hover {
+  border-color: var(--theme-accent) !important;
+}
+
+/* Keep your global light mode rules */
+:not(.darkmode)::-webkit-scrollbar-thumb {
+  background-color: var(--primary-color) !important;
+}
+:not(.darkmode)::-webkit-scrollbar {
+  background-color: var(--bg-body-color) !important;
+}
+
+/* Add these dark mode overrides AFTER the light mode rules */
+.darkmode ::-webkit-scrollbar-thumb {
+  background-color: #ffffff !important; /* White thumb for dark mode */
+}
+
+
+
+
+
+/* Page-up button accent color in light mode */
+body:not(.darkmode) .page-up {
+  background-color: var(--primary-color) !important;
+}
+
+/* Update theme application to include footer and body */
 
 
 
@@ -347,17 +701,18 @@ transition: 0.5s;
 
 
 ::-webkit-scrollbar{
-  border-left: 1px solid black;
-  background-color: white;
-  color: black;
-  
+  border-left: 1px solid var(--primary-color);
+  background-color: var(--bg-body-color);
+  color: var(--text-color);
+
 }
 
 ::-webkit-scrollbar-thumb{
-  background-color: black;
+  background-color: var(--scroll-thumb);
 
- 
 }
+
+
 
 .span{
   width: 40px;
@@ -528,7 +883,7 @@ align-items: center;  /* display: none; */
   width: 93%;
   height: 60px;
   border: 1px solid var(--primary-color) !important;
-  background-color: var(--veil-bg) !important;
+  background-color: var(--bg-body-color) !important;
   display: flex;
  position: fixed;
  z-index: 3;
@@ -554,7 +909,6 @@ align-items: center;
   position: -webkit-sticky;
     width: 0%;
   height: 0%;
-  background:var(--blur-background) !important;
   z-index: 1;
   top: 0;
   backdrop-filter: blur(10px );
@@ -571,7 +925,6 @@ align-items: center;
   color: black;
   position: -webkit-sticky;
   
-  background: var(--blur-background);
   z-index: 1;
   top: 0;
   backdrop-filter: blur(10px );
@@ -579,6 +932,8 @@ align-items: center;
   width: 100%;
   height: 60px;
  }
+
+ 
  .close {
   position: relative; /* or relative, depending on your layout */
 cursor: pointer;
@@ -590,6 +945,10 @@ cursor: pointer;
   justify-content: center;
   align-items: center;
   z-index: 10; /* Ensure it is above other elements */
+}
+
+body:not(.darkmode) .close {
+  background-color: var(--primary-color);
 }
 
 .arrow-close{
@@ -1304,6 +1663,11 @@ h5{
   flex-direction: column;
 }
 
+/* Apply footer background from theme - light mode only */
+body:not(.darkmode) .parent-foot {
+  background-color: var(--footer-bg) !important;
+}
+
 .box-foot{
   width: 30%;
   height: 85%;
@@ -1746,9 +2110,9 @@ del{
   height: 50px ;
   width: 0;
   transition: 0.5s ease-in-out;
-  background-color: black;
+  background-color: var(--primary-color);
   bottom: 0;
-  color: white;
+  color: var(--opposite-color);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -2611,6 +2975,11 @@ ul{
   transform-origin: top center;
   transition: opacity var(--dropdown-anim-duration) ease, transform var(--dropdown-anim-duration) ease;
   will-change: opacity, transform; /* Performance optimization */
+}
+
+/* Profile dropdown background follows profile background in light mode */
+body:not(.darkmode) .profile-dropdown {
+  background-color: var(--profile-bg) !important;
 }
 
 /* Animation classes for dropdown */

@@ -563,7 +563,7 @@ if (isset($_SESSION['user_id'])) {
               </svg>
               پروفایل
             </a>
-            <a href="#" class="dropdown-item">
+            <a href="#" class="dropdown-item" id="settingsLink">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear-fill"
                 viewBox="0 0 16 16">
                 <path
@@ -1109,6 +1109,81 @@ if (isset($_SESSION['user_id'])) {
     </div>
   </div>
 
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="settings-modal">
+    <div class="settings-modal-content">
+      <div class="settings-modal-header">
+        <h2>تنظیمات</h2>
+        <button id="settingsCloseBtn" class="settings-modal-close">&times;</button>
+      </div>
+      <div class="settings-modal-body">
+        <div class="settings-section">
+          <h3>تم‌های از پیش آماده</h3>
+          <div class="theme-grid">
+            <div class="theme-option" data-theme="blue-ocean">
+              <div class="theme-name">آبی اقیانوس</div>
+              <div class="theme-preview">
+                <div class="color-swatch" style="background-color: #1976D2;"></div>
+                <div class="color-swatch" style="background-color: #42A5F5;"></div>
+                <div class="color-swatch" style="background-color: #BBDEFB;"></div>
+              </div>
+            </div>
+            <div class="theme-option" data-theme="forest-green">
+              <div class="theme-name">سبز جنگلی</div>
+              <div class="theme-preview">
+                <div class="color-swatch" style="background-color: #2E7D32;"></div>
+                <div class="color-swatch" style="background-color: #4CAF50;"></div>
+                <div class="color-swatch" style="background-color: #C8E6C9;"></div>
+              </div>
+            </div>
+            <div class="theme-option" data-theme="sunset-orange">
+              <div class="theme-name">نارنجی غروب</div>
+              <div class="theme-preview">
+                <div class="color-swatch" style="background-color: #F57C00;"></div>
+                <div class="color-swatch" style="background-color: #FF9800;"></div>
+                <div class="color-swatch" style="background-color: #FFE0B2;"></div>
+              </div>
+            </div>
+            <div class="theme-option" data-theme="purple-dream">
+              <div class="theme-name">بنفش رویایی</div>
+              <div class="theme-preview">
+                <div class="color-swatch" style="background-color: #7B1FA2;"></div>
+                <div class="color-swatch" style="background-color: #9C27B0;"></div>
+                <div class="color-swatch" style="background-color: #E1BEE7;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>تنظیمات سفارشی رنگ</h3>
+          <div class="custom-colors">
+            <div class="color-picker-group">
+              <label for="primaryColorPicker">رنگ اصلی</label>
+              <input type="color" id="primaryColorPicker" class="color-input" value="#000000">
+            </div>
+            <div class="color-picker-group">
+              <label for="bgColorPicker">رنگ پس‌زمینه</label>
+              <input type="color" id="bgColorPicker" class="color-input" value="#ffffff">
+            </div>
+            <div class="color-picker-group">
+              <label for="textColorPicker">رنگ متن</label>
+              <input type="color" id="textColorPicker" class="color-input" value="#000000">
+            </div>
+            <div class="color-picker-group">
+              <label for="accentColorPicker">رنگ تأکید</label>
+              <input type="color" id="accentColorPicker" class="color-input" value="#000000">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-modal-footer">
+        <button id="settingsResetBtn" class="settings-btn settings-btn-secondary">بازنشانی</button>
+        <button id="settingsSaveBtn" class="settings-btn settings-btn-primary">ذخیره</button>
+      </div>
+    </div>
+  </div>
+
   <div id="overlay2" onclick="closetoggleMenu()"></div>
 
 
@@ -1119,6 +1194,7 @@ if (isset($_SESSION['user_id'])) {
   <script src="install.js"></script>
   <script src="js/cloudflare-jsd.js"></script>
   <script src="js/profile.js"></script>
+  <script src="js/settings.js"></script>
 
   <script>
   // Check if user just verified their account (from verify.php)

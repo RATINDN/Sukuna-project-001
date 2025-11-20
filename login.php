@@ -183,9 +183,11 @@ if (isset($_SESSION['login_success'])) {
     </div>  
   </main>
 
+  
   <script src="js/login signup.js"></script>
   <script src="js/login.js"></script>
   <script src="backbutton.js"></script>
+  <script src="js/settings.js"></script>
 
   <script>
     // Show popup after successful login (PHP)

@@ -283,9 +283,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
   </main>
 
+  
   <script src="js/login signup.js"></script>
   <script src="js/signup.js"></script>
   <script src="backbutton.js"></script>
+  <script src="js/settings.js"></script>
   <!-- No popup JS here, handled by login.php after redirect -->
 </body>
 </html>
