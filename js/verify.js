@@ -39,14 +39,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 countdownTime = remainingTime;
                 countdownEndTime = endTime;
                 startCountdown();
-            } else {
-                // Countdown has expired
-                enableResendButton();
-            }
-        } else {
-            // Start a new countdown
-            startCountdown();
-        }
+} else {
+    // Countdown has expired - clear storage and enable button
+    sessionStorage.removeItem('verificationCountdownEnd');
+    enableResendButton();
+}
+} else {
+    // Fresh page load - enable resend button, no countdown
+    enableResendButton();
+}
     }
     
     /**
@@ -217,16 +218,40 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     /**
-     * Format verification code input
+     * Format verification code input and disable copy/paste
      */
     if (verificationCode) {
         verificationCode.addEventListener('input', function() {
             // Remove non-digit characters
             this.value = this.value.replace(/\D/g, '');
-            
+
             // Limit to 6 digits
             if (this.value.length > 6) {
                 this.value = this.value.slice(0, 6);
+            }
+        });
+
+        // Disable copy/paste and context menu for security
+        verificationCode.addEventListener('paste', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        verificationCode.addEventListener('copy', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        verificationCode.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        verificationCode.addEventListener('keydown', function(e) {
+            // Prevent keyboard shortcuts Ctrl+C, Ctrl+V, Ctrl+X
+            if (e.ctrlKey && (e.keyCode === 67 || e.keyCode === 86 || e.keyCode === 88)) {
+                e.preventDefault();
+                return false;
             }
         });
     }
