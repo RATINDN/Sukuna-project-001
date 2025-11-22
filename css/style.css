@@ -724,6 +724,7 @@ transition: 0.5s;
   left: 4%;
   cursor: pointer;
   display: flex;
+  color: var(--primary-color);
 }
 
 .span:hover{
