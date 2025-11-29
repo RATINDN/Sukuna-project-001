@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role
 
 // Get all users from the database
 try {
-    $stmt = $pdo->prepare("SELECT id, user_name, email, phone, role, status, last_activity FROM car ORDER BY id");
+    $stmt = $pdo->prepare("SELECT id, user_name, email, phone, role, status FROM car ORDER BY id");
     $stmt->execute();
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -95,12 +95,7 @@ try {
                             <td><?php echo htmlspecialchars($user['email']); ?></td>
                             <td><?php echo htmlspecialchars($user['phone']); ?></td>
                             <td><?php echo $user['role'] == 1 ? 'مدیر' : 'کاربر عادی'; ?></td>
-                            <td><?php
-                                $lastActivity = strtotime($user['last_activity']);
-                                $isOnline = ($user['last_activity']) && ($lastActivity > strtotime('-5 minutes')); // Online if active within 5 minutes
-                                echo $isOnline ? '<span style="color: #4CAF50; font-weight: bold;"><i class="fas fa-circle"></i> آنلاین</span>'
-                                             : '<span style="color: #f44336;"><i class="fas fa-circle"></i> آفلاین</span>';
-                            ?></td>
+                            <td><?php echo $user['status'] == 1 ? 'تایید شده' : 'تایید نشده'; ?></td>
                             <td class="actions">
                                 <?php if ($user['role'] == 0): ?>
                                     <button class="promote-btn" data-user-id="<?php echo $user['id']; ?>">ارتقا به مدیر</button>
@@ -417,44 +412,6 @@ try {
                 }
             });
         });
-
-        // Auto-update online status every 30 seconds
-        function updateOnlineStatuses() {
-            fetch('admin_actions.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'action=get_online_status'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    data.statuses.forEach(user => {
-                        const userRow = document.querySelector(`tr[data-user-id="${user.user_id}"]`);
-                        if (userRow) {
-                            const statusCell = userRow.querySelector('td:nth-child(6)'); // Status column
-                            if (statusCell) {
-                                if (user.is_online) {
-                                    statusCell.innerHTML = '<span style="color: #4CAF50; font-weight: bold;"><i class="fas fa-circle"></i> آنلاین</span>';
-                                } else {
-                                    statusCell.innerHTML = '<span style="color: #f44336;"><i class="fas fa-circle"></i> آفلاین</span>';
-                                }
-                            }
-                        }
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error updating online statuses:', error);
-            });
-        }
-
-        // Update immediately on page load
-        updateOnlineStatuses();
-
-        // Set interval to update every 30 seconds
-        setInterval(updateOnlineStatuses, 5000);
 
     </script>
 </body>

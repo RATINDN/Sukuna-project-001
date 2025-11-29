@@ -725,7 +725,6 @@ transition: 0.5s;
   cursor: pointer;
   display: flex;
   color: var(--primary-color);
-
 }
 
 .span:hover{

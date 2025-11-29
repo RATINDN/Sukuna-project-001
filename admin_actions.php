@@ -11,42 +11,38 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role
     exit();
 }
 
-// Check if action is provided
-if (!isset($_POST['action'])) {
+// Check if action and user_id are provided
+if (!isset($_POST['action']) || !isset($_POST['user_id'])) {
     echo json_encode(['success' => false, 'error' => 'پارامترهای ناقص']);
     exit();
 }
 
 $action = $_POST['action'];
-$userId = isset($_POST['user_id']) ? (int)$_POST['user_id'] : null;
+$userId = (int)$_POST['user_id'];
+
+// Validate user_id
+if ($userId <= 0) {
+    echo json_encode(['success' => false, 'error' => 'شناسه کاربر نامعتبر است']);
+    exit();
+}
+
+// Get user information
+try {
+    $stmt = $pdo->prepare("SELECT id, role FROM car WHERE id = ?");
+    $stmt->execute([$userId]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$user) {
+        echo json_encode(['success' => false, 'error' => 'کاربر یافت نشد']);
+        exit();
+    }
+} catch (PDOException $e) {
+    echo json_encode(['success' => false, 'error' => 'خطای پایگاه داده: ' . $e->getMessage()]);
+    exit();
+}
 
 // Process the action
 switch ($action) {
-    case 'get_online_status':
-        try {
-            $stmt = $pdo->prepare("SELECT id, user_name, last_activity FROM car ORDER BY id");
-            $stmt->execute();
-            $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            $statusData = [];
-            foreach ($users as $user) {
-                $lastActivity = $user['last_activity'] ? strtotime($user['last_activity']) : 0;
-                $isOnline = ($lastActivity > strtotime('-10 seconds'));
-
-                $statusData[] = [
-                    'user_id' => $user['id'],
-                    'username' => $user['user_name'],
-                    'is_online' => $isOnline,
-                    'last_activity' => $user['last_activity'] ? date('Y-m-d H:i:s', $lastActivity) : null
-                ];
-            }
-
-            echo json_encode(['success' => true, 'statuses' => $statusData]);
-        } catch (PDOException $e) {
-            echo json_encode(['success' => false, 'error' => 'خطای پایگاه داده: ' . $e->getMessage()]);
-        }
-        break;
-
     case 'delete':
         // Check if trying to delete an admin
         if ($user['role'] == 1) {
@@ -103,18 +99,18 @@ switch ($action) {
             echo json_encode(['success' => false, 'error' => 'کاربر در حال حاضر مدیر نیست']);
             exit();
         }
-
+        
         // Check if trying to demote self
         if ($user['id'] == $_SESSION['user_id']) {
             echo json_encode(['success' => false, 'error' => 'تنزل حساب خود مجاز نیست']);
             exit();
         }
-
+        
         // Demote admin to regular user
         try {
             $stmt = $pdo->prepare("UPDATE car SET role = 0 WHERE id = ?");
             $stmt->execute([$userId]);
-
+            
             if ($stmt->rowCount() > 0) {
                 echo json_encode(['success' => true]);
             } else {
@@ -124,7 +120,7 @@ switch ($action) {
             echo json_encode(['success' => false, 'error' => 'خطای پایگاه داده: ' . $e->getMessage()]);
         }
         break;
-
+        
     default:
         echo json_encode(['success' => false, 'error' => 'عملیات نامعتبر']);
         break;
