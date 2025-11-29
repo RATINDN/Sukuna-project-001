@@ -2,6 +2,12 @@
 session_start();
 require_once 'db_connect.php';
 
+// Function to update user activity
+function updateUserActivity($userId, $pdo) {
+    $stmt = $pdo->prepare("UPDATE car SET last_activity = NOW() WHERE id = ?");
+    $stmt->execute([$userId]);
+}
+
 $logged_in = false;
 $user_name = '';
 $avatar_color = ''; // Initialize avatar color
@@ -31,11 +37,16 @@ if (isset($_SESSION['user_id'])) {
                 $logged_in = false;
                 session_destroy();
             }
-        } catch (PDOException $e) {
-            // Handle error, maybe log out user
-            $logged_in = false;
-        }
+    } catch (PDOException $e) {
+        // Handle error, maybe log out user
+        $logged_in = false;
     }
+}
+
+}
+// Update user activity on every page load if logged in
+if ($logged_in) {
+    updateUserActivity($_SESSION['user_id'], $pdo);
 }
 ?>
 <!DOCTYPE html>
