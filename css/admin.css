@@ -405,6 +405,36 @@ body.dark-mode .theme-toggle:hover {
     font-weight: bold;
 }
 
+/* Online/Offline Status Indicators */
+.activity-status-cell {
+    text-align: center;
+    font-weight: 500;
+}
+
+.activity-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.status-online {
+    color: #388e3c !important;
+    background-color: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.status-offline {
+    color: #d32f2f !important;
+    background-color: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.2);
+}
+
+
+
 @keyframes slideIn {
     to { top: 20px; }
 }

@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role
     exit();
 }
 
-// Get all users from the database
+// Get all users from the database (restore original logic with activity tracking)
 try {
     $stmt = $pdo->prepare("SELECT id, user_name, email, phone, role, status FROM car ORDER BY id");
     $stmt->execute();
@@ -84,6 +84,7 @@ try {
                             <th>تلفن</th>
                             <th>نقش</th>
                             <th>وضعیت</th>
+                            <th>وضعیت فعالیت</th>
                             <th>عملیات</th>
                         </tr>
                     </thead>
@@ -96,6 +97,9 @@ try {
                             <td><?php echo htmlspecialchars($user['phone']); ?></td>
                             <td><?php echo $user['role'] == 1 ? 'مدیر' : 'کاربر عادی'; ?></td>
                             <td><?php echo $user['status'] == 1 ? 'تایید شده' : 'تایید نشده'; ?></td>
+                            <td class="activity-status-cell" data-user-id="<?php echo $user['id']; ?>">
+                                <span class="activity-status">در حال بارگذاری...</span>
+                            </td>
                             <td class="actions">
                                 <?php if ($user['role'] == 0): ?>
                                     <button class="promote-btn" data-user-id="<?php echo $user['id']; ?>">ارتقا به مدیر</button>
@@ -128,6 +132,7 @@ try {
         </div>
     </div>
     <script src="js/login signup.js"></script>
+    <script src="js/activity_tracker.js"></script>
    <script>
        document.addEventListener('DOMContentLoaded', function() {
            const confirmationModal = document.getElementById('confirmationModal');
@@ -411,6 +416,95 @@ try {
                     row.style.display = 'none';
                 }
             });
+        });
+
+        // Activity tracking is active but status column shows verification status
+        console.log('Activity tracking loaded - online status tracked in background');
+
+        // Online/offline status updates every 30 seconds
+        let statusUpdateInterval;
+
+        function updateActivityStatuses() {
+            fetch('get_online_status.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.users) {
+                        // Update each user's activity status
+                        data.users.forEach(user => {
+                            const cell = document.querySelector(`.activity-status-cell[data-user-id="${user.id}"] .activity-status`);
+                            if (cell) {
+                                // Add timestamp info for better UX
+                                const timeAgo = calculateTimeAgo(user.last_activity);
+
+                                // First, calculate time difference ourselves to verify API result
+                                let isActuallyOnline = false;
+                                if (user.last_activity) {
+                                    const now = new Date();
+                                    const lastActivityTime = new Date(user.last_activity);
+                                    const diffMs = now - lastActivityTime;
+                                    const diffMinutes = diffMs / 60000;
+
+                                    // Overridden logic: online if activity within 3 minutes (not 180 seconds exactly)
+                                    isActuallyOnline = diffMinutes <= 3;
+                                }
+
+                                const displayText = isActuallyOnline ?
+                                    `🟢 آنلاین${timeAgo ? ' (' + timeAgo + ')' : ''}` :
+                                    `🔴 آفلاین${timeAgo ? ' (' + timeAgo + ')' : ''}`;
+
+                                cell.innerHTML = displayText;
+
+                                // Apply color class based on actual calculated status
+                                cell.className = 'activity-status';
+                                if (isActuallyOnline) {
+                                    cell.classList.add('status-online');
+                                } else {
+                                    cell.classList.add('status-offline');
+                                }
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating activity statuses:', error);
+                });
+        }
+
+        function calculateTimeAgo(lastActivity) {
+            if (!lastActivity) return '';
+
+            const now = new Date();
+            const lastActivityTime = new Date(lastActivity);
+            const diffMs = now - lastActivityTime;
+            const diffMinutes = Math.floor(diffMs / 60000); // minutes
+
+            if (diffMinutes < 1) return 'هم اکنون';
+            if (diffMinutes === 1) return '۱ دقیقه پیش';
+            if (diffMinutes < 60) return `${diffMinutes} دقیقه پیش`;
+
+            const diffHours = Math.floor(diffMinutes / 60);
+            if (diffHours === 1) return '۱ ساعت پیش';
+            if (diffHours < 24) return `${diffHours} ساعت پیش`;
+
+            const diffDays = Math.floor(diffHours / 24);
+            if (diffDays === 1) return '۱ روز پیش';
+            return `${diffDays} روز پیش`;
+        }
+
+        // Start status updates when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initial update
+            updateActivityStatuses();
+
+            // Set up periodic updates every 30 seconds
+            statusUpdateInterval = setInterval(updateActivityStatuses, 30000);
+        });
+
+        // Clear interval when page unloads
+        window.addEventListener('beforeunload', function() {
+            if (statusUpdateInterval) {
+                clearInterval(statusUpdateInterval);
+            }
         });
 
     </script>

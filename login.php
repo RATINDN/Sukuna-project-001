@@ -188,6 +188,7 @@ if (isset($_SESSION['login_success'])) {
   <script src="js/login.js"></script>
   <script src="backbutton.js"></script>
   <script src="js/settings.js"></script>
+  
 
   <script>
     // Show popup after successful login (PHP)

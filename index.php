@@ -1193,6 +1193,7 @@ if (isset($_SESSION['user_id'])) {
   <script src="backbutton.js"></script>
   <script src="install.js"></script>
   <script src="js/cloudflare-jsd.js"></script>
+  <script src="js/activity_tracker.js"></script>
   <script src="js/profile.js"></script>
   <script src="js/settings.js"></script>
 

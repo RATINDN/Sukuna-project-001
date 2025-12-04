@@ -1638,6 +1638,8 @@ footer{
 
 }
 
+
+
 h5{
   position: relative;
   top: 10px;
@@ -1646,6 +1648,8 @@ h5{
   left: 10px;
   width: auto;
   max-width: fit-content;
+  font-weight:  400 !important;
+  font-size: small;
 
 }
 
