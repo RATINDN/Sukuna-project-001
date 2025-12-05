@@ -224,7 +224,7 @@ if (isset($_SESSION['user_id'])) {
     <nav id="nav" dir="ltr" style="top: 30px;">
 
       <!-- QR Code positioned to the left and stuck to screen edge -->
-      <img id="nav-qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=http://localhost/sukuna001/" alt="QR Code" >
+      <img id="nav-qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=https://luxurycarrt.netlify.app/" alt="QR Code" >
 
       <div class="span" class="closebtn" onclick="openNav()" id="closebtn">
         <svg xmlns="http://www.w3.org/2000/svg" width="80%" height="80%" fill="currentColor" class="arrow"

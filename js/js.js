@@ -65,16 +65,27 @@ li1.addEventListener('click', toggleMenu);
 anotherButton.addEventListener('click', toggleMenu); // Add event listener to the new button
   
 
-    window.addEventListener('scroll', function() {
-      const scrollBar = document.querySelector('.scroll');
-      const scrollTop = document.documentElement.scrollTop;
-      const scrollHeight = document.documentElement.scrollHeight;
-      const clientHeight = document.documentElement.clientHeight;
-      const scrollPercentage = scrollTop / (scrollHeight - clientHeight);
-      
-      // Use transform for better performance
-      scrollBar.style.transform = `scaleX(${scrollPercentage})`;
-    });
+   
+
+    /* =========================================
+   نوار پیشرفت اسکرول (Scroll Progress Bar)
+   ========================================= */
+window.addEventListener('scroll', () => {
+  // ۱. مقدار اسکرول شده از بالا
+  const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+  
+  // ۲. کل ارتفاع قابل اسکرول صفحه (کل ارتفاع - ارتفاع پنجره مرورگر)
+  const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  
+  // ۳. محاسبه درصد (چند درصد پایین رفتیم؟)
+  const scrolled = (scrollTop / scrollHeight) * 100;
+  
+  // ۴. اعمال به عرض نوار
+  const progressBar =  document.getElementById("scroll");
+  if (progressBar) {
+      progressBar.style.width = scrolled + "%";
+  }
+});
     
 
 

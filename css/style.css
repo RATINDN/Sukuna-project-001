@@ -567,16 +567,16 @@ ul{
 }
 
 
-.scroll {
-  height: 5px;
-  width: 100%;
-  position: fixed;
-  top: 83px;
-  background-color: var(--primary-color);
-  z-index: 2;
-  transform-origin: left;
-  transform: scaleX(0); /* Start fully collapsed */
-  transition: transform 0.25s ease-in-out;
+#scroll {
+  position: absolute;
+    top: 53px;
+    left: 0; /* شروع از چپ در زبان فارسی */
+    width: 0%; /* عرض اولیه صفر */
+    height: 4px; /* ارتفاع نوار */
+    background: var(--primary-color); /* استفاده از متغیر درست */
+    z-index: 2; /* روی تمام عناصر هدر قرار بگیرد */
+    transition: width 0.1s ease-out; /* حرکت نرم */
+    box-shadow: 0 0 10px var(--primary-color); /* درخشش نوار */
 }
 
 
