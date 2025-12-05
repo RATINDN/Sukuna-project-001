@@ -2456,7 +2456,35 @@ transition: 0.3s ease-in-out;
 
 
 
+#nav-qr-code {
+  position: fixed;
+  left: 15px;
+  top: 94%;
+  transform: translateY(-50%);
+  z-index: 15;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+  background-color: var(--bg-color);
+  border: 2px solid white !important;
+}
 
+#nav-qr-code:hover {
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* Hide QR code on very small screens */
+@media (max-width: 576px) {
+  #nav-qr-code {
+    left: 15px;
+    width: 40px;
+    height: 40px;
+  }
+}
 
 
 

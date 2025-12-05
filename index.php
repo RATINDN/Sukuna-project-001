@@ -223,8 +223,8 @@ if (isset($_SESSION['user_id'])) {
 
     <nav id="nav" dir="ltr" style="top: 30px;">
 
-
-
+      <!-- QR Code positioned to the left and stuck to screen edge -->
+      <img id="nav-qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=http://localhost/sukuna001/" alt="QR Code" >
 
       <div class="span" class="closebtn" onclick="openNav()" id="closebtn">
         <svg xmlns="http://www.w3.org/2000/svg" width="80%" height="80%" fill="currentColor" class="arrow"
@@ -268,8 +268,11 @@ if (isset($_SESSION['user_id'])) {
         </div>
 
 
+
         <!-- </ul> -->
       </div>
+
+
 
 
       <div class="scroll" id="scroll">
@@ -279,6 +282,8 @@ if (isset($_SESSION['user_id'])) {
       <div id="overlay">
 
       </div>
+
+     
       <ul>
         <li style="cursor: pointer; " class="li1" id="li1">خودروها <svg xmlns="http://www.w3.org/2000/svg" width="16"
             height="16" fill="currentColor" class="bi-down" id="bi-down" viewBox="0 0 16 16">
@@ -519,8 +524,7 @@ if (isset($_SESSION['user_id'])) {
 
 
       </ul>
-
-
+     
       <div class="mode" id="mode"><svg onclick="darkmode()" xmlns="http://www.w3.org/2000/svg" width="35" height="35"
           id="sun" fill="currentColor" class="sun" style="display: none;" viewBox="0 0 16 16">
           <path
@@ -534,6 +538,7 @@ if (isset($_SESSION['user_id'])) {
         </svg>
       </div>
 
+      
 
 
 
@@ -1041,9 +1046,7 @@ if (isset($_SESSION['user_id'])) {
                 <a href="" class="a2">
                   <h5>مرجوعی و تعویض</h5>
                 </a>
-                <a href="" class="a2">
-                  <h5>موقعیت‌ها</h5>
-                </a>
+              
               </div>
             </div>
           </div>
