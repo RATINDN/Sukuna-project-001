@@ -224,7 +224,7 @@ if (isset($_SESSION['user_id'])) {
     <nav id="nav" dir="ltr" style="top: 30px;">
 
       <!-- QR Code positioned to the left and stuck to screen edge -->
-      <img id="nav-qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=https://luxurycarrt.netlify.app/" alt="QR Code" >
+      <img id="nav-qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=https://ratindn.ir/" alt="QR Code" >
 
       <div class="span" class="closebtn" onclick="openNav()" id="closebtn">
         <svg xmlns="http://www.w3.org/2000/svg" width="80%" height="80%" fill="currentColor" class="arrow"
@@ -275,7 +275,7 @@ if (isset($_SESSION['user_id'])) {
 
 
 
-      <div class="scroll" id="scroll">
+      <div  id="scroll-progress">
 
       </div>
 
@@ -332,150 +332,110 @@ if (isset($_SESSION['user_id'])) {
             </div>
 
             <div class="parent">
-              <!-- خودرو ۱ -->
+  <!-- خودرو ۱ (تخفیف دار) -->
+  <div class="box" 
+       data-title="آئودی A6 e-tron 2024" 
+       data-price="1,670,000,000" 
+       data-old-price="1,950,000,000" 
+       data-image="images/car-1.webp">
+    <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/car-1.webp);">
+      <div class="child"><h1 style="font-weight: 400;">+</h1></div>
+    </div>
+    <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
+      <div class="box-3"><h4 style="font-weight: 400;">آئودی A6 e-tron 2024</h4></div>
+      <div class="box3" style="height: 50%; padding-right: 10px;">
+        <h6 style="font-weight: 400;" id="h6">قیمت: <del style="color:red; font-size:12px;">1,950,000,000</del> 1,670,000,000 تومان</h6>
+        <h6 style="font-weight: 400;" id="h6">موجودی: ۱۰,۰۰۰ دستگاه</h6>
+      </div>
+    </div>
+  </div>
 
-              <div class="box" data-title="آئودی A6 e-tron 2024">
-                <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/car-1.webp);">
-                  <a href="" style="width: 100%;">
-                    <div class="child">
+  <!-- خودرو ۲ -->
+  <div class="box" data-title="لامبورگینی آونتادور ۲۰۱۱" data-price="21,200,000,000" data-image="images/1.webp">
+    <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/1.webp);">
+      <div class="child"><h1 style="font-weight: 400;">+</h1></div>
+    </div>
+    <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
+      <div class="box-3"><h4 style="font-weight: 400;">لامبورگینی آونتادور ۲۰۱۱</h4></div>
+      <div class="box3" style="height: 50%;">
+        <h6 style="font-weight: 400;" id="h6">قیمت: 21,200,000,000 تومان</h6>
+        <h6 style="font-weight: 400;" id="h6">موجودی: ۲,۹۵۶ دستگاه</h6>
+      </div>
+    </div>
+  </div>
 
-                      <h1 style="font-weight: 400;">+</h1>
-                    </div>
-                  </a>
-                </div>
-                <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
-                  <div class="box-3">
-                    <h4 style="font-weight: 400;">آئودی A6 e-tron 2024</h4>
-                  </div>
-                  <div class="box3" style="height: 50%; padding-right: 100px;">
-                    <h6 style="font-weight: 400;
-                      " id="h6">قیمت شروع: <del>۳۹,۰۲۹ دلار</del> ۳۳,۴۵۱ دلار</h6>
-                    <h6 style="font-weight: 400; " id="h6">موجودی: ۱۰,۰۰۰ دستگاه</h6>
-                  </div>
-                </div>
-              </div>
+  <!-- خودرو ۳ -->
+  <div class="box" data-title="رولزرویس فانتوم ۲۰۱۷" data-price="75,000,000,000" data-image="images/2.webp">
+    <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/2.webp);">
+      <div class="child"><h1 style="font-weight: 400;">+</h1></div>
+    </div>
+    <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
+      <div class="box-3"><h4 style="font-weight: 400;">رولزرویس فانتوم ۲۰۱۷</h4></div>
+      <div class="box3" style="height: 50%;">
+        <h6 style="font-weight: 400;" id="h6">قیمت: 75,000,000,000 تومان</h6>
+        <h6 style="font-weight: 400;" id="h6">موجودی: ۱۶۳ دستگاه</h6>
+      </div>
+    </div>
+  </div>
 
-              <!-- خودرو ۲ -->
-              <div class="box" data-title="لامبورگینی آونتادور ۲۰۱۱">
-                <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/1.webp);">
-                  <a href="" style="width: 100%;">
-                    <div class="child">
-                      <h1 style="font-weight: 400;">+</h1>
-                    </div>
-                  </a>
-                </div>
-                <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
-                  <div class="box-3">
-                    <h4 style="font-weight: 400;">لامبورگینی آونتادور ۲۰۱۱</h4>
-                  </div>
-                  <div class="box3" style="height: 50%;">
-                    <h6 style="font-weight: 400;" id="h6">قیمت شروع: ۴۲۴,۰۰۰ دلار</h6>
-                    <h6 style="font-weight: 400;" id="h6">موجودی: ۲,۹۵۶ دستگاه</h6>
-                  </div>
-                </div>
-              </div>
+  <!-- بقیه خودروهای دسکتاپ را هم به همین صورت با data-price آپدیت کن -->
+  <!-- خودرو ۴ -->
+  <div class="box" data-title="فراری لافراری ۲۰۱۳" data-price="115,000,000,000" data-image="images/3.webp">
+    <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/3.webp);">
+        <div class="child"><h1 style="font-weight: 400;">+</h1></div>
+    </div>
+    <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="box-3"><h4 style="font-weight: 400;">فراری لافراری ۲۰۱۳</h4></div>
+        <div class="box3" style="height: 50%;">
+            <h6 style="font-weight: 400;" id="h6">قیمت: 115,000,000,000 تومان</h6>
+            <h6 style="font-weight: 400;" id="h6">موجودی: ۵۰ دستگاه</h6>
+        </div>
+    </div>
+  </div>
+  
+  <!-- خودرو ۵ -->
+  <div class="box" data-title="رنج روور ۲۰۲۳" data-price="4,800,000,000" data-image="images/4.webp">
+    <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/4.webp);">
+        <div class="child"><h1 style="font-weight: 400;">+</h1></div>
+    </div>
+    <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="box-3"><h4 style="font-weight: 400;">رنج روور ۲۰۲۳</h4></div>
+        <div class="box3" style="height: 50%;">
+            <h6 style="font-weight: 400;" id="h6">قیمت: 4,800,000,000 تومان</h6>
+            <h6 style="font-weight: 400;" id="h6">موجودی: ۵,۶۹۲ دستگاه</h6>
+        </div>
+    </div>
+  </div>
 
-              <!-- خودرو ۳ -->
-              <div class="box" data-title="رولزرویس فانتوم ۲۰۱۷">
-                <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/2.webp);">
-                  <a href="" style="width: 100%;">
-                    <div class="child">
-                      <h1 style="font-weight: 400;">+</h1>
-                    </div>
-                  </a>
-                </div>
-                <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
-                  <div class="box-3">
-                    <h4 style="font-weight: 400;">رولزرویس فانتوم ۲۰۱۷</h4>
-                  </div>
-                  <div class="box3" style="height: 50%;">
-                    <h6 style="font-weight: 400;" id="h6">قیمت شروع: ۱,۵۰۰,۰۰۰ دلار</h6>
-                    <h6 style="font-weight: 400;" id="h6">موجودی: ۱۶۳ دستگاه</h6>
-                  </div>
-                </div>
-              </div>
+  <!-- خودرو ۶ -->
+  <div class="box" data-title="مرسدس بنز S-Class 2021" data-price="60,000,000,000" data-image="images/5.webp">
+    <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/5.webp);">
+        <div class="child"><h1 style="font-weight: 400;">+</h1></div>
+    </div>
+    <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="box-3"><h4 style="font-weight: 400;">مرسدس بنز S-Class 2021</h4></div>
+        <div class="box3" style="height: 50%;">
+            <h6 style="font-weight: 400;" id="h6">قیمت: 60,000,000,000 تومان</h6>
+            <h6 style="font-weight: 400;" id="h6">موجودی: ۹۶۸ دستگاه</h6>
+        </div>
+    </div>
+  </div>
 
-              <!-- خودرو ۴ -->
-              <div class="box" data-title="فراری لافراری ۲۰۱۳">
-                <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/3.webp);">
-                  <a href="" style="width: 100%;">
-                    <div class="child">
-                      <h1 style="font-weight: 400;">+</h1>
-                    </div>
-                  </a>
-                </div>
-                <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
-                  <div class="box-3">
-                    <h4 style="font-weight: 400;">فراری لافراری ۲۰۱۳</h4>
-                  </div>
-                  <div class="box3" style="height: 50%;">
-                    <h6 style="font-weight: 400;" id="h6">قیمت شروع: ۲,۳۰۰,۰۲۰ دلار</h6>
-                    <h6 style="font-weight: 400;" id="h6">موجودی: ۵۰ دستگاه</h6>
-                  </div>
-                </div>
-              </div>
+  <!-- خودرو ۷ -->
+  <div class="box" data-title="فراری F8 تریبوتو ۲۰۱۴" data-price="65,000,000,000" data-image="images/6.webp">
+    <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/6.webp);">
+        <div class="child"><h1 style="font-weight: 400;">+</h1></div>
+    </div>
+    <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="box-3"><h4 style="font-weight: 400;">فراری F8 تریبوتو ۲۰۱۴</h4></div>
+        <div class="box3" style="height: 50%;">
+            <h6 style="font-weight: 400;" id="h6">قیمت: 65,000,000,000 تومان</h6>
+            <h6 style="font-weight: 400;" id="h6">موجودی: ۹۶۸ دستگاه</h6>
+        </div>
+    </div>
+  </div>
+</div>
 
-              <!-- خودرو ۵ -->
-              <div class="box" data-title="رنج روور ۲۰۲۳">
-                <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/4.webp);">
-                  <a href="" style="width: 100%;">
-                    <div class="child">
-                      <h1 style="font-weight: 400;">+</h1>
-                    </div>
-                  </a>
-                </div>
-                <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
-                  <div class="box-3">
-                    <h4 style="font-weight: 400;">رنج روور ۲۰۲۳</h4>
-                  </div>
-                  <div class="box3" style="height: 50%;">
-                    <h6 style="font-weight: 400;" id="h6">قیمت شروع: ۹۵,۶۷۸ دلار</h6>
-                    <h6 style="font-weight: 400;" id="h6">موجودی: ۵,۶۹۲ دستگاه</h6>
-                  </div>
-                </div>
-              </div>
-
-              <!-- خودرو ۶ -->
-              <div class="box" data-title="مرسدس بنز S-Class 2021">
-                <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/5.webp);">
-                  <a href="" style="width: 100%;">
-                    <div class="child">
-                      <h1 style="font-weight: 400;">+</h1>
-                    </div>
-                  </a>
-                </div>
-                <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
-                  <div class="box-3">
-                    <h4 style="font-weight: 400;">مرسدس بنز S-Class 2021</h4>
-                  </div>
-                  <div class="box3" style="height: 50%;">
-                    <h6 style="font-weight: 400;" id="h6">قیمت شروع: ۱,۲۰۰,۰۰۰ دلار</h6>
-                    <h6 style="font-weight: 400;" id="h6">موجودی: ۹۶۸ دستگاه</h6>
-                  </div>
-                </div>
-              </div>
-
-              <div class="box" data-title="۲۰۱۳ فراری f8 تروبیتو">
-
-                <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/6.webp);">
-                  <a href="" style="width: 100%;">
-                    <div class="child">
-                      <h1 style=" font-weight: 400;">+</h1>
-                    </div>
-                  </a>
-                </div>
-                <div class="box2" style="display: flex; flex-direction: column;  justify-content: space-between;">
-                  <div class="box-3">
-                    <h4 style="font-weight: 400;">۲۰۱۳ فراری f8 تروبیتو</h4>
-                  </div>
-                  <div class="box3" style="height: 50%;">
-                    <h6 style="font-weight: 400;" id="h6">قیمت شروع: ۱,۲۰۰,۰۰۰ دلار</h6>
-                    <h6 style="font-weight: 400;" id="h6">موجودی: ۹۶۸ دستگاه</h6>
-                  </div>
-                </div>
-
-              </div>
-            </div>
           </div>
 
 
@@ -637,148 +597,106 @@ if (isset($_SESSION['user_id'])) {
           </svg>
         </div>
       </div>
+      <!-- بخش موبایل -->
       <div class="parent-mobile" id="parent-mobile">
-        <!-- خودرو ۱ -->
-        <div class="box-mobile" id="boxing1" data-title="آئودی A6 e-tron 2024">
-          <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/car-1.webp);">
-            <a href="" style="width: 100%;">
-              <div class="child-mobile">
-                <h1 style="font-weight: 400;">+</h1>
-              </div>
-            </a>
-          </div>
-          <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="box-3-mobile">
-              <h4 style="font-weight: 400; font-size: normal;" class="h4">آئودی A6 e-tron 2024</h4>
-            </div>
-            <div class="box3-mobile" style="height: 50%;">
-              <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت شروع: <del>۳۹,۰۲۹ دلار</del> ۳۳,۴۵۱ دلار</h6>
-              <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۱۰,۰۰۰ دستگاه</h6>
-            </div>
-          </div>
+    <!-- خودرو ۱ (آئودی - تخفیف دار) -->
+    <div class="box-mobile" id="boxing1" data-title="آئودی A6 e-tron 2024" data-price="1,670,000,000" data-old-price="1,950,000,000" data-image="images/car-1.webp">
+        <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/car-1.webp);">
+            <div class="child-mobile"><h1 style="font-weight: 400;">+</h1></div>
         </div>
-
-
-        <!-- خودرو ۲ -->
-        <div class="box-mobile" id="boxing2" data-title="لامبورگینی آونتادور ۲۰۱۱">
-          <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/1.webp);">
-            <a href="" style="width: 100%;">
-              <div class="child-mobile">
-                <h1 style="font-weight: 400;">+</h1>
-              </div>
-            </a>
-          </div>
-          <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="box-3-mobile">
-              <h4 style="font-weight: 400; font-size: normal;" class="h4">لامبورگینی آونتادور ۲۰۱۱</h4>
-            </div>
+        <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="box-3-mobile"><h4 class="h4">آئودی A6 e-tron 2024</h4></div>
             <div class="box3-mobile" style="height: 50%;">
-              <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت شروع: ۴۲۴,۰۰۰ دلار</h6>
-              <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۲,۹۵۶ دستگاه</h6>
+                <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت: <del style="color:red">1,950,000,000</del> 1,670,000,000 تومان</h6>
+                <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۱۰,۰۰۰ دستگاه</h6>
             </div>
-          </div>
         </div>
-
-        <!-- خودرو ۳ -->
-        <div class="box-mobile" id="boxing3" data-title="رولزرویس فانتوم ۲۰۱۷">
-          <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/2.webp);">
-            <a href="" style="width: 100%;">
-              <div class="child-mobile">
-                <h1 style="font-weight: 400;">+</h1>
-              </div>
-            </a>
-          </div>
-          <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="box-3-mobile">
-              <h4 style="font-weight: 400; font-size: normal;" class="h4">رولزرویس فانتوم ۲۰۱۷</h4>
-            </div>
+    </div>
+    
+    <!-- خودرو ۲ (لامبورگینی) -->
+    <div class="box-mobile" id="boxing2" data-title="لامبورگینی آونتادور ۲۰۱۱" data-price="21,200,000,000" data-image="images/1.webp">
+        <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/1.webp);">
+            <div class="child-mobile"><h1 style="font-weight: 400;">+</h1></div>
+        </div>
+        <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="box-3-mobile"><h4 class="h4">لامبورگینی آونتادور ۲۰۱۱</h4></div>
             <div class="box3-mobile" style="height: 50%;">
-              <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت شروع: ۱,۵۰۰,۰۰۰ دلار</h6>
-              <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۱۶۳ دستگاه</h6>
+                <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت: 21,200,000,000 تومان</h6>
+                <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۲,۹۵۶ دستگاه</h6>
             </div>
-          </div>
         </div>
-
-        <!-- خودرو ۴ -->
-        <div class="box-mobile" id="boxing4" data-title="فراری لافراری ۲۰۱۳">
-          <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/3.webp);">
-            <a href="" style="width: 100%;">
-              <div class="child-mobile">
-                <h1 style="font-weight: 400;">+</h1>
-              </div>
-            </a>
-          </div>
-          <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="box-3-mobile">
-              <h4 style="font-weight: 400; font-size: normal;" class="h4">فراری لافراری ۲۰۱۳</h4>
-            </div>
+    </div>
+    
+    <!-- خودرو ۳ (رولزرویس) -->
+    <div class="box-mobile" id="boxing3" data-title="رولزرویس فانتوم ۲۰۱۷" data-price="75,000,000,000" data-image="images/2.webp">
+        <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/2.webp);">
+            <div class="child-mobile"><h1 style="font-weight: 400;">+</h1></div>
+        </div>
+        <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="box-3-mobile"><h4 class="h4">رولزرویس فانتوم ۲۰۱۷</h4></div>
             <div class="box3-mobile" style="height: 50%;">
-              <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت شروع: ۲,۳۰۰,۰۲۰ دلار</h6>
-              <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۵۰ دستگاه</h6>
+                <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت: 75,000,000,000 تومان</h6>
+                <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۱۶۳ دستگاه</h6>
             </div>
-          </div>
         </div>
+    </div>
 
-        <!-- خودرو ۵ -->
-        <div class="box-mobile" id="boxing5" data-title="رنج روور ۲۰۲۳">
-          <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/4.webp);">
-            <a href="" style="width: 100%;">
-              <div class="child-mobile">
-                <h1 style="font-weight: 400;">+</h1>
-              </div>
-            </a>
-          </div>
-          <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="box-3-mobile">
-              <h4 style="font-weight: 400; font-size: normal;" class="h4">رنج روور ۲۰۲۳</h4>
-            </div>
-            <div class="box3-mobile" style="height: 50%;">
-              <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت شروع: ۹۵,۶۷۸ دلار</h6>
-              <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۵,۶۹۲ دستگاه</h6>
-            </div>
-          </div>
+    <!-- خودرو ۴ (فراری لافراری) -->
+    <div class="box-mobile" id="boxing4" data-title="فراری لافراری ۲۰۱۳" data-price="115,000,000,000" data-image="images/3.webp">
+        <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/3.webp);">
+            <div class="child-mobile"><h1 style="font-weight: 400;">+</h1></div>
         </div>
+        <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="box-3-mobile"><h4 class="h4">فراری لافراری ۲۰۱۳</h4></div>
+            <div class="box3-mobile" style="height: 50%;">
+                <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت: 115,000,000,000 تومان</h6>
+                <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۵۰ دستگاه</h6>
+            </div>
+        </div>
+    </div>
 
-        <!-- خودرو ۶ -->
-        <div class="box-mobile" id="boxing6" data-title="مرسدس بنز S-Class 2021">
-          <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/5.webp);">
-            <a href="" style="width: 100%;">
-              <div class="child-mobile">
-                <h1 style="font-weight: 400;">+</h1>
-              </div>
-            </a>
-          </div>
-          <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="box-3-mobile">
-              <h4 style="font-weight: 400; font-size: normal;" class="h4">مرسدس بنز S-Class 2021</h4>
-            </div>
-            <div class="box3-mobile" style="height: 50%;">
-              <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت شروع: ۱,۲۰۰,۰۰۰ دلار</h6>
-              <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۹۶۸ دستگاه</h6>
-            </div>
-          </div>
+    <!-- خودرو ۵ (رنج روور) -->
+    <div class="box-mobile" id="boxing5" data-title="رنج روور ۲۰۲۳" data-price="4,800,000,000" data-image="images/4.webp">
+        <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/4.webp);">
+            <div class="child-mobile"><h1 style="font-weight: 400;">+</h1></div>
         </div>
+        <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="box-3-mobile"><h4 class="h4">رنج روور ۲۰۲۳</h4></div>
+            <div class="box3-mobile" style="height: 50%;">
+                <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت: 4,800,000,000 تومان</h6>
+                <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۵,۶۹۲ دستگاه</h6>
+            </div>
+        </div>
+    </div>
 
-        <!-- خودرو ۷ -->
-        <div class="box-mobile" id="boxing7" data-title="فراری F8 تریبوتو ۲۰۱۴">
-          <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/6.webp);">
-            <a href="" style="width: 100%;">
-              <div class="child-mobile">
-                <h1 style="font-weight: 400;">+</h1>
-              </div>
-            </a>
-          </div>
-          <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="box-3-mobile">
-              <h4 style="font-weight: 400; font-size: normal;" class="h4">فراری F8 تریبوتو ۲۰۱۴</h4>
-            </div>
-            <div class="box3-mobile" style="height: 50%;">
-              <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت شروع: ۳,۲۵۱,۰۰۰ دلار</h6>
-              <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۹۶ دستگاه</h6>
-            </div>
-          </div>
+    <!-- خودرو ۶ (مرسدس) -->
+    <div class="box-mobile" id="boxing6" data-title="مرسدس بنز S-Class 2021" data-price="60,000,000,000" data-image="images/5.webp">
+        <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/5.webp);">
+            <div class="child-mobile"><h1 style="font-weight: 400;">+</h1></div>
         </div>
-      </div>
+        <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="box-3-mobile"><h4 class="h4">مرسدس بنز S-Class 2021</h4></div>
+            <div class="box3-mobile" style="height: 50%;">
+                <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت: 60,000,000,000 تومان</h6>
+                <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۹۶۸ دستگاه</h6>
+            </div>
+        </div>
+    </div>
+
+    <!-- خودرو ۷ (فراری F8) -->
+    <div class="box-mobile" id="boxing7" data-title="فراری F8 تریبوتو ۲۰۱۴" data-price="65,000,000,000" data-image="images/6.webp">
+        <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/6.webp);">
+            <div class="child-mobile"><h1 style="font-weight: 400;">+</h1></div>
+        </div>
+        <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="box-3-mobile"><h4 class="h4">فراری F8 تریبوتو ۲۰۱۴</h4></div>
+            <div class="box3-mobile" style="height: 50%;">
+                <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت: 65,000,000,000 تومان</h6>
+                <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۹۶ دستگاه</h6>
+            </div>
+        </div>
+    </div>
+</div>
     </div>
 
 
@@ -824,114 +742,64 @@ if (isset($_SESSION['user_id'])) {
 
 
 
-      <div class="swiper mySwiper">
-        <div class="swiper-wrapper">
-          <!-- اسلاید ۱ -->
-          <div class="swiper-slide" style="background-image: url(images/1.webp);">
-            <div class="ord">
-              <h3>لامبورگینی آونتادور ۲۰۱۱</h3>
-            </div>
-            <div class="ord">
-              <button class="order">سفارش</button>
-              <div class="card">
-                <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-cart4"
-                  viewBox="0 0 16 16">
-                  <path
-                    d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5M3.14 5l.5 2H5V5zM6 5v2h2V5zm3 0v2h2V5zm3 0v2h1.36l.5-2zm1.11 3H12v2h.61zM11 8H9v2h2zM8 8H6v2h2zM5 8H3.89l.5 2H5zm0 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0m9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0" />
-                </svg>
-              </div>
-            </div>
-          </div>
+    <!-- بخش اسلایدر -->
+<div class="swiper mySwiper">
+  <div class="swiper-wrapper">
+    <div class="swiper-slide" style="background-image: url(images/1.webp);" 
+         data-title="لامبورگینی آونتادور ۲۰۱۱" 
+         data-price="21,200,000,000" 
+         data-image="images/1.webp">
+      <div class="ord"><h3>لامبورگینی آونتادور ۲۰۱۱</h3></div>
+      <div class="ord"><button class="order">سفارش</button></div>
+    </div>
 
-          <!-- اسلاید ۲ -->
-          <div class="swiper-slide" style="background-image: url(images/2.webp);">
-            <div class="ord">
-              <h3>رولزرویس فانتوم ۲۰۱۷</h3>
-            </div>
-            <div class="ord">
-              <button class="order">سفارش</button>
-              <div class="card">
-                <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-cart4"
-                  viewBox="0 0 16 16">
-                  <path
-                    d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5M3.14 5l.5 2H5V5zM6 5v2h2V5zm3 0v2h2V5zm3 0v2h1.36l.5-2zm1.11 3H12v2h.61zM11 8H9v2h2zM8 8H6v2h2zM5 8H3.89l.5 2H5zm0 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0m9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0" />
-                </svg>
-              </div>
-            </div>
-          </div>
+    <div class="swiper-slide" style="background-image: url(images/2.webp);" 
+         data-title="رولزرویس فانتوم ۲۰۱۷" 
+         data-price="75,000,000,000" 
+         data-image="images/2.webp">
+      <div class="ord"><h3>رولزرویس فانتوم ۲۰۱۷</h3></div>
+      <div class="ord"><button class="order">سفارش</button></div>
+    </div>
 
-          <!-- اسلاید ۳ -->
-          <div class="swiper-slide" style="background-image: url(images/3.webp);">
-            <div class="ord">
-              <h3>فراری لافراری ۲۰۱۳</h3>
-            </div>
-            <div class="ord">
-              <button class="order">سفارش</button>
-              <div class="card">
-                <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-cart4"
-                  viewBox="0 0 16 16">
-                  <path
-                    d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5M3.14 5l.5 2H5V5zM6 5v2h2V5zm3 0v2h2V5zm3 0v2h1.36l.5-2zm1.11 3H12v2h.61zM11 8H9v2h2zM8 8H6v2h2zM5 8H3.89l.5 2H5zm0 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0m9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0" />
-                </svg>
-              </div>
-            </div>
-          </div>
+    <div class="swiper-slide" style="background-image: url(images/3.webp);" 
+         data-title="فراری لافراری ۲۰۱۳" 
+         data-price="115,000,000,000" 
+         data-image="images/3.webp">
+      <div class="ord"><h3>فراری لافراری ۲۰۱۳</h3></div>
+      <div class="ord"><button class="order">سفارش</button></div>
+    </div>
 
-          <!-- اسلاید ۴ -->
-          <div class="swiper-slide" style="background-image: url(images/4.webp);">
-            <div class="ord">
-              <h3>رنج روور ۲۰۲۳</h3>
-            </div>
-            <div class="ord">
-              <button class="order">سفارش</button>
-              <div class="card">
-                <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-cart4"
-                  viewBox="0 0 16 16">
-                  <path
-                    d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5M3.14 5l.5 2H5V5zM6 5v2h2V5zm3 0v2h2V5zm3 0v2h1.36l.5-2zm1.11 3H12v2h.61zM11 8H9v2h2zM8 8H6v2h2zM5 8H3.89l.5 2H5zm0 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0m9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0" />
-                </svg>
-              </div>
-            </div>
-          </div>
+    <div class="swiper-slide" style="background-image: url(images/4.webp);" 
+         data-title="رنج روور ۲۰۲۳" 
+         data-price="4,800,000,000" 
+         data-image="images/4.webp">
+      <div class="ord"><h3>رنج روور ۲۰۲۳</h3></div>
+      <div class="ord"><button class="order">سفارش</button></div>
+    </div>
 
-          <!-- اسلاید ۵ -->
-          <div class="swiper-slide" style="background-image: url(images/car-1.webp);">
-            <div class="ord">
-              <h3>آئودی A6 e-tron 2024</h3>
-            </div>
-            <div class="ord">
-              <button class="order">سفارش</button>
-              <del
-                style="color: red; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;">۲۰٪
-                تخفیف</del>
-              <div class="card">
-                <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-cart4"
-                  viewBox="0 0 16 16">
-                  <path
-                    d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5M3.14 5l.5 2H5V5zM6 5v2h2V5zm3 0v2h2V5zm3 0v2h1.36l.5-2zm1.11 3H12v2h.61zM11 8H9v2h2zM8 8H6v2h2zM5 8H3.89l.5 2H5zm0 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0m9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <!-- اسلاید ۶ -->
-          <div class="swiper-slide" style="background-image: url(images/6.webp);">
-            <div class="ord">
-              <h3>فراری F8 تریبوتو ۲۰۱۴</h3>
-            </div>
-            <div class="ord">
-              <button class="order">سفارش</button>
-              <div class="card">
-                <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-cart4"
-                  viewBox="0 0 16 16">
-                  <path
-                    d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5M3.14 5l.5 2H5V5zM6 5v2h2V5zm3 0v2h2V5zm3 0v2h1.36l.5-2zm1.11 3H12v2h.61zM11 8H9v2h2zM8 8H6v2h2zM5 8H3.89l.5 2H5zm0 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0m9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
+    <!-- اسلاید تخفیف دار -->
+    <div class="swiper-slide" style="background-image: url(images/car-1.webp);" 
+         data-title="آئودی A6 e-tron 2024" 
+         data-price="1,670,000,000" 
+         data-old-price="1,950,000,000"
+         data-image="images/car-1.webp">
+      <div class="ord"><h3>آئودی A6 e-tron 2024</h3></div>
+      <div class="ord">
+        <button class="order">سفارش</button>
+        <del style="color: red; background:rgba(0,0,0,0.5); padding:2px;">۲۰٪ تخفیف</del>
       </div>
+    </div>
+
+    <div class="swiper-slide" style="background-image: url(images/6.webp);" 
+         data-title="فراری F8 تریبوتو ۲۰۱۴" 
+         data-price="65,000,000,000" 
+         data-image="images/6.webp">
+      <div class="ord"><h3>فراری F8 تریبوتو ۲۰۱۴</h3></div>
+      <div class="ord"><button class="order">سفارش</button></div>
+    </div>
+  </div>
+</div>
+
 
 
 
@@ -1263,6 +1131,111 @@ if (isset($_SESSION['user_id'])) {
   </script>
 
   <!-- <script src="js/login signup.js"></script> -->
+
+
+<!-- Contract Modal Wrapper (نسخه کامل و نهایی) -->
+<div id="buyModal" class="contract-modal">
+  <div class="contract-content">
+    <span class="close-contract" onclick="closeBuyModal()">&times;</span>
+
+    <!-- STEP 1: Showroom & Selection -->
+    <div id="step1" class="modal-step">
+      <div class="step-header">
+        <h2>انتخاب و شخصی‌سازی</h2>
+        <div class="steps-indicator">۱ از ۲</div>
+      </div>
+      
+      <div class="car-showcase">
+        <img id="modalCarImage" src="" alt="تصویر خودرو" class="modal-car-img">
+        
+        <div class="info-row">
+            <h3 id="modalCarName">نام خودرو</h3>
+            <h4 id="modalCarPrice" class="price-tag">قیمت</h4>
+        </div>
+
+        <div class="tech-specs">
+            <div class="spec-item"><span class="spec-icon">🐎</span><span id="specHP" class="spec-val">---</span><span class="spec-label">قدرت</span></div>
+            <div class="spec-item"><span class="spec-icon">⏱️</span><span id="specAccel" class="spec-val">---</span><span class="spec-label">شتاب</span></div>
+            <div class="spec-item"><span class="spec-icon">⛽</span><span id="specEngine" class="spec-val">---</span><span class="spec-label">موتور</span></div>
+        </div>
+      </div>
+
+      <div class="color-selection-area">
+        <p>رنگ بدنه را انتخاب کنید:</p>
+        <div class="colors-container">
+          <div class="color-dot selected" data-color="مشکی" style="background-color: #111;"></div>
+          <div class="color-dot" data-color="سفید" style="background-color: #f5f5f5; border: 1px solid #ccc;"></div>
+          <div class="color-dot" data-color="قرمز" style="background-color: #D32F2F;"></div>
+          <div class="color-dot" data-color="آبی" style="background-color: #1976D2;"></div>
+          <div class="color-dot" data-color="نقره‌ای" style="background-color: #90A4AE;"></div>
+        </div>
+        <p id="selectedColorLabel" class="color-label">رنگ انتخاب شده: مشکی</p>
+      </div>
+
+      <button class="btn-primary-modal" onclick="goToStep2()">تایید و تنظیم قرارداد &leftarrow;</button>
+    </div>
+
+    <!-- STEP 2: Legal Contract -->
+    <div id="step2" class="modal-step" style="display: none;">
+      <div class="step-header">
+        <h2>تنظیم قرارداد رسمی</h2>
+        <button class="btn-text-back" onclick="goToStep1()">&rightarrow; بازگشت</button>
+      </div>
+
+      <form id="contractForm">
+        <div class="input-row">
+            <div class="input-group-modal">
+                <label>نام و نام خانوادگی (طبق کارت ملی)*</label>
+                <input type="text" id="inputRealName" placeholder="فارسی تایپ کنید" required>
+            </div>
+            <div class="input-group-modal">
+                <label>کد ملی (۱۰ رقم)*</label>
+                <input type="tel" id="inputNID" maxlength="10" placeholder="0012345678" required>
+            </div>
+        </div>
+
+        <div class="input-group-modal">
+            <label>آدرس دقیق پستی*</label>
+            <textarea id="inputAddress" rows="2" placeholder="استان، شهر، خیابان، پلاک..." required></textarea>
+        </div>
+        
+        <div class="input-row">
+             <div class="input-group-modal">
+                <label>کد پستی (۱۰ رقم)*</label>
+                <input type="tel" id="inputPostal" maxlength="10" required>
+            </div>
+            <div class="input-group-modal">
+                <label>شماره تماس</label>
+                <input type="text" id="readOnlyPhone" readonly style="opacity: 0.7; cursor: not-allowed; direction: ltr;">
+            </div>
+        </div>
+
+        <!-- متن پیش‌نمایش قرارداد (اینجا اضافه شد) -->
+        <div class="contract-preview-box" style="background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px; margin: 15px 0; border: 1px solid var(--border-color);">
+            <p style="font-size: 0.9rem; line-height: 1.8; text-align: justify; margin: 0;">
+                اینجانب <strong id="previewName" style="color: var(--primary-color);">...</strong> 
+                متعهد به خرید خودروی <strong id="previewCar">...</strong> 
+                به رنگ <strong id="previewColor">...</strong> 
+                به قیمت <strong id="previewPrice" style="color: #4CAF50;">...</strong> می‌باشم.
+                <br>
+                با امضای زیر، صحت اطلاعات وارد شده را تایید می‌کنم.
+            </p>
+        </div>
+
+        <!-- بخش امضای لمسی -->
+        <div class="signature-area">
+            <label>امضای دیجیتال (لطفا در کادر زیر امضا کنید):</label>
+            <div class="canvas-container">
+                <canvas id="signaturePad" width="400" height="150"></canvas>
+            </div>
+            <button type="button" id="clearSignBtn" class="clear-sign">پاک کردن امضا</button>
+        </div>
+
+        <button type="submit" class="btn-success-modal">✅ ثبت نهایی و صدور قرارداد</button>
+      </form>
+    </div>
+  </div>
+</div>
 
 </body>
 

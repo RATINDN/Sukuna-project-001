@@ -3,14 +3,13 @@ const OFFLINE_URL = '/offline.html';
 
 // Resources to cache immediately on install
 const CORE_ASSETS = [
-  './', 
+  './',
   '/index.php',
   '/manifest.json',
   '/offline.html',
   '/css/style.css',
   '/css/loginstyle.css',
   '/css/signup.css',
-  '/css/auth.css',
   '/css/verify.css',
   '/css/profile.css',
   '/css/admin.css',
@@ -29,7 +28,6 @@ const SECONDARY_ASSETS = [
   '/js/login.js',
   '/js/signup.js',
   '/js/login signup.js',
-  '/js/auth.js',
   '/js/verify.js',
   '/js/profile.js',
   '/install.js',
@@ -45,11 +43,9 @@ const SECONDARY_ASSETS = [
   '/images/x-lg.svg',
   '/images/ki.jpg',
   '/login.php',
-  '/auth.php',
   '/signup.php',
   '/verify.php',
   '/admin.php',
-  
   '/check_duplicate.php'
 ];
 
@@ -57,13 +53,13 @@ const SECONDARY_ASSETS = [
 const CDN_RESOURCES = [
   'https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css',
   'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css',
-  'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js'
+  'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js',
+  'https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=https://ratindn.ir/'
 ];
 
 // Add all HTML pages to ensure they're cached
 const HTML_PAGES = [
   '/',
-  '/index.php',
   '/offline.html'
 ];
 
@@ -81,7 +77,7 @@ self.addEventListener('install', (event) => {
             console.log('Attempting to cache CDN resources...');
             // We'll try to cache CDN resources but won't fail installation if they fail
             return Promise.allSettled(
-              CDN_RESOURCES.map(url => 
+              CDN_RESOURCES.map(url =>
                 fetch(url, { mode: 'no-cors' })
                   .then(response => {
                     if (response) {
@@ -144,17 +140,17 @@ function isNetlifyRedirect(url) {
 async function tryAlternativeNetlifyUrls(request) {
   const url = new URL(request.url);
   const alternativeUrls = [];
-  
+
   // Try with .html extension
   if (!url.pathname.endsWith('/') && !url.pathname.includes('.')) {
     alternativeUrls.push(new Request(`${url.origin}${url.pathname}.html${url.search}`));
   }
-  
+
   // Try with /index.html
   if (!url.pathname.endsWith('/')) {
     alternativeUrls.push(new Request(`${url.origin}${url.pathname}/index.html${url.search}`));
   }
-  
+
   // Try each alternative URL
   for (const altRequest of alternativeUrls) {
     const cachedResponse = await caches.match(altRequest);
@@ -162,7 +158,7 @@ async function tryAlternativeNetlifyUrls(request) {
       return cachedResponse;
     }
   }
-  
+
   return null;
 }
 
@@ -204,7 +200,7 @@ function createSwiperFallback() {
 // Helper function to create CSS fallbacks
 function createCssFallback(type) {
   let css = '';
-  
+
   if (type === 'swiper') {
     css = `
       /* Minimal Swiper CSS fallback for offline use */
@@ -222,7 +218,7 @@ function createCssFallback(type) {
       }
     `;
   }
-  
+
   return new Response(css, {
     headers: new Headers({
       'Content-Type': 'text/css'
@@ -233,14 +229,14 @@ function createCssFallback(type) {
 // Fetch event - improved to better handle offline navigation and CDN resources
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  
+
   // Skip non-GET requests and browser extensions
-  if (event.request.method !== 'GET' || 
-      (url.origin !== self.location.origin && 
-       !url.href.includes('cdn.jsdelivr.net'))) {
+  if (event.request.method !== 'GET' ||
+    (url.origin !== self.location.origin &&
+      !url.href.includes('cdn.jsdelivr.net'))) {
     return;
   }
-  
+
   // Handle CDN resources specially
   if (CDN_RESOURCES.includes(event.request.url)) {
     event.respondWith(
@@ -262,7 +258,7 @@ self.addEventListener('fetch', (event) => {
               if (cachedResponse) {
                 return cachedResponse;
               }
-              
+
               // Provide fallbacks for specific CDN resources
               if (event.request.url.includes('swiper-bundle.min.js')) {
                 console.log('Serving Swiper JS fallback');
@@ -274,7 +270,7 @@ self.addEventListener('fetch', (event) => {
                 console.log('Serving Vazirmatn CSS fallback');
                 return createCssFallback('vazirmatn');
               }
-              
+
               // Generic fallback for other CDN resources
               return new Response('/* Offline fallback */', {
                 headers: new Headers({
@@ -286,11 +282,11 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-  
+
   // HTML pages - network first, then cache, then offline page
-  if (event.request.mode === 'navigate' || 
-      (event.request.headers.get('accept') && 
-       event.request.headers.get('accept').includes('text/html'))) {
+  if (event.request.mode === 'navigate' ||
+    (event.request.headers.get('accept') &&
+      event.request.headers.get('accept').includes('text/html'))) {
     event.respondWith(
       // Try network first
       fetch(event.request)
@@ -306,16 +302,16 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(async () => {
           console.log('Network request failed, trying cache for:', event.request.url);
-          
+
           // Try exact match from cache first
           const cachedResponse = await caches.match(event.request);
           if (cachedResponse) {
             return cachedResponse;
           }
-          
+
           // Try normalized URL (for direct navigation)
           const normalizedUrl = new URL(event.request.url);
-          
+
           // Try with trailing slash
           if (!normalizedUrl.pathname.endsWith('/')) {
             const withSlashRequest = new Request(`${normalizedUrl.origin}${normalizedUrl.pathname}/${normalizedUrl.search}`);
@@ -324,7 +320,7 @@ self.addEventListener('fetch', (event) => {
               return withSlashResponse;
             }
           }
-          
+
           // Try without trailing slash
           if (normalizedUrl.pathname.endsWith('/') && normalizedUrl.pathname !== '/') {
             const withoutSlashRequest = new Request(
@@ -335,7 +331,7 @@ self.addEventListener('fetch', (event) => {
               return withoutSlashResponse;
             }
           }
-          
+
           // Try with .html extension
           if (!normalizedUrl.pathname.endsWith('.html') && !normalizedUrl.pathname.endsWith('/')) {
             const withHtmlRequest = new Request(
@@ -346,7 +342,7 @@ self.addEventListener('fetch', (event) => {
               return withHtmlResponse;
             }
           }
-          
+
           // Try with /index.html
           const indexHtmlRequest = new Request(
             `${normalizedUrl.origin}${normalizedUrl.pathname}${normalizedUrl.pathname.endsWith('/') ? '' : '/'}index.html${normalizedUrl.search}`
@@ -355,7 +351,7 @@ self.addEventListener('fetch', (event) => {
           if (indexHtmlResponse) {
             return indexHtmlResponse;
           }
-          
+
           // Try alternative URLs for Netlify
           if (isNetlifyRedirect(url)) {
             const netlifyResponse = await tryAlternativeNetlifyUrls(event.request);
@@ -363,7 +359,7 @@ self.addEventListener('fetch', (event) => {
               return netlifyResponse;
             }
           }
-          
+
           // If we're offline and requesting the root, try to serve index.html
           if (normalizedUrl.pathname === '/' || normalizedUrl.pathname === '') {
             const indexResponse = await caches.match('/index.html');
@@ -371,14 +367,14 @@ self.addEventListener('fetch', (event) => {
               return indexResponse;
             }
           }
-          
+
           // Fallback to offline page
           console.log('No cached version found, serving offline page');
           const offlineResponse = await caches.match(OFFLINE_URL);
           if (offlineResponse) {
             return offlineResponse;
           }
-          
+
           // If offline page is not available, return a simple message
           return new Response('You are offline and the offline page is not available.', {
             status: 503,
@@ -388,7 +384,7 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-  
+
   // For assets - cache first, then network
   event.respondWith(
     caches.match(event.request)
@@ -407,25 +403,25 @@ self.addEventListener('fetch', (event) => {
             .catch(() => {
               // Network request failed, but we already have cached version
             });
-            
+
           // Don't wait for the cache update
           event.waitUntil(updateCache);
           return cachedResponse;
         }
-        
+
         // Not in cache, get from network
         return fetch(event.request)
           .then(response => {
             if (!response || response.status !== 200 || response.type !== 'basic') {
               return response;
             }
-            
+
             // Cache the response for future
             const responseToCache = response.clone();
             caches.open(CACHE_NAME).then(cache => {
               cache.put(event.request, responseToCache);
             });
-            
+
             return response;
           })
           .catch(() => {
@@ -443,7 +439,7 @@ self.addEventListener('fetch', (event) => {
                   });
                 });
             }
-            
+
             // For other resources
             return new Response('Offline content not available', {
               status: 503,

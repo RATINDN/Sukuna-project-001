@@ -66,6 +66,17 @@ anotherButton.addEventListener('click', toggleMenu); // Add event listener to th
   
 
    
+// window.addEventListener('scroll', function() {
+//   const scrollBar = document.getElementById("scroll");
+//   const scrollTop = document.documentElement.scrollTop;
+//   const scrollHeight = document.documentElement.scrollHeight;
+//   const clientHeight = document.documentElement.clientHeight;
+//   const scrollPercentage = scrollTop / (scrollHeight - clientHeight);
+  
+  // Use transform for better performance
+//   scrollBar.style.transform = `scaleX(${scrollPercentage})`;
+// });
+
 
     /* =========================================
    نوار پیشرفت اسکرول (Scroll Progress Bar)
@@ -81,7 +92,7 @@ window.addEventListener('scroll', () => {
   const scrolled = (scrollTop / scrollHeight) * 100;
   
   // ۴. اعمال به عرض نوار
-  const progressBar =  document.getElementById("scroll");
+  const progressBar =  document.getElementById("scroll-progress");
   if (progressBar) {
       progressBar.style.width = scrolled + "%";
   }
@@ -835,4 +846,326 @@ const animMs = 300; // 300ms = 0.3 seconds
   }
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+  
+  // دیتابیس ماشین‌ها (همان قبلی)
+  const carDatabase = {
+    'آئودی A6 e-tron 2024': { hp: '469 hp', accel: '3.9s', engine: 'Electric' },
+    'لامبورگینی آونتادور ۲۰۱۱': { hp: '700 hp', accel: '2.9s', engine: 'V12' },
+    'رولزرویس فانتوم ۲۰۱۷': { hp: '563 hp', accel: '5.1s', engine: 'V12' },
+    'فراری لافراری ۲۰۱۳': { hp: '950 hp', accel: '2.4s', engine: 'Hybrid' },
+    'رنج روور ۲۰۲۳': { hp: '523 hp', accel: '4.4s', engine: 'V8' },
+    'مرسدس بنز S-Class 2021': { hp: '496 hp', accel: '4.4s', engine: 'V8' },
+    'فراری F8 تریبوتو ۲۰۱۴': { hp: '710 hp', accel: '2.9s', engine: 'V8 Turbo' },
+    '۲۰۱۳ فراری f8 تروبیتو': { hp: '710 hp', accel: '2.9s', engine: 'V8 Turbo' }
+  };
 
+  // تنظیمات امضا (Canvas) - مثل قبل
+  const canvas = document.getElementById('signaturePad');
+  const ctx = canvas.getContext('2d');
+  let isDrawing = false;
+
+  function resizeCanvas() {
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = canvas.offsetWidth * ratio;
+      canvas.height = canvas.offsetHeight * ratio;
+      ctx.scale(ratio, ratio);
+  }
+
+  function startDraw(e) {
+      isDrawing = true;
+      ctx.beginPath();
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = '#000';
+      const { x, y } = getPos(e);
+      ctx.moveTo(x, y);
+  }
+
+  function draw(e) {
+      if (!isDrawing) return;
+      e.preventDefault();
+      const { x, y } = getPos(e);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+  }
+
+  function endDraw() { isDrawing = false; }
+
+  function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x: clientX - rect.left, y: clientY - rect.top };
+  }
+
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('touchstart', startDraw, {passive: false});
+  canvas.addEventListener('touchmove', draw, {passive: false});
+  canvas.addEventListener('touchend', endDraw);
+
+  document.getElementById('clearSignBtn').addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+  });
+
+  // متغیرهای گلوبال قرارداد
+  let contractData = { name: '', price: '', color: 'مشکی' };
+
+  // ============================================================
+  // بخش اصلی: باز کردن مودال (اصلاح شده برای کلیک روی کل باکس و قیمت درست)
+  // ============================================================
+  
+  // انتخاب تمام باکس‌ها (گرید دسکتاپ، گرید موبایل و اسلایدها)
+  const clickTargets = document.querySelectorAll('.box, .box-mobile, .swiper-slide, .button');
+  
+  clickTargets.forEach(target => {
+    target.addEventListener('click', function(e) {
+      // اگر روی دکمه‌های خاصی که نباید مودال باز کنن کلیک شد جلوگیری کن (اختیاری)
+      
+      e.preventDefault();
+
+      if (typeof isLoggedIn !== 'undefined' && !isLoggedIn) {
+        alert("لطفا ابتدا وارد حساب کاربری شوید.");
+        window.location.href = "login.php";
+        return;
+      }
+
+      // استخراج اطلاعات از Data Attributes (روش مطمئن)
+      let title = this.getAttribute('data-title');
+      let rawPrice = this.getAttribute('data-price');
+      let oldPrice = this.getAttribute('data-old-price');
+      let imgSrc = this.getAttribute('data-image');
+
+      // هندل کردن دکمه وسط صفحه (هدر) که data attributes ندارد
+      if (this.classList.contains('button') && !title) {
+          title = document.querySelector('.detail').innerText.replace('مدل جدید ما', '').trim();
+          rawPrice = "1,670,000,000"; // قیمت پیش فرض برای هدر
+          imgSrc = "images/car-1.webp";
+      }
+
+      // اگر قیمت پیدا نشد (محض اطمینان)
+      if (!rawPrice) rawPrice = "توافقی";
+
+      // فرمت کردن قیمت برای نمایش (با تومان)
+      let displayPrice = rawPrice + " تومان";
+      
+      // اگر تخفیف داشت
+      if (oldPrice) {
+          // در مودال هم خط خورده نمایش بده
+          displayPrice = `<del style="color:red; font-size:0.8em;">${oldPrice}</del> ${rawPrice} تومان`;
+          // قیمت نهایی برای قرارداد (بدون تگ HTML)
+          contractData.price = rawPrice + " تومان";
+      } else {
+          contractData.price = displayPrice;
+      }
+
+      contractData.name = title;
+
+      // پر کردن UI مودال
+      document.getElementById('modalCarName').innerText = title;
+      document.getElementById('modalCarPrice').innerHTML = displayPrice; // innerHTML برای نمایش تگ del
+      document.getElementById('modalCarImage').src = imgSrc;
+
+      // مشخصات فنی
+      let specs = { hp: '---', accel: '---', engine: '---' };
+      for (const [key, value] of Object.entries(carDatabase)) {
+          if (title && (title.includes(key) || key.includes(title))) {
+              specs = value;
+              break;
+          }
+      }
+      document.getElementById('specHP').innerText = specs.hp;
+      document.getElementById('specAccel').innerText = specs.accel;
+      document.getElementById('specEngine').innerText = specs.engine;
+
+      document.getElementById('buyModal').style.display = 'flex';
+      goToStep1();
+      setTimeout(resizeCanvas, 100);
+    });
+  });
+
+  // بقیه کدها (انتخاب رنگ، نویگیشن، ولیدیشن و ارسال فرم) بدون تغییر می‌ماند...
+  // (ادامه کدهای قبلی JS اینجا قرار می‌گیرد)
+  
+  // انتخاب رنگ
+  document.querySelectorAll('.color-dot').forEach(dot => {
+    dot.addEventListener('click', function(e) {
+      e.stopPropagation(); // جلوگیری از بسته شدن یا تداخل کلیک
+      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+      this.classList.add('selected');
+      contractData.color = this.getAttribute('data-color');
+      document.getElementById('selectedColorLabel').innerText = 'رنگ انتخاب شده: ' + contractData.color;
+    });
+  });
+
+  function updatePreviewText() {
+      const name = document.getElementById('inputRealName').value || '...';
+      document.getElementById('previewName').innerText = name;
+      document.getElementById('previewCar').innerText = contractData.name;
+      document.getElementById('previewColor').innerText = contractData.color;
+      document.getElementById('previewPrice').innerText = contractData.price;
+  }
+
+  document.getElementById('inputRealName').addEventListener('input', updatePreviewText);
+
+  window.goToStep2 = function() {
+      document.getElementById('inputRealName').value = typeof userName !== 'undefined' ? userName : '';
+      fetch('get_user_data.php').then(r=>r.json()).then(d=>{ if(d.phone) document.getElementById('readOnlyPhone').value = d.phone; });
+      document.getElementById('step1').style.display = 'none';
+      document.getElementById('step2').style.display = 'block';
+      setTimeout(resizeCanvas, 100);
+      updatePreviewText();
+  }
+
+  window.goToStep1 = function() {
+      document.getElementById('step1').style.display = 'block';
+      document.getElementById('step2').style.display = 'none';
+  }
+
+  window.closeBuyModal = function() {
+      document.getElementById('buyModal').style.display = 'none';
+  }
+
+  
+
+    // ولیدیشن و ارسال فرم (کد قبلی)
+    const nameInput = document.getElementById('inputRealName');
+    const nidInput = document.getElementById('inputNID');
+    const postalInput = document.getElementById('inputPostal');
+  
+    function validateInput(input, condition, msg) {
+        const parent = input.parentElement;
+        let err = parent.querySelector('.validation-error');
+        if(!err) {
+            err = document.createElement('div');
+            err.className = 'validation-error';
+            parent.appendChild(err);
+        }
+        if(condition) {
+            input.classList.remove('invalid'); input.classList.add('valid');
+            err.style.display = 'none';
+            return true;
+        } else {
+            input.classList.remove('valid'); input.classList.add('invalid');
+            err.innerText = msg; err.style.display = 'block';
+            return false;
+        }
+    }
+  
+    // ===== NEW: Complete Iranian National ID (کد ملی) Validation Function =====
+    function isValidIranianNationalID(input) {
+        // Remove any spaces or dashes
+        const code = input.replace(/\s+|-/g, '');
+        
+        // Check if it's exactly 10 digits
+        if (!/^\d{10}$/.test(code)) {
+            return false;
+        }
+        
+        // Check for all same digits (invalid like 0000000000, 1111111111, etc.)
+        if (/^(\d)\1{9}$/.test(code)) {
+            return false;
+        }
+        
+        // Calculate check digit using the standard Iranian algorithm
+        let check = 0;
+        for (let i = 0; i < 9; i++) {
+            check += parseInt(code.charAt(i)) * (10 - i);
+        }
+        
+        check = check % 11;
+        
+        // The check digit should be 0 if remainder is less than 2, otherwise it's the remainder
+        const checkDigit = check < 2 ? 0 : (11 - check);
+        
+        // Compare with the last digit
+        return parseInt(code.charAt(9)) === checkDigit;
+    }
+    // ===== END OF NEW: National ID Validation =====
+  
+    // NEW: Updated National ID Input Listener with Complete Validation
+    nidInput.addEventListener('input', function() { 
+        // Allow only digits while typing
+        this.value = this.value.replace(/\D/g, '');
+        
+        // Validate only if 10 digits are entered
+        if (this.value.length === 10) {
+            const isValid = isValidIranianNationalID(this.value);
+            validateInput(
+                this, 
+                isValid, 
+                "کد ملی نامعتبر است. لطفا کد ملی صحیح را وارد کنید"
+            );
+        } else if (this.value.length > 0) {
+            validateInput(this, false, "کد ملی باید ۱۰ رقم باشد");
+        } else {
+            // Clear validation styling if empty
+            this.classList.remove('valid', 'invalid');
+            const err = this.parentElement.querySelector('.validation-error');
+            if (err) err.style.display = 'none';
+        }
+    });
+  
+    // Postal Code Validation (unchanged)
+    postalInput.addEventListener('input', function() { 
+        this.value = this.value.replace(/\D/g, ''); 
+        validateInput(this, this.value.length === 10, "کد پستی باید ۱۰ رقم باشد"); 
+    });
+  
+    // Name Validation (unchanged)
+    nameInput.addEventListener('input', function() { 
+        validateInput(this, this.value.length >= 5, "نام کامل وارد کنید"); 
+        updatePreviewText(); 
+    });
+  
+    // NEW: Updated Form Submission with Complete National ID Validation
+    document.getElementById('contractForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Validate all fields before submission
+      const isNameValid = validateInput(nameInput, nameInput.value.length >= 5, "نام کامل وارد کنید");
+      const isNIDValid = isValidIranianNationalID(nidInput.value);
+      validateInput(nidInput, isNIDValid, "کد ملی نامعتبر است. لطفا کد ملی صحیح را وارد کنید");
+      const isPostalValid = validateInput(postalInput, postalInput.value.length === 10, "کد پستی باید ۱۰ رقم باشد");
+      
+      if (!isNameValid || !isNIDValid || !isPostalValid) {
+          alert("لطفا تمام فیلدهای ضروری را به درستی پر کنید");
+          return;
+      }
+      
+      const signatureData = canvas.toDataURL('image/png');
+      if(signatureData.length < 3000) { 
+          alert("لطفا امضا کنید."); 
+          return; 
+      }
+  
+      const btn = document.querySelector('.btn-success-modal');
+      btn.innerText = 'در حال ارسال...';
+      btn.disabled = true;
+  
+      const formData = new FormData();
+      formData.append('car_name', contractData.name);
+      formData.append('car_price', contractData.price);
+      formData.append('car_color', contractData.color);
+      formData.append('real_name', nameInput.value);
+      formData.append('national_id', nidInput.value);
+      formData.append('address', document.getElementById('inputAddress').value);
+      formData.append('postal_code', postalInput.value);
+      formData.append('signature', signatureData);
+  
+      fetch('submit_contract.php', { method: 'POST', body: formData })
+      .then(async response => {
+          const text = await response.text();
+          try { return JSON.parse(text); } catch { throw new Error(text); }
+      })
+      .then(data => {
+          if(data.success) window.location.href = 'print_contract.php?id=' + data.contract_id;
+          else { alert('خطا: ' + data.error); btn.innerText = 'ثبت نهایی'; btn.disabled = false; }
+      })
+      .catch(err => {
+          console.error(err); alert('خطای سرور'); btn.innerText = 'ثبت نهایی'; btn.disabled = false;
+      });
+    });
+});

@@ -132,16 +132,16 @@ try {
     
     // Server settings
     $mail->isSMTP();
-    $mail->Host = 'smtp.gmail.com';
+    $mail->Host = 'mail.ratindn.ir';   // SMTP server for your domain
     $mail->SMTPAuth = true;
-    $mail->Username = 'dnratin@gmail.com';
-    $mail->Password = 'umyk yewt awet nyri'; // App Password
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-    $mail->Port = 465;
+    $mail->Username = 'admin@ratindn.ir';  // your cPanel email
+    $mail->Password = '7vqpM0v?9FaQ2emda';  // the password you created in cPanel
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; 
+    $mail->Port = 465;   // SSL port
     $mail->CharSet = 'UTF-8';
     
     // Recipients
-    $mail->setFrom('dnratin@gmail.com', 'Luxury Cars Verification');
+    $mail->setFrom('admin@ratindn.ir', 'Luxury Cars Verification');
     $mail->addAddress($email);
     
     // Content

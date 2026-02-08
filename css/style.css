@@ -430,10 +430,7 @@ body:not(.darkmode) .page-up {
 
 }
 
-#scroll{
-  transition: 0.4s ease-in-out;
 
-}
 
 #nav{
   transition: 0.4s ease-in-out;
@@ -567,12 +564,12 @@ ul{
 }
 
 
-#scroll {
+#scroll-progress {
   position: absolute;
-    top: 53px;
-    left: 0; /* شروع از چپ در زبان فارسی */
+    bottom: -4px;
+    right: 0;/* شروع از چپ در زبان فارسی */
     width: 0%; /* عرض اولیه صفر */
-    height: 4px; /* ارتفاع نوار */
+    height: 3px; /* ارتفاع نوار */
     background: var(--primary-color); /* استفاده از متغیر درست */
     z-index: 2; /* روی تمام عناصر هدر قرار بگیرد */
     transition: width 0.1s ease-out; /* حرکت نرم */
@@ -1135,84 +1132,97 @@ overflow: auto;
   row-gap: 20px;
 }
 
-.box-mobile{
-  /* display: none; */
+.box-mobile {
   font-size: small !important;
   position: relative;
-  color: black ;
-
+  color: var(--text-color);
   width: 46%;
   height: 100%;
-  /* background-color: aqua; */
   transition: 0.5s ease-in-out;
-
-  position: relative;
-  /* left: 5%; */
   display: flex;
   flex-direction: column;
-  /* gap: 20px; */
   justify-content: space-between;
   cursor: pointer;
-  
 }
 
-.box2-mobile{
+.box2-mobile {
   font-size: small !important;
-
   width: 100%;
   height: 50%;
   transition: 0.5s ease-in-out;
-  /* display: none; */
+  display: flex;
+  flex-direction: column;
+  gap: 20px !important;
+  
+  /* Changed from space-between */
+  padding: 8px 0; /* Add consistent padding */
 }
 
-.box-2-mobile{
+.h4 {
+  color: var(--text-color) !important;
+  font-family: 'Vazirmatn', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  margin: 5px 0 !important; /* Reduce margin */
+  line-height: 1.2 !important;
+}
+
+
+.box-2-mobile {
   font-size: small !important;
   border-radius: 0 !important;
   width: 100%;
-  /* background-color: green; */
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
   cursor: pointer;
   display: flex;
-  overflow:hidden;
-  /* display: none; */
+  overflow: hidden;
   transition: 0.5s ease-in-out;
+  margin-bottom: 5px; /* Add small gap */
 }
 
 
+#h6 {
+  color: var(--text-color) !important;
+  font-family: 'Vazirmatn', sans-serif !important;
+  font-size: 9px !important;
+  font-weight: 400 !important;
+  margin: 3px 0 !important; /* Reduce margin */
+  line-height: 1.1 !important;
+  padding: 0 5px;
+}
 
 
-.box3-mobile{
+.swiper-slide h3 {
+  font-family: 'Vazirmatn', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+  padding: 0 10px !important;
+}
+
+.box3-mobile {
   font-size: small !important;
-
-  /* display: none; */
   width: 100%;
-  height: 32%;
-  /* background-color: bisque; */
+  height: auto; /* Changed from 32% */
   transition: 0.5s ease-in-out;
   position: relative;
- 
-  /* bottom: 10px; */
+  margin: 10;
+  padding: 0;
+}
   
-  
-  }
-  
-  .box-3-mobile{
+  .box-3-mobile {
     font-size: small !important;
-
     width: auto;
     max-width: fit-content;
-    /* display: none; */
-    height: 32%;
-    /* background-color: bisque; */
+    height: auto; /* Changed from 32% */
     transition: 0.5s ease-in-out;
     position: relative;
-    top: 7px;
-  
-    
-    
-    }
+    top: 0; /* Changed from 7px */
+    margin: 0;
+    padding: 0;
+  }
   
   .child-mobile{ 
     font-size: small !important;
@@ -2477,6 +2487,305 @@ transition: 0.3s ease-in-out;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
+/* =========================================
+   استایل‌های کامل مودال خرید (مرحله ۱ و ۲)
+   ========================================= */
+
+/* 1. کانتینر اصلی مودال (فیکس شده وسط صفحه) */
+.contract-modal {
+  display: none;
+  position: fixed !important;
+  z-index: 100000 !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+  justify-content: center;
+  align-items: center;
+  padding: 10px; /* فاصله از لبه‌ها در موبایل */
+}
+
+/* 2. بدنه مودال */
+.contract-content {
+  background-color: var(--card-bg, #fff);
+  color: var(--text-color, #000);
+  width: 100%;
+  max-width: 500px; /* عرض مناسب */
+  max-height: 90vh; /* ارتفاع محدود */
+  overflow-y: auto; /* اسکرول شدن محتوا */
+  border-radius: 15px;
+  padding: 20px;
+  position: relative;
+  box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+  border: 1px solid var(--border-color, #ccc);
+  animation: modalPopUp 0.3s ease-out forwards;
+}
+
+@keyframes modalPopUp {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* 3. هدر و دکمه بستن */
+.step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.step-header h2 {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.close-contract {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  font-size: 28px;
+  cursor: pointer;
+  color: var(--text-color);
+  line-height: 1;
+  z-index: 10;
+}
+
+/* ===========================
+   استایل‌های مرحله ۱ (نمایشگاه)
+   =========================== */
+
+/* عکس ماشین */
+.modal-car-img {
+  width: 100%;
+  height: 220px; /* ارتفاع ثابت */
+  object-fit: cover; /* برش عکس برای پر کردن کادر */
+  border-radius: 12px;
+  margin-bottom: 15px;
+  border: 2px solid var(--border-color);
+  display: block;
+}
+
+/* نام و قیمت */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+#modalCarName {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.price-tag {
+  color: var(--primary-color);
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* مشخصات فنی (آیکون‌ها) */
+.tech-specs {
+  display: flex;
+  justify-content: space-around;
+  background-color: var(--hover-color-li, rgba(0,0,0,0.05));
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.spec-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.spec-icon { font-size: 1.2rem; }
+.spec-val { font-weight: bold; font-size: 0.9rem; }
+.spec-label { font-size: 0.8rem; color: var(--secondary-text); }
+
+/* انتخاب رنگ */
+.color-selection-area {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.colors-container {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 10px 0;
+}
+
+.color-dot {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: transform 0.2s;
+}
+
+.color-dot:hover { transform: scale(1.1); }
+
+.color-dot.selected {
+  transform: scale(1.2);
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 0 10px var(--primary-color);
+}
+
+.color-label { font-size: 0.9rem; margin-top: 5px; }
+
+/* دکمه مرحله ۱ */
+.btn-primary-modal {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--primary-color);
+  color: var(--bg-color); /* متن مخالف رنگ پس‌زمینه */
+  border: 1px solid var(--text-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.btn-primary-modal:hover { opacity: 0.9; }
+
+
+/* ===========================
+   استایل‌های مرحله ۲ (فرم قرارداد)
+   =========================== */
+
+/* چیدمان فیلدها */
+.input-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.input-group-modal {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.input-group-modal label {
+  font-size: 0.85rem;
+  margin-bottom: 5px;
+  color: var(--secondary-text);
+}
+
+.input-group-modal input, 
+.input-group-modal textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  font-family: 'Vazirmatn', sans-serif;
+  box-sizing: border-box; /* جلوگیری از بیرون زدگی */
+}
+
+/* بوم امضا */
+.signature-area {
+  margin-top: 15px;
+  border-top: 1px dashed var(--border-color);
+  padding-top: 10px;
+}
+
+.canvas-container {
+  width: 100%;
+  height: 150px;
+  background-color: #ffffff !important; /* همیشه سفید */
+  border: 2px dashed #333;
+  border-radius: 8px;
+  cursor: crosshair;
+  overflow: hidden;
+  touch-action: none;
+}
+
+#signaturePad {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.clear-sign {
+  background: transparent;
+  border: 1px solid #ff4444;
+  color: #ff4444;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  margin-top: 5px;
+  cursor: pointer;
+}
+
+/* دکمه ثبت نهایی */
+.btn-success-modal {
+  width: 100%;
+  padding: 14px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+  box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+}
+
+.btn-text-back {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  color: var(--text-color);
+}
+
+/* ریسپانسیو */
+@media (max-width: 480px) {
+  .input-row { flex-direction: column; gap: 0; }
+  .modal-car-img { height: 180px; }
+  .contract-content { padding: 15px; }
+}
+
+/* استایل‌های اعتبارسنجی فرم (Real-time Validation) */
+.input-group-modal input.invalid,
+.input-group-modal textarea.invalid {
+    border-color: #f44336 !important; /* قرمز */
+    background-color: rgba(244, 67, 54, 0.05);
+}
+
+.input-group-modal input.valid,
+.input-group-modal textarea.valid {
+    border-color: #4CAF50 !important; /* سبز */
+}
+
+.validation-error {
+    color: #f44336;
+    font-size: 0.75rem;
+    margin-top: 4px;
+    display: none; /* پیش‌فرض مخفی */
+    text-align: right;
+}
+
+.input-group-modal.has-error .validation-error {
+    display: block; /* نمایش وقتی خطا دارد */
+}
+
 /* Hide QR code on very small screens */
 @media (max-width: 576px) {
   #nav-qr-code {
@@ -2484,6 +2793,8 @@ transition: 0.3s ease-in-out;
     width: 40px;
     height: 40px;
   }
+
+  
 }
 
 
@@ -2497,7 +2808,24 @@ transition: 0.3s ease-in-out;
 
  
 
+ .h4 {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  margin: 3px 0 !important;
+}
 
+#h6 {
+  font-size: 8px !important;
+  margin: 2px 0 !important;
+}
+
+.box3-mobile {
+  padding: 0 5px;
+}
+
+.box-2-mobile {
+  margin-bottom: 3px;
+}
 
  
 .move{
@@ -2696,6 +3024,17 @@ ul{
    .mode{
     left: 28%;
  }
+
+ .h4 {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  margin: 4px 0 !important;
+}
+
+#h6 {
+  font-size: 9px !important;
+  margin: 2px 0 !important;
+}
 
  @keyframes mob{
   to {width: 100%;}
