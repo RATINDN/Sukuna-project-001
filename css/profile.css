@@ -199,3 +199,111 @@
     background-color: #555;
     color: white;
 }
+
+/* --- استایل سوابق خرید در پروفایل --- */
+.contracts-section {
+    margin-top: 20px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 15px;
+    text-align: right;
+}
+
+.contracts-title {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+.contracts-list {
+    max-height: 200px; /* اگر زیاد بود اسکرول بخورد */
+    overflow-y: auto;
+    background-color: var(--input-bg); /* رنگ پس‌زمینه متناسب با تم */
+    border-radius: 8px;
+    padding: 5px;
+    border: 1px solid var(--border-color);
+}
+
+/* آیتم تکی قرارداد */
+.contract-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--card-bg);
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    transition: 0.2s;
+}
+
+.contract-item:hover {
+    background-color: var(--hover-color-li);
+}
+
+.c-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.c-name { font-weight: bold; font-size: 0.9rem; color: var(--text-color); }
+.c-date { font-size: 0.75rem; color: var(--secondary-text); }
+.c-code { font-size: 0.75rem; color: var(--primary-color); font-family: monospace; }
+
+.c-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+/* وضعیت‌ها */
+.status-badge {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    color: white;
+}
+.s-pending { background-color: #ff9800; }
+.s-paid { background-color: #4caf50; }
+.s-rejected { background-color: #f44336; }
+
+/* دکمه پرینت کوچک */
+.btn-print-sm {
+    text-decoration: none;
+    background-color: var(--text-color);
+    color: var(--bg-color);
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    transition: 0.2s;
+}
+.btn-print-sm:hover { opacity: 0.8; }
+
+.loader-small { text-align: center; font-size: 0.8rem; padding: 10px; color: var(--secondary-text); }
+.no-data { text-align: center; font-size: 0.8rem; padding: 15px; color: var(--secondary-text); }
+
+/* دکمه پرداخت کوچک در پروفایل */
+.btn-pay-sm {
+    text-decoration: none;
+    background-color: #4CAF50; /* سبز */
+    color: white;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    transition: 0.2s;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3);
+}
+
+.btn-pay-sm:hover {
+    background-color: #388E3C;
+    transform: translateY(-1px);
+}

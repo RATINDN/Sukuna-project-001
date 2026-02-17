@@ -1,8 +1,8 @@
 <?php
 $host = 'localhost';
-$dbname = 'ratindnir_car';        // your database name
-$username = 'ratindnir'; // your MySQL user name
-$password = '7vqpM0v?9FaQ2emda';       // your MySQL password
+$dbname = 'car';        // your database name
+$username = 'root'; // your MySQL user name
+$password = '';       // your MySQL password
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);

@@ -170,6 +170,41 @@ if (!$contract) {
 </head>
 <body>
 
+<?php if ($contract['status'] == 'rejected'): ?>
+    <div style="
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        font-size: 150px;
+        color: rgba(255, 0, 0, 0.2);
+        font-weight: 900;
+        z-index: 0;
+        pointer-events: none;
+        border: 10px solid rgba(255, 0, 0, 0.2);
+        padding: 20px;
+        border-radius: 20px;
+        font-family: sans-serif;
+    ">
+        BAATELE
+    </div>
+    <div style="
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        font-size: 80px;
+        color: rgba(255, 0, 0, 0.4);
+        font-weight: 900;
+        z-index: 1;
+        pointer-events: none;
+        margin-top: 50px;
+        font-family: 'Vazirmatn';
+    ">
+        باطل شد
+    </div>
+<?php endif; ?>
+
     <div class="action-bar">
         <a href="index.php" class="btn btn-home">بازگشت به فروشگاه</a>
         <button class="btn btn-print" onclick="window.print()">🖨️ پرینت قرارداد</button>
@@ -184,7 +219,20 @@ if (!$contract) {
             <div class="header-info">
                 <div><strong>شماره قرارداد:</strong> <?php echo $contract['tracking_code']; ?></div>
                 <div><strong>تاریخ صدور:</strong> <?php echo date('Y/m/d', strtotime($contract['created_at'])); ?></div>
-                <div><strong>وضعیت:</strong> <?php echo $contract['status'] == 'pending' ? 'در انتظار پرداخت' : 'نهایی شده'; ?></div>
+                <div>
+                    <strong>وضعیت:</strong>
+                    
+                    
+                    <?php 
+    if ($contract['status'] == 'pending') {
+        echo '<span style="color: #f57f17; font-weight: bold;">در انتظار پرداخت</span>';
+    } elseif ($contract['status'] == 'paid') {
+        echo '<span style="color: #2e7d32; font-weight: bold;">نهایی شده (معتبر)</span>';
+    } else {
+        echo '<span style="color: #c62828; font-weight: bold;">رد شده (باطل)</span>';
+    }
+    ?>                
+    </div>
             </div>
         </div>
 

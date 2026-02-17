@@ -2786,6 +2786,74 @@ transition: 0.3s ease-in-out;
     display: block; /* نمایش وقتی خطا دارد */
 }
 
+/* استایل پیام‌های خطا (Inline Error) */
+/* استایل پیام‌های خطا (فقط مخصوص مودال قرارداد) */
+.contract-modal .error-message {
+  color: #f44336;
+  font-size: 0.8rem;
+  margin-top: 5px;
+  text-align: right;
+  display: none;       /* فقط در مودال مخفی باشد */
+  font-weight: bold;
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* وقتی اینپوت خطا دارد */
+.input-group-modal input.invalid,
+.input-group-modal textarea.invalid {
+  border-color: #f44336 !important;
+  background-color: rgba(244, 67, 54, 0.05);
+}
+
+.canvas-container.invalid {
+  border: 2px dashed #f44336 !important;
+  background-color: rgba(244, 67, 54, 0.05) !important;
+}
+
+
+/* افکت تایپ‌نویس */
+.type-effect {
+  font-family: 'Vazirmatn', sans-serif !important;
+  font-weight: 900 !important;
+  font-size: 1.8rem !important;
+  color: white; /* یا متغیر رنگ متن */
+  text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.cursor {
+  animation: blink 1s infinite;
+  font-weight: 100;
+  color: var(--primary-color);
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* نوار خدمات در موبایل */
+@media (max-width: 768px) {
+  .type-effect {
+      font-size: 1.2rem !important;
+  }
+  .services-bar {
+      gap: 10px !important;
+  }
+  .service-item span {
+      font-size: 10px !important;
+  }
+  .service-item i {
+      font-size: 15px !important;
+  }
+}
+
+
+
 /* Hide QR code on very small screens */
 @media (max-width: 576px) {
   #nav-qr-code {

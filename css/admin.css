@@ -443,6 +443,358 @@ body.dark-mode .theme-toggle:hover {
     to { opacity: 0; visibility: hidden; }
 }
 
+/* --- استایل‌های جدید برای تب‌های سایدبار و قراردادها --- */
+
+.nav-link {
+    display: block;
+    padding: 15px 20px;
+    color: var(--admin-sidebar-text);
+    text-decoration: none;
+    font-size: 16px;
+    transition: 0.3s;
+    border-right: 4px solid transparent;
+    margin-bottom: 5px;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.nav-link.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-right: 4px solid var(--admin-primary-color);
+    font-weight: bold;
+}
+
+/* وضعیت‌ها (بج‌ها) */
+.badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block;
+}
+.badge-warning { background: #ff9800; color: white; }
+.badge-success { background: #4caf50; color: white; }
+
+/* دکمه مشاهده قرارداد */
+.view-contract-btn {
+    background-color: var(--admin-secondary-color);
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 13px;
+    transition: 0.2s;
+}
+.view-contract-btn:hover {
+    background-color: #1565C0;
+}
+
+/* گرید اطلاعات در مودال */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+.info-grid p { margin: 5px 0; font-size: 14px; }
+.info-grid strong { color: var(--admin-primary-color); }
+
+/* لینک شناسه کاربر در جدول */
+.user-id-link {
+    color: var(--admin-secondary-color);
+    font-weight: bold;
+    text-decoration: none;
+    background: rgba(33, 150, 243, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    transition: 0.3s;
+}
+
+.user-id-link:hover {
+    background: var(--admin-secondary-color);
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* --- استایل‌های اختصاصی مودال قرارداد --- */
+
+/* باکس تغییر وضعیت */
+.status-change-box {
+    background-color: rgba(0, 0, 0, 0.05); /* کمی تیره‌تر برای تمایز */
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    border: 1px solid var(--admin-border-color);
+}
+
+.status-change-box label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    display: block;
+    color: var(--admin-text-color);
+    font-size: 14px;
+}
+
+.status-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.status-select {
+    flex: 1;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid var(--admin-border-color);
+    font-family: 'Vazirmatn', sans-serif;
+    background-color: var(--admin-bg-color);
+    color: var(--admin-text-color);
+    outline: none;
+}
+
+.btn-update {
+    background-color: var(--admin-secondary-color);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 13px;
+    transition: 0.3s;
+}
+
+.btn-update:hover {
+    filter: brightness(1.1);
+}
+
+.btn-update:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* باکس نمایش امضا */
+.signature-display-box {
+    margin-top: 20px;
+    text-align: center;
+    border: 2px dashed #ccc;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #ffffff; /* همیشه سفید باشد تا امضا دیده شود */
+}
+
+.signature-title {
+    color: #333;
+    font-size: 12px;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.signature-img {
+    max-width: 100%;
+    width: 250px;
+    height: auto;
+    max-height: 120px;
+    object-fit: contain;
+}
+
+/* =========================================
+   DASHBOARD LUXURY STYLE
+   ========================================= */
+
+   .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+    padding: 10px;
+}
+
+.stat-card {
+    background: var(--admin-bg-color); /* سفید در لایت، تیره در دارک */
+    border-radius: 20px;
+    padding: 25px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* حالت دارک مود */
+body.darkmode .stat-card {
+    background: #1e1e1e; /* رنگ کارت در حالت شب */
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* افکت هاور (حرکت رو به بالا) */
+.stat-card:hover {
+    transform: translateY(-8px);
+}
+
+/* اطلاعات متنی */
+.stat-info {
+    z-index: 2;
+}
+
+.stat-info h3 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 900; /* خیلی بولد */
+    color: var(--admin-text-color);
+    letter-spacing: -1px;
+}
+
+.stat-info p {
+    margin: 5px 0 0;
+    font-size: 13px;
+    color: var(--secondary-text);
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+/* آیکون‌ها (باکس رنگی سمت چپ) */
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    color: white;
+    box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover .stat-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* ===========================
+   رنگ‌بندی اختصاصی کارت‌ها (گرادینت)
+   =========================== */
+
+/* کارت کاربران (آبی اقیانوسی) */
+.card-users .stat-icon {
+    background: linear-gradient(135deg, #00C6FB 0%, #005BEA 100%);
+    box-shadow: 0 10px 20px -5px rgba(0, 91, 234, 0.4);
+}
+.card-users:hover {
+    border-bottom: 4px solid #005BEA;
+}
+
+/* کارت سفارشات (نارنجی آتشین) */
+.card-contracts .stat-icon {
+    background: linear-gradient(135deg, #FFD200 0%, #F7971E 100%);
+    box-shadow: 0 10px 20px -5px rgba(247, 151, 30, 0.4);
+}
+.card-contracts:hover {
+    border-bottom: 4px solid #F7971E;
+}
+
+/* کارت فروش (سبز زمردی) */
+.card-revenue .stat-icon {
+    background: linear-gradient(135deg, #42e695 0%, #3bb2b8 100%);
+    box-shadow: 0 10px 20px -5px rgba(59, 178, 184, 0.4);
+}
+.card-revenue:hover {
+    border-bottom: 4px solid #3bb2b8;
+}
+
+/* کارت آنلاین (بنفش نئونی) */
+.card-online .stat-icon {
+    background: linear-gradient(135deg, #F45C43 0%, #EB3349 100%);
+    box-shadow: 0 10px 20px -5px rgba(235, 51, 73, 0.4);
+}
+.card-online:hover {
+    border-bottom: 4px solid #EB3349;
+}
+
+/* دکمه اکسل */
+.btn-excel {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(56, 239, 125, 0.3);
+}
+
+.btn-excel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(56, 239, 125, 0.4);
+}
+
+/* --- جدول کوچک داشبورد (Recent Orders) --- */
+.recent-orders-container {
+    background: var(--admin-bg-color);
+    border-radius: 20px;
+    padding: 25px;
+    margin-top: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+body.darkmode .recent-orders-container {
+    background: #1e1e1e;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.recent-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--admin-border-color);
+    padding-bottom: 10px;
+}
+
+.recent-header h3 { margin: 0; font-size: 18px; color: var(--admin-text-color); }
+
+.mini-table { width: 100%; border-collapse: collapse; }
+.mini-table th { text-align: right; color: var(--secondary-text); font-size: 12px; padding: 10px; }
+.mini-table td { padding: 12px 10px; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 14px; }
+body.darkmode .mini-table td { border-color: rgba(255,255,255,0.05); }
+
+.mini-table tr:last-child td { border: none; }
+.price-text { font-weight: bold; color: var(--admin-secondary-color); font-size: 13px; }
+
+/* کارت محبوب‌ترین ماشین (بنفش سلطنتی) */
+.card-popular .stat-icon {
+    background: linear-gradient(135deg, #ab47bc 0%, #8e24aa 100%);
+    box-shadow: 0 10px 20px -5px rgba(142, 36, 170, 0.4);
+}
+.card-popular:hover {
+    border-bottom: 4px solid #8e24aa; /* رنگ بنفش برای هاور */
+}
+
+
+
+
+
+
+
+
+
 /* Responsive adjustments */
 @media (max-width: 1200px) {
     .admin-sidebar {
@@ -566,6 +918,91 @@ body.dark-mode .theme-toggle:hover {
     .confirmation-buttons button {
         padding: 8px 15px;
         font-size: 14px;
+    }
+
+    /* 1. اصلاح چیدمان کلی */
+    .admin-main {
+        padding: 15px;
+        width: 100%;
+        overflow-x: hidden; /* جلوگیری از اسکرول کل صفحه */
+    }
+
+    /* 2. کارت‌های آمار زیر هم قرار بگیرند */
+    .dashboard-grid {
+        grid-template-columns: 1fr; /* تک ستونه */
+        gap: 15px;
+    }
+
+    .stat-card {
+        padding: 20px; /* پدینگ کمتر برای جای بیشتر */
+    }
+
+    .stat-info h3 {
+        font-size: 24px; /* فونت کمی کوچکتر */
+    }
+
+    /* 3. اصلاح حیاتی جدول (اسکرول افقی) */
+    .recent-orders-container {
+        padding: 15px;
+        margin-top: 20px;
+        overflow-x: auto; /* جادوی کار: اسکرول افقی فقط برای جدول */
+        -webkit-overflow-scrolling: touch; /* اسکرول نرم در آیفون */
+        border: 1px solid var(--admin-border-color);
+    }
+
+    .mini-table {
+        min-width: 600px; /* عرض جدول را مجبور میکنیم زیاد باشد تا اسکرول بخورد */
+    }
+
+    .mini-table th, 
+    .mini-table td {
+        white-space: nowrap; /* متن‌ها شکسته نشوند و در یک خط بمانند */
+        padding: 10px 5px;
+        font-size: 13px;
+    }
+
+    /* 4. اصلاح هدر موبایل */
+    .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .header-left {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .search-bar {
+        width: 100% !important;
+        margin-top: 10px;
+    }
+
+    .search-bar input {
+        width: 100% !important;
+    }
+
+    /* دکمه منو */
+    .menu-toggle {
+        display: block;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    /* اصلاح مودال در موبایل */
+    .confirmation-dialog {
+        width: 95% !important;
+        margin: 10px;
+        max-height: 85vh;
+    }
+    
+    .status-actions {
+        flex-direction: column;
+    }
+    
+    .btn-update {
+        width: 100%;
+        margin-top: 5px;
     }
 }
 

@@ -713,9 +713,27 @@ if (isset($_SESSION['user_id'])) {
           <div class="child4"></div>
         </div>
       </div>
-      <h1
-        style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; font-variant: small-caps; color: white;"
-        class="move detail">آئودی A6 e-tron 2024 مدل جدید ما</h1> <br>
+     <!-- تیتر تایپ‌شونده -->
+<h1 class="move detail type-effect" style=" direction: rtl;">
+    <span class="type-text"></span>
+    <span class="cursor">|</span>
+</h1>
+
+<!-- نوار خدمات (زیر تیتر اضافه کن) -->
+<div class="services-bar detail" style="display: flex; gap: 20px; justify-content: center; margin-top: 15px; color: white;">
+    <div class="service-item">
+        <i class="fas fa-car" style="font-size: 20px; color: #4CAF50;"></i>
+        <span style="font-size: 14px; margin-right: 5px;">خرید و فروش</span>
+    </div>
+    <div class="service-item">
+        <i class="fas fa-file-signature" style="font-size: 20px; color: #2196F3;"></i>
+        <span style="font-size: 14px; margin-right: 5px;">سند رسمی</span>
+    </div>
+    <div class="service-item">
+        <i class="fas fa-medal" style="font-size: 20px; color: #FFC107;"></i>
+        <span style="font-size: 14px; margin-right: 5px;">تضمین سلامت</span>
+    </div>
+</div>
       <button class="button detail" id="move">جزئیات بیشتر</button>
       <button class="button3 detail" onclick="opencar()">جزئیات بیشتر</button>
 
@@ -960,6 +978,17 @@ if (isset($_SESSION['user_id'])) {
           <span id="profileID"></span>
         </div>
       </div>
+
+      <!-- بخش جدید: سوابق خرید -->
+      <div class="contracts-section">
+        <h3 class="contracts-title">سوابق خرید و قراردادها</h3>
+        <div id="contractsList" class="contracts-list">
+            <!-- اینجا توسط جاوااسکریپت پر می‌شود -->
+            <div class="loader-small">در حال بارگذاری...</div>
+        </div>
+      </div>
+
+
       <div class="delete-account-section">
         <button id="deleteAccountBtn" class="delete-account-btn">حذف حساب کاربری</button>
       </div>
@@ -1187,22 +1216,26 @@ if (isset($_SESSION['user_id'])) {
             <div class="input-group-modal">
                 <label>نام و نام خانوادگی (طبق کارت ملی)*</label>
                 <input type="text" id="inputRealName" placeholder="فارسی تایپ کنید" required>
+                <div class="error-message"></div> <!-- جای خطا -->
             </div>
             <div class="input-group-modal">
                 <label>کد ملی (۱۰ رقم)*</label>
                 <input type="tel" id="inputNID" maxlength="10" placeholder="0012345678" required>
+                <div class="error-message"></div> <!-- جای خطا -->
             </div>
         </div>
 
         <div class="input-group-modal">
             <label>آدرس دقیق پستی*</label>
             <textarea id="inputAddress" rows="2" placeholder="استان، شهر، خیابان، پلاک..." required></textarea>
+            <div class="error-message"></div> <!-- جای خطا -->
         </div>
         
         <div class="input-row">
              <div class="input-group-modal">
                 <label>کد پستی (۱۰ رقم)*</label>
                 <input type="tel" id="inputPostal" maxlength="10" required>
+                <div class="error-message"></div> <!-- جای خطا -->
             </div>
             <div class="input-group-modal">
                 <label>شماره تماس</label>
@@ -1210,7 +1243,7 @@ if (isset($_SESSION['user_id'])) {
             </div>
         </div>
 
-        <!-- متن پیش‌نمایش قرارداد (اینجا اضافه شد) -->
+        <!-- متن پیش‌نمایش قرارداد -->
         <div class="contract-preview-box" style="background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px; margin: 15px 0; border: 1px solid var(--border-color);">
             <p style="font-size: 0.9rem; line-height: 1.8; text-align: justify; margin: 0;">
                 اینجانب <strong id="previewName" style="color: var(--primary-color);">...</strong> 
@@ -1229,6 +1262,7 @@ if (isset($_SESSION['user_id'])) {
                 <canvas id="signaturePad" width="400" height="150"></canvas>
             </div>
             <button type="button" id="clearSignBtn" class="clear-sign">پاک کردن امضا</button>
+            <div id="sig-error" class="error-message" style="clear: both;"></div> <!-- جای خطای امضا -->
         </div>
 
         <button type="submit" class="btn-success-modal">✅ ثبت نهایی و صدور قرارداد</button>
