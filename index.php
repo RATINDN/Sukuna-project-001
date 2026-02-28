@@ -1,10 +1,42 @@
 <?php
 session_start();
 require_once 'db_connect.php';
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+// تعریف متغیرها با مقدار پیش‌فرض (برای جلوگیری از ارور)
+$allProducts = [];
+$sliderProducts = [];
+$gridCars = []; 
+$uniqueBrands = []; // <--- این خط حیاتی است
+
+try {
+  // 1. دریافت همه محصولات
+  $stmt = $pdo->query("SELECT * FROM products ORDER BY created_at DESC");
+  $allProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  // 2. فیلتر اسلایدر
+  $sliderProducts = array_filter($allProducts, function($p) {
+      return $p['in_slider'] == 1;
+  });
+
+  // 3. لیست پایین (همه محصولات)
+  $gridCars = $allProducts;
+
+  // 4. دریافت برندها (مخصوص فیلتر)
+  $brandStmt = $pdo->query("SELECT DISTINCT brand FROM products WHERE brand IS NOT NULL AND brand != '' ORDER BY brand ASC");
+  $uniqueBrands = $brandStmt->fetchAll(PDO::FETCH_COLUMN);
+
+} catch (PDOException $e) {
+  // اگر دیتابیس ارور داد، فقط در لاگ بنویس و سایت را خراب نکن
+  error_log("Database Error: " . $e->getMessage());
+}
 
 $logged_in = false;
 $user_name = '';
-$avatar_color = ''; // Initialize avatar color
+$avatar_color = ''; 
+
+// ... ادامه کدهای لاگین ...
 
 if (isset($_SESSION['user_id'])) {
     $logged_in = true;
@@ -152,6 +184,112 @@ if (isset($_SESSION['user_id'])) {
       visibility: hidden;
     }
   }
+
+
+    /* ریست کردن استایل‌های مزاحم */
+    #vipClubModal * { 
+        box-sizing: border-box; 
+        font-family: 'Vazirmatn', sans-serif;
+    }
+    
+    .vip-modal-overlay {
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 9999999;
+        justify-content: center; align-items: center; padding: 15px;
+    }
+
+    .vip-modal-box {
+        background: var(--card-bg, #fff); width: 100%; max-width: 500px;
+        border-radius: 20px; position: relative; border: 1px solid var(--border-color, #ccc);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden;
+        max-height: 90vh;
+    }
+
+    .vip-modal-close {
+        position: absolute; top: 15px; right: 15px; background: transparent;
+        border: none; color: var(--text-color, #000); font-size: 24px; cursor: pointer; z-index: 10;
+    }
+
+    .vip-modal-header {
+        text-align: center; padding: 25px 20px 10px; border-bottom: 1px solid var(--border-color, #eee);
+    }
+    .vip-modal-header h2 { margin: 0; color: var(--text-color, #000); font-size: 1.4rem; font-weight: 900; }
+
+    /* تب‌ها */
+    .vip-tabs-container {
+        display: flex; justify-content: space-between; gap: 8px; padding: 15px; background: rgba(0,0,0,0.03);
+    }
+
+    .vip-tab-btn {
+        flex: 1; padding: 10px 5px; border-radius: 10px; border: 2px solid transparent;
+        background: var(--card-bg); cursor: pointer; transition: all 0.2s;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05); color: var(--text-color);
+    }
+
+    .vip-tab-btn .tab-icon { font-size: 24px; margin-bottom: 5px; }
+    .vip-tab-btn .tab-name { font-size: 11px; font-weight: bold; }
+
+    /* حالت اکتیو */
+    .tab-bronze.active { border-color: #cd7f32; background: #fff8f0; }
+    .tab-gold.active { border-color: #ffd700; background: #fffff0; transform: scale(1.05); }
+    .tab-diamond.active { border-color: #00bcd4; background: #f0ffff; transform: scale(1.05); }
+
+    /* محتوا */
+    .vip-content-container { 
+        padding: 20px; 
+        text-align: right; 
+        overflow-y: auto;
+        flex-grow: 1;
+    }
+    
+    .vip-content-pane { display: none; animation: fadeInTab 0.3s ease; }
+    .vip-content-pane.active { display: block; }
+
+    @keyframes fadeInTab { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    .vip-content-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; border-bottom: 2px solid; display: inline-block; padding-bottom: 5px; }
+    .vip-content-subtitle { font-size: 11px; color: var(--secondary-text); margin-bottom: 15px; display: block; }
+    
+    /* --- فیکس کردن لیست‌ها (مهم‌ترین بخش) --- */
+    .vip-content-pane ul { 
+        display: flex !important; /* اجبار به فلکس */
+        flex-direction: column !important; /* حتماً زیر هم باشن */
+        padding-right: 0 !important; 
+        margin: 0 !important; 
+        list-style: none !important; /* بولت‌های پیش‌فرض رو حذف میکنیم */
+    }
+
+    .vip-content-pane li { 
+        display: flex !important; /* آیتم‌ها فلکس باشن */
+        align-items: center;
+        width: 100% !important; /* تمام عرض */
+        font-size: 13px !important; 
+        line-height: 1.6 !important; 
+        margin-bottom: 10px !important;
+        padding: 10px;
+        background: rgba(0,0,0,0.03);
+        border-radius: 8px;
+        border-right: 4px solid transparent;
+    }
+
+    /* آیکون چک مارک دستی */
+    .vip-content-pane li::before {
+        content: '✔';
+        margin-left: 10px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    /* رنگ‌بندی لیست‌ها بر اساس سطح */
+    #vip-content-bronze li { border-right-color: #cd7f32; color: #8d6e63; }
+    #vip-content-bronze li::before { color: #cd7f32; }
+
+    #vip-content-gold li { border-right-color: #ffd700; color: #998100; background: rgba(255, 215, 0, 0.05); }
+    #vip-content-gold li::before { color: #ffd700; }
+
+    #vip-content-diamond li { border-right-color: #00bcd4; color: #00838f; background: rgba(0, 188, 212, 0.05); }
+    #vip-content-diamond li::before { color: #00bcd4; }
   </style>
 
   <div class="container-load" id="container-load">
@@ -315,125 +453,55 @@ if (isset($_SESSION['user_id'])) {
             </svg>
 
             <div class="search" id="search-box">
-              <div class="search2">
-
-                <input type="search" name="" placeholder="جستجو...." id="search">
-                <select id="brand-filter" class="select">
-                  <option value="">همه برندها</option>
-                  <option value="آئودی">آئودی</option>
-                  <option value="لامبورگینی"> لامبورگینی </option>
-                  <option value="رولزرویس">رولزرویس</option>
-                  <option value="فراری">فراری</option>
-                  <option value="رنج روور">رنج روور</option>
-                  <option value="مرسدس بنز">مرسدس بنز</option>
-
-                </select>
-              </div>
+            <div class="search2">
+    <input type="search" name="" placeholder="جستجو...." id="search">
+    <select id="brand-filter" class="select">
+        <option value="">همه برندها</option>
+        <!-- شرط امنیتی: فقط اگر برندها وجود داشتند حلقه بزن -->
+        <?php if (!empty($uniqueBrands)): ?>
+            <?php foreach($uniqueBrands as $brand): ?>
+                <option value="<?php echo htmlspecialchars($brand); ?>"><?php echo htmlspecialchars($brand); ?></option>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </select>
+</div>
             </div>
 
             <div class="parent">
-  <!-- خودرو ۱ (تخفیف دار) -->
-  <div class="box" 
-       data-title="آئودی A6 e-tron 2024" 
-       data-price="1,670,000,000" 
-       data-old-price="1,950,000,000" 
-       data-image="images/car-1.webp">
-    <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/car-1.webp);">
-      <div class="child"><h1 style="font-weight: 400;">+</h1></div>
-    </div>
-    <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
-      <div class="box-3"><h4 style="font-weight: 400;">آئودی A6 e-tron 2024</h4></div>
-      <div class="box3" style="height: 50%; padding-right: 10px;">
-        <h6 style="font-weight: 400;" id="h6">قیمت: <del style="color:red; font-size:12px;">1,950,000,000</del> 1,670,000,000 تومان</h6>
-        <h6 style="font-weight: 400;" id="h6">موجودی: ۱۰,۰۰۰ دستگاه</h6>
-      </div>
-    </div>
-  </div>
-
-  <!-- خودرو ۲ -->
-  <div class="box" data-title="لامبورگینی آونتادور ۲۰۱۱" data-price="21,200,000,000" data-image="images/1.webp">
-    <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/1.webp);">
-      <div class="child"><h1 style="font-weight: 400;">+</h1></div>
-    </div>
-    <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
-      <div class="box-3"><h4 style="font-weight: 400;">لامبورگینی آونتادور ۲۰۱۱</h4></div>
-      <div class="box3" style="height: 50%;">
-        <h6 style="font-weight: 400;" id="h6">قیمت: 21,200,000,000 تومان</h6>
-        <h6 style="font-weight: 400;" id="h6">موجودی: ۲,۹۵۶ دستگاه</h6>
-      </div>
-    </div>
-  </div>
-
-  <!-- خودرو ۳ -->
-  <div class="box" data-title="رولزرویس فانتوم ۲۰۱۷" data-price="75,000,000,000" data-image="images/2.webp">
-    <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/2.webp);">
-      <div class="child"><h1 style="font-weight: 400;">+</h1></div>
-    </div>
-    <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
-      <div class="box-3"><h4 style="font-weight: 400;">رولزرویس فانتوم ۲۰۱۷</h4></div>
-      <div class="box3" style="height: 50%;">
-        <h6 style="font-weight: 400;" id="h6">قیمت: 75,000,000,000 تومان</h6>
-        <h6 style="font-weight: 400;" id="h6">موجودی: ۱۶۳ دستگاه</h6>
-      </div>
-    </div>
-  </div>
-
-  <!-- بقیه خودروهای دسکتاپ را هم به همین صورت با data-price آپدیت کن -->
-  <!-- خودرو ۴ -->
-  <div class="box" data-title="فراری لافراری ۲۰۱۳" data-price="115,000,000,000" data-image="images/3.webp">
-    <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/3.webp);">
-        <div class="child"><h1 style="font-weight: 400;">+</h1></div>
-    </div>
-    <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
-        <div class="box-3"><h4 style="font-weight: 400;">فراری لافراری ۲۰۱۳</h4></div>
-        <div class="box3" style="height: 50%;">
-            <h6 style="font-weight: 400;" id="h6">قیمت: 115,000,000,000 تومان</h6>
-            <h6 style="font-weight: 400;" id="h6">موجودی: ۵۰ دستگاه</h6>
+    <?php foreach($gridCars as $car): ?>
+      <div class="box" 
+     data-title="<?php echo $car['name']; ?>" 
+     data-brand="<?php echo $car['brand']; ?>"
+     data-price="<?php echo $car['price']; ?>" 
+     data-old-price="<?php echo $car['old_price']; ?>" 
+     data-image="<?php echo $car['image']; ?>"
+     data-hp="<?php echo (is_numeric($car['hp'])) ? $car['hp'] . ' hp' : $car['hp']; ?>"
+data-accel="<?php echo (is_numeric($car['accel'])) ? $car['accel'] . 's' : $car['accel']; ?>"
+data-engine="<?php echo $car['engine']; ?>"
+data-id="<?php echo $car['id']; ?>"
+data-inventory="<?php echo $car['inventory']; ?>"
+data-colors="<?php echo htmlspecialchars($car['colors_inventory'] ?? '{}', ENT_QUOTES, 'UTF-8'); ?>"
+data-sound="<?php echo $car['engine_sound'] ?? ''; ?>"
+>
+        
+        <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url('<?php echo $car['image']; ?>');">
+            <div class="child"><h1 style="font-weight: 400;">+</h1></div>
+        </div>
+        <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="box-3"><h4 style="font-weight: 400;"><?php echo $car['name']; ?></h4></div>
+            <div class="box3" style="height: 50%;">
+                <h6 style="font-weight: 400;" id="h6">
+                    قیمت: 
+                    <?php if($car['old_price']): ?>
+                        <del style="color:red; font-size:12px;"><?php echo number_format($car['old_price']); ?></del> 
+                    <?php endif; ?>
+                    <?php echo number_format($car['price']); ?> تومان
+                </h6>
+                <h6 style="font-weight: 400;" id="h6">موجودی: <?php echo $car['inventory']; ?> دستگاه</h6>
+            </div>
         </div>
     </div>
-  </div>
-  
-  <!-- خودرو ۵ -->
-  <div class="box" data-title="رنج روور ۲۰۲۳" data-price="4,800,000,000" data-image="images/4.webp">
-    <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/4.webp);">
-        <div class="child"><h1 style="font-weight: 400;">+</h1></div>
-    </div>
-    <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
-        <div class="box-3"><h4 style="font-weight: 400;">رنج روور ۲۰۲۳</h4></div>
-        <div class="box3" style="height: 50%;">
-            <h6 style="font-weight: 400;" id="h6">قیمت: 4,800,000,000 تومان</h6>
-            <h6 style="font-weight: 400;" id="h6">موجودی: ۵,۶۹۲ دستگاه</h6>
-        </div>
-    </div>
-  </div>
-
-  <!-- خودرو ۶ -->
-  <div class="box" data-title="مرسدس بنز S-Class 2021" data-price="60,000,000,000" data-image="images/5.webp">
-    <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/5.webp);">
-        <div class="child"><h1 style="font-weight: 400;">+</h1></div>
-    </div>
-    <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
-        <div class="box-3"><h4 style="font-weight: 400;">مرسدس بنز S-Class 2021</h4></div>
-        <div class="box3" style="height: 50%;">
-            <h6 style="font-weight: 400;" id="h6">قیمت: 60,000,000,000 تومان</h6>
-            <h6 style="font-weight: 400;" id="h6">موجودی: ۹۶۸ دستگاه</h6>
-        </div>
-    </div>
-  </div>
-
-  <!-- خودرو ۷ -->
-  <div class="box" data-title="فراری F8 تریبوتو ۲۰۱۴" data-price="65,000,000,000" data-image="images/6.webp">
-    <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url(images/6.webp);">
-        <div class="child"><h1 style="font-weight: 400;">+</h1></div>
-    </div>
-    <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
-        <div class="box-3"><h4 style="font-weight: 400;">فراری F8 تریبوتو ۲۰۱۴</h4></div>
-        <div class="box3" style="height: 50%;">
-            <h6 style="font-weight: 400;" id="h6">قیمت: 65,000,000,000 تومان</h6>
-            <h6 style="font-weight: 400;" id="h6">موجودی: ۹۶۸ دستگاه</h6>
-        </div>
-    </div>
-  </div>
+    <?php endforeach; ?>
 </div>
 
           </div>
@@ -576,19 +644,17 @@ if (isset($_SESSION['user_id'])) {
 
     <div class="menu" id="openmenu">
       <div class=" search-mobile" id="search-box-2">
-        <div class="search2">
-          <select id="brand-filter-mobile" class="select">
-            <option value="">همه برندها</option>
-            <option value="آئودی">آئودی</option>
-            <option value="لامبورگینی"> لامبورگینی </option>
-            <option value="رولزرویس">رولزرویس</option>
-            <option value="فراری">فراری</option>
-            <option value="رنج روور">رنج روور</option>
-            <option value="مرسدس بنز">مرسدس بنز</option>
-
-          </select>
-          <input type="search" name="" placeholder="جستجو...." id="search-mobile" class="search-input">
-        </div>
+      <div class="search2">
+      <select id="brand-filter-mobile" class="select">
+        <option value="">همه برندها</option>
+        <?php if (!empty($uniqueBrands)): ?>
+            <?php foreach($uniqueBrands as $brand): ?>
+                <option value="<?php echo htmlspecialchars($brand); ?>"><?php echo htmlspecialchars($brand); ?></option>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </select>
+    <input type="search" name="" placeholder="جستجو...." id="search-mobile" class="search-input">
+</div>
         <div class="close" id="close">
           <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="arrow-close"
             viewBox="0 0 16 16">
@@ -599,103 +665,48 @@ if (isset($_SESSION['user_id'])) {
       </div>
       <!-- بخش موبایل -->
       <div class="parent-mobile" id="parent-mobile">
-    <!-- خودرو ۱ (آئودی - تخفیف دار) -->
-    <div class="box-mobile" id="boxing1" data-title="آئودی A6 e-tron 2024" data-price="1,670,000,000" data-old-price="1,950,000,000" data-image="images/car-1.webp">
-        <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/car-1.webp);">
-            <div class="child-mobile"><h1 style="font-weight: 400;">+</h1></div>
-        </div>
-        <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="box-3-mobile"><h4 class="h4">آئودی A6 e-tron 2024</h4></div>
-            <div class="box3-mobile" style="height: 50%;">
-                <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت: <del style="color:red">1,950,000,000</del> 1,670,000,000 تومان</h6>
-                <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۱۰,۰۰۰ دستگاه</h6>
+    <?php foreach ($allProducts as $car): ?>
+      <div class="box-mobile" 
+     data-title="<?php echo $car['name']; ?>" 
+     data-brand="<?php echo $car['brand']; ?>"
+     data-price="<?php echo $car['price']; ?>" 
+     data-old-price="<?php echo $car['old_price']; ?>" 
+     data-image="<?php echo $car['image']; ?>"
+     
+     data-hp="<?php echo (is_numeric($car['hp'])) ? $car['hp'] . ' hp' : $car['hp']; ?>"
+data-accel="<?php echo (is_numeric($car['accel'])) ? $car['accel'] . 's' : $car['accel']; ?>"
+data-engine="<?php echo $car['engine']; ?>"
+data-id="<?php echo $car['id']; ?>"
+data-inventory="<?php echo $car['inventory']; ?>"
+data-colors="<?php echo htmlspecialchars($car['colors_inventory'] ?? '{}', ENT_QUOTES, 'UTF-8'); ?>"
+data-sound="<?php echo $car['engine_sound'] ?? ''; ?>"
+>
+             
+            <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url('<?php echo $car['image']; ?>');">
+                <div class="child-mobile">
+                    <h1 style="font-weight: 400;">+</h1>
+                </div>
+            </div>
+            
+            <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
+                <div class="box-3-mobile">
+                    <h4 class="h4"><?php echo $car['name']; ?></h4>
+                </div>
+                <div class="box3-mobile" style="height: 50%;">
+                    <h6 style="font-weight: 400; font-size: 10px;" id="h6">
+                        قیمت: 
+                        <?php if($car['old_price']): ?>
+                            <del style="color:red;"><?php echo number_format($car['old_price']); ?></del>
+                        <?php endif; ?>
+                        <?php echo number_format($car['price']); ?> تومان
+                    </h6>
+                    <h6 style="font-weight: 400; font-size: 10px;" id="h6">
+                        موجودی: <?php echo $car['inventory']; ?> دستگاه
+                    </h6>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <!-- خودرو ۲ (لامبورگینی) -->
-    <div class="box-mobile" id="boxing2" data-title="لامبورگینی آونتادور ۲۰۱۱" data-price="21,200,000,000" data-image="images/1.webp">
-        <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/1.webp);">
-            <div class="child-mobile"><h1 style="font-weight: 400;">+</h1></div>
-        </div>
-        <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="box-3-mobile"><h4 class="h4">لامبورگینی آونتادور ۲۰۱۱</h4></div>
-            <div class="box3-mobile" style="height: 50%;">
-                <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت: 21,200,000,000 تومان</h6>
-                <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۲,۹۵۶ دستگاه</h6>
-            </div>
-        </div>
-    </div>
-    
-    <!-- خودرو ۳ (رولزرویس) -->
-    <div class="box-mobile" id="boxing3" data-title="رولزرویس فانتوم ۲۰۱۷" data-price="75,000,000,000" data-image="images/2.webp">
-        <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/2.webp);">
-            <div class="child-mobile"><h1 style="font-weight: 400;">+</h1></div>
-        </div>
-        <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="box-3-mobile"><h4 class="h4">رولزرویس فانتوم ۲۰۱۷</h4></div>
-            <div class="box3-mobile" style="height: 50%;">
-                <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت: 75,000,000,000 تومان</h6>
-                <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۱۶۳ دستگاه</h6>
-            </div>
-        </div>
-    </div>
-
-    <!-- خودرو ۴ (فراری لافراری) -->
-    <div class="box-mobile" id="boxing4" data-title="فراری لافراری ۲۰۱۳" data-price="115,000,000,000" data-image="images/3.webp">
-        <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/3.webp);">
-            <div class="child-mobile"><h1 style="font-weight: 400;">+</h1></div>
-        </div>
-        <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="box-3-mobile"><h4 class="h4">فراری لافراری ۲۰۱۳</h4></div>
-            <div class="box3-mobile" style="height: 50%;">
-                <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت: 115,000,000,000 تومان</h6>
-                <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۵۰ دستگاه</h6>
-            </div>
-        </div>
-    </div>
-
-    <!-- خودرو ۵ (رنج روور) -->
-    <div class="box-mobile" id="boxing5" data-title="رنج روور ۲۰۲۳" data-price="4,800,000,000" data-image="images/4.webp">
-        <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/4.webp);">
-            <div class="child-mobile"><h1 style="font-weight: 400;">+</h1></div>
-        </div>
-        <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="box-3-mobile"><h4 class="h4">رنج روور ۲۰۲۳</h4></div>
-            <div class="box3-mobile" style="height: 50%;">
-                <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت: 4,800,000,000 تومان</h6>
-                <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۵,۶۹۲ دستگاه</h6>
-            </div>
-        </div>
-    </div>
-
-    <!-- خودرو ۶ (مرسدس) -->
-    <div class="box-mobile" id="boxing6" data-title="مرسدس بنز S-Class 2021" data-price="60,000,000,000" data-image="images/5.webp">
-        <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/5.webp);">
-            <div class="child-mobile"><h1 style="font-weight: 400;">+</h1></div>
-        </div>
-        <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="box-3-mobile"><h4 class="h4">مرسدس بنز S-Class 2021</h4></div>
-            <div class="box3-mobile" style="height: 50%;">
-                <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت: 60,000,000,000 تومان</h6>
-                <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۹۶۸ دستگاه</h6>
-            </div>
-        </div>
-    </div>
-
-    <!-- خودرو ۷ (فراری F8) -->
-    <div class="box-mobile" id="boxing7" data-title="فراری F8 تریبوتو ۲۰۱۴" data-price="65,000,000,000" data-image="images/6.webp">
-        <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url(images/6.webp);">
-            <div class="child-mobile"><h1 style="font-weight: 400;">+</h1></div>
-        </div>
-        <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="box-3-mobile"><h4 class="h4">فراری F8 تریبوتو ۲۰۱۴</h4></div>
-            <div class="box3-mobile" style="height: 50%;">
-                <h6 style="font-weight: 400; font-size: 10px;" id="h6">قیمت: 65,000,000,000 تومان</h6>
-                <h6 style="font-weight: 400; font-size: 10px;" id="h6">موجودی: ۹۶ دستگاه</h6>
-            </div>
-        </div>
-    </div>
+    <?php endforeach; ?>
 </div>
     </div>
 
@@ -713,6 +724,11 @@ if (isset($_SESSION['user_id'])) {
           <div class="child4"></div>
         </div>
       </div>
+
+      <?php 
+// پیدا کردن اولین محصول برای بنر اصلی (اگر محصولی وجود داشت)
+$featuredCar = !empty($allProducts) ? $allProducts[0] : null; 
+?>
      <!-- تیتر تایپ‌شونده -->
 <h1 class="move detail type-effect" style=" direction: rtl;">
     <span class="type-text"></span>
@@ -734,8 +750,8 @@ if (isset($_SESSION['user_id'])) {
         <span style="font-size: 14px; margin-right: 5px;">تضمین سلامت</span>
     </div>
 </div>
-      <button class="button detail" id="move">جزئیات بیشتر</button>
-      <button class="button3 detail" onclick="opencar()">جزئیات بیشتر</button>
+      <button class="button detail" id="move">مشاهده خودروها</button>
+      <button class="button3 detail" onclick="opencar()">مشاهده خودروها</button>
 
       <div class="real">
         <div class="real2" style="animation: load; animation-timeline: view();">
@@ -761,61 +777,56 @@ if (isset($_SESSION['user_id'])) {
 
 
     <!-- بخش اسلایدر -->
-<div class="swiper mySwiper">
-  <div class="swiper-wrapper">
-    <div class="swiper-slide" style="background-image: url(images/1.webp);" 
-         data-title="لامبورگینی آونتادور ۲۰۱۱" 
-         data-price="21,200,000,000" 
-         data-image="images/1.webp">
-      <div class="ord"><h3>لامبورگینی آونتادور ۲۰۱۱</h3></div>
-      <div class="ord"><button class="order">سفارش</button></div>
+    <div class="swiper mySwiper">
+    <div class="swiper-wrapper">
+        <?php if (empty($sliderProducts)): ?>
+            <!-- اسلاید پیش‌فرض اگر هیچ ماشینی برای اسلایدر انتخاب نشده باشد -->
+            <div class="swiper-slide" style="background-image: url('images/car-1.webp');">
+                <div class="ord"><h3>به زودی محصولات جدید...</h3></div>
+            </div>
+        <?php else: ?>
+            <?php foreach ($sliderProducts as $car): ?>
+              <div class="swiper-slide" 
+     style="background-image: url('<?php echo $car['image']; ?>');"
+     data-title="<?php echo $car['name']; ?>"
+     data-brand="<?php echo $car['brand']; ?>"
+     data-price="<?php echo $car['price']; ?>" 
+     data-old-price="<?php echo $car['old_price']; ?>"
+     data-image="<?php echo $car['image']; ?>"
+     
+     data-hp="<?php echo (is_numeric($car['hp'])) ? $car['hp'] . ' hp' : $car['hp']; ?>"
+data-accel="<?php echo (is_numeric($car['accel'])) ? $car['accel'] . 's' : $car['accel']; ?>"
+data-engine="<?php echo $car['engine']; ?>"
+data-id="<?php echo $car['id']; ?>"
+data-inventory="<?php echo $car['inventory']; ?>"
+data-colors="<?php echo htmlspecialchars($car['colors_inventory'] ?? '{}', ENT_QUOTES, 'UTF-8'); ?>"
+data-sound="<?php echo $car['engine_sound'] ?? ''; ?>"
+>
+                    <div class="ord">
+                        <h3><?php echo $car['name']; ?></h3>
+                    </div>
+                    
+                    <div class="ord">
+                        <button class="order">سفارش</button>
+                        
+                        <!-- اگر تخفیف داشت، برچسب نشان بده -->
+                        <?php if($car['old_price']): ?>
+                            <div class="card" style="width:auto; padding:0 10px; border-radius:5px; background:rgba(255,0,0,0.7); border:none;">
+                                <span style="font-size:12px; color:white;">تخفیف ویژه</span>
+                            </div>
+                        <?php else: ?>
+                            <div class="card">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" fill="currentColor" class="bi bi-cart4" viewBox="0 0 16 16">
+                                    <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5M3.14 5l.5 2H5V5zM6 5v2h2V5zm3 0v2h2V5zm3 0v2h1.36l.5-2zm1.11 3H12v2h.61zM11 8H9v2h2zM8 8H6v2h2zM5 8H3.89l.5 2H5zm0 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0m9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0"/>
+                                </svg>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
     </div>
-
-    <div class="swiper-slide" style="background-image: url(images/2.webp);" 
-         data-title="رولزرویس فانتوم ۲۰۱۷" 
-         data-price="75,000,000,000" 
-         data-image="images/2.webp">
-      <div class="ord"><h3>رولزرویس فانتوم ۲۰۱۷</h3></div>
-      <div class="ord"><button class="order">سفارش</button></div>
-    </div>
-
-    <div class="swiper-slide" style="background-image: url(images/3.webp);" 
-         data-title="فراری لافراری ۲۰۱۳" 
-         data-price="115,000,000,000" 
-         data-image="images/3.webp">
-      <div class="ord"><h3>فراری لافراری ۲۰۱۳</h3></div>
-      <div class="ord"><button class="order">سفارش</button></div>
-    </div>
-
-    <div class="swiper-slide" style="background-image: url(images/4.webp);" 
-         data-title="رنج روور ۲۰۲۳" 
-         data-price="4,800,000,000" 
-         data-image="images/4.webp">
-      <div class="ord"><h3>رنج روور ۲۰۲۳</h3></div>
-      <div class="ord"><button class="order">سفارش</button></div>
-    </div>
-
-    <!-- اسلاید تخفیف دار -->
-    <div class="swiper-slide" style="background-image: url(images/car-1.webp);" 
-         data-title="آئودی A6 e-tron 2024" 
-         data-price="1,670,000,000" 
-         data-old-price="1,950,000,000"
-         data-image="images/car-1.webp">
-      <div class="ord"><h3>آئودی A6 e-tron 2024</h3></div>
-      <div class="ord">
-        <button class="order">سفارش</button>
-        <del style="color: red; background:rgba(0,0,0,0.5); padding:2px;">۲۰٪ تخفیف</del>
-      </div>
-    </div>
-
-    <div class="swiper-slide" style="background-image: url(images/6.webp);" 
-         data-title="فراری F8 تریبوتو ۲۰۱۴" 
-         data-price="65,000,000,000" 
-         data-image="images/6.webp">
-      <div class="ord"><h3>فراری F8 تریبوتو ۲۰۱۴</h3></div>
-      <div class="ord"><button class="order">سفارش</button></div>
-    </div>
-  </div>
+    <div class="swiper-pagination"></div>
 </div>
 
 
@@ -1181,7 +1192,23 @@ if (isset($_SESSION['user_id'])) {
             <h3 id="modalCarName">نام خودرو</h3>
             <h4 id="modalCarPrice" class="price-tag">قیمت</h4>
         </div>
+        <!-- سیستم FOMO (ترس از دست دادن) و دکمه صدا -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+          
+          <!-- نمایش افراد آنلاین در حال بازدید -->
+          <div class="live-viewers-box" style="background: rgba(244, 67, 54, 0.1); border: 1px solid rgba(244, 67, 54, 0.3); padding: 5px 10px; border-radius: 5px; display: flex; align-items: center; gap: 8px;">
+              <span style="width: 8px; height: 8px; background: #f44336; border-radius: 50%; box-shadow: 0 0 8px #f44336; animation: blink 1s infinite;"></span>
+              <span style="font-size: 11px; font-weight: bold; color: #d32f2f;">
+                  <span id="fomoCounter">3</span> نفر در حال بررسی این خودرو هستند
+              </span>
+          </div>
 
+          <!-- دکمه جادویی صدای موتور -->
+          <button id="engineSoundBtn" style="background: #212121; color: white; border: 1px solid #444; padding: 6px 12px; border-radius: 50px; font-size: 11px; cursor: pointer; display: none; align-items: center; gap: 5px; transition: 0.3s;">
+              🔊 صدای موتور 
+          </button>
+          <audio id="carAudioPlayer" src=""></audio>
+      </div>
         <div class="tech-specs">
             <div class="spec-item"><span class="spec-icon">🐎</span><span id="specHP" class="spec-val">---</span><span class="spec-label">قدرت</span></div>
             <div class="spec-item"><span class="spec-icon">⏱️</span><span id="specAccel" class="spec-val">---</span><span class="spec-label">شتاب</span></div>
@@ -1189,7 +1216,7 @@ if (isset($_SESSION['user_id'])) {
         </div>
       </div>
 
-      <div class="color-selection-area">
+      <!-- <div class="color-selection-area">
         <p>رنگ بدنه را انتخاب کنید:</p>
         <div class="colors-container">
           <div class="color-dot selected" data-color="مشکی" style="background-color: #111;"></div>
@@ -1199,7 +1226,15 @@ if (isset($_SESSION['user_id'])) {
           <div class="color-dot" data-color="نقره‌ای" style="background-color: #90A4AE;"></div>
         </div>
         <p id="selectedColorLabel" class="color-label">رنگ انتخاب شده: مشکی</p>
-      </div>
+      </div> -->
+
+      <div class="color-selection-area">
+    <p>رنگ بدنه را انتخاب کنید:</p>
+    <div class="colors-container" id="modalColorsContainer">
+        <!-- دایره‌های رنگ به صورت داینامیک توسط JS ساخته می‌شوند -->
+    </div>
+    <p id="selectedColorLabel" class="color-label">در حال بررسی رنگ‌ها...</p>
+</div>
 
       <button class="btn-primary-modal" onclick="goToStep2()">تایید و تنظیم قرارداد &leftarrow;</button>
     </div>
@@ -1270,7 +1305,98 @@ if (isset($_SESSION['user_id'])) {
     </div>
   </div>
 </div>
+<div id="vipClubModal" class="vip-modal-overlay">
+    <div class="vip-modal-box">
+        
+        <button onclick="document.getElementById('vipClubModal').style.display='none'" class="vip-modal-close">&times;</button>
+        
+        <div class="vip-modal-header">
+            <h2>باشگاه مشتریان (VIP)</h2>
+        </div>
 
+        <!-- دکمه‌های انتخاب سطح -->
+        <div class="vip-tabs-container">
+            <button class="vip-tab-btn tab-bronze active" onclick="openVipTab('bronze', this)">
+                <span class="tab-icon">🥉</span>
+                <span class="tab-name" style="color: #cd7f32;">برنزی</span>
+            </button>
+            
+            <button class="vip-tab-btn tab-gold" onclick="openVipTab('gold', this)">
+                <span class="tab-icon">👑</span>
+                <span class="tab-name" style="color: #d4af37;">طلایی</span>
+            </button>
+            
+            <button class="vip-tab-btn tab-diamond" onclick="openVipTab('diamond', this)">
+                <span class="tab-icon">💎</span>
+                <span class="tab-name" style="color: #00bcd4;">الماس</span>
+            </button>
+        </div>
+
+        <!-- محتوای متغیر سطوح -->
+        <div class="vip-content-container">
+            
+            <!-- محتوای برنزی -->
+            <div id="vip-content-bronze" class="vip-content-pane active">
+                <div class="vip-content-title" style="color: #cd7f32; border-color: #cd7f32;">امکانات سطح برنزی</div>
+                <span class="vip-content-subtitle">(ورود اولیه / بدون نیاز به سابقه خرید)</span>
+                <ul>
+                    <li>پاسخگویی سریع در ساعات کاری اداری</li>
+                    <li>تحویل استاندارد خودرو (۷ الی ۱۴ روز کاری)</li>
+                    <li>دریافت مشاوره تخصصی و رایگان تلفنی</li>
+                    <li>تحویل خودرو در محل نمایشگاه شرکت</li>
+                </ul>
+            </div>
+
+            <!-- محتوای طلایی -->
+            <div id="vip-content-gold" class="vip-content-pane">
+                <div class="vip-content-title" style="color: #d4af37; border-color: #d4af37;">امکانات سطح طلایی</div>
+                <span class="vip-content-subtitle">(نیازمند ۱ الی ۲ خرید قطعی)</span>
+                <ul>
+                    <li><b>لاین اختصاصی تماس (پاسخگویی بدون نوبت)</b></li>
+                    <li>تحویل اکسپرس خودرو (۲ الی ۴ روز کاری)</li>
+                    <li>۱ سال سرویس دوره‌ای کاملاً رایگان</li>
+                    <li>انجام صفر تا صد امور سند و تعویض پلاک</li>
+                    <li>ارسال رایگان با خودروبر تا درب منزل</li>
+                </ul>
+            </div>
+
+            <!-- محتوای الماس -->
+            <div id="vip-content-diamond" class="vip-content-pane">
+                <div class="vip-content-title" style="color: #00bcd4; border-color: #00bcd4;">امکانات سطح الماس VIP</div>
+                <span class="vip-content-subtitle">(نیازمند ۳ خرید قطعی به بالا)</span>
+                <ul>
+                    <li><b>تخصیص مدیر حساب شخصی (پاسخگویی ۲۴ ساعته)</b></li>
+                    <li>تحویل فوری و ویژه (کمتر از ۴۸ ساعت)</li>
+                    <li>تحویل با خودروبر شیشه‌ای VIP همراه با فرش قرمز</li>
+                    <li>دسترسی انحصاری به خودروهای لیمیتد و مخفی</li>
+                    <li>اختصاص خودروی جایگزین لوکس در زمان تعمیرات</li>
+                    <li>انجام خدمات پلاک رند و امور مالیاتی</li>
+                </ul>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // اسکریپت مدیریت تَب‌ها
+    function openVipTab(tabName, clickedBtn) {
+        // 1. مخفی کردن تمام محتواها
+        const panes = document.querySelectorAll('.vip-content-pane');
+        panes.forEach(pane => pane.classList.remove('active'));
+        
+        // 2. برداشتن استایل اکتیو از تمام دکمه‌ها
+        const btns = document.querySelectorAll('.vip-tab-btn');
+        btns.forEach(btn => btn.classList.remove('active'));
+        
+        // 3. نمایش محتوای انتخاب شده
+        document.getElementById('vip-content-' + tabName).classList.add('active');
+        
+        // 4. دادن استایل اکتیو به دکمه کلیک شده
+        clickedBtn.classList.add('active');
+    }
+</script>
 </body>
 
 </html>

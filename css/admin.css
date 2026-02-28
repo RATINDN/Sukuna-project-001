@@ -205,9 +205,18 @@ body.dark-mode .theme-toggle:hover {
 .users-table-container {
     background-color: var(--admin-bg-color);
     border-radius: 8px;
-    border: 1px solid var(--admin-text-color);
-    box-shadow: 5px 5px 20px var(--admin-border-color);
-    overflow: hidden;
+    border: 1px solid var(--admin-border-color);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    
+    /* این دو خط مشکل بیرون زدگی را حل می‌کنند */
+    overflow-x: auto; 
+    width: 100%;
+}
+
+/* جلوگیری از شکستن متن‌ها در جدول */
+.users-table th, .users-table td {
+    white-space: nowrap;
+    padding: 12px 15px;
 }
 
 .users-table {
@@ -609,13 +618,14 @@ body.dark-mode .theme-toggle:hover {
    ========================================= */
 
    .dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 25px;
-    margin-bottom: 40px;
-    padding: 10px;
+    display: grid !important;
+    /* دقیقاً ۲ کارت در دسکتاپ و تبلت با سایز مساوی */
+    grid-template-columns: repeat(2, 1fr) !important; 
+    gap: 30px !important; /* فاصله بین کارت‌ها رو زیاد کردم تا بزرگ‌تر به نظر بیان */
+    margin-bottom: 40px !important;
+    padding: 10px !important;
+    width: 100% !important;
 }
-
 .stat-card {
     background: var(--admin-bg-color); /* سفید در لایت، تیره در دارک */
     border-radius: 20px;
@@ -628,6 +638,8 @@ body.dark-mode .theme-toggle:hover {
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
     border: 1px solid rgba(0, 0, 0, 0.05);
+        min-height: 130px !important; /* ارتفاع کارت‌ها رو بیشتر کردم که کوچولو نباشن */
+        display: flex !important;
 }
 
 /* حالت دارک مود */
@@ -790,6 +802,268 @@ body.darkmode .mini-table td { border-color: rgba(255,255,255,0.05); }
 
 
 
+/* استایل جدول محصولات */
+.product-img-thumb {
+    width: 60px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--admin-border-color);
+}
+
+.btn-edit {
+    background-color: #FF9800; /* نارنجی */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+.btn-edit:hover { background-color: #F57C00; }
+
+/* استایل فرم مودال محصول */
+.modal-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.file-upload-box {
+    border: 2px dashed var(--admin-border-color);
+    padding: 20px;
+    text-align: center;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+.file-upload-box:hover { background-color: rgba(0,0,0,0.05); }
+
+/* چک‌باکس اسلایدر */
+.slider-check-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    background: rgba(33, 150, 243, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+/* =========================================
+   اصلاحات مودال و بخش رنگ‌ها (ریسپانسیو و دارک مود)
+   ========================================= */
+
+/* 1. جلوگیری از دراز شدن مودال و اضافه کردن اسکرول داخلی */
+.confirmation-dialog {
+    max-height: 90vh !important; /* حداکثر ارتفاع 90 درصد صفحه */
+    overflow-y: auto !important; /* اگر محتوا زیاد بود اسکرول بخورد */
+}
+
+/* 2. کانتینر رنگ‌ها: پشتیبانی از دارک مود و چیدمان اتوماتیک موبایل */
+.color-inventory-container {
+    display: grid;
+    /* این خط معجزه می‌کنه: خودش تو موبایل ۲ تا ۲ تا میچینه، تو دسکتاپ ۵ تا */
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    gap: 10px;
+    background-color: rgba(128, 128, 128, 0.1); /* یک پس‌زمینه شیشه‌ای که تو دارک و لایت کار میکنه */
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--admin-border-color);
+}
+
+/* 3. استایل تک تک باکس‌های رنگ */
+.color-box label {
+    font-size: 11px !important;
+    text-align: center;
+    display: block;
+    margin-bottom: 5px;
+    color: var(--admin-text-color);
+}
+
+/* 4. استایل اینپوت‌های عدد (هماهنگ با دارک مود) */
+.color-box input {
+    width: 100%;
+    padding: 5px;
+    text-align: center;
+    background-color: var(--admin-bg-color); /* در لایت سفید، در دارک مشکی */
+    color: var(--admin-text-color);
+    border: 1px solid var(--admin-border-color);
+    border-radius: 4px;
+    box-sizing: border-box; /* برای جلوگیری از بیرون زدن در موبایل */
+}
+
+.color-box input:focus {
+    outline: none;
+    border-color: var(--admin-primary-color);
+}
+
+
+/* =========================================
+   مینی داشبورد حرفه‌ای (نسخه اصلاح شده و تضمینی)
+   ========================================= */
+.summary-badges-container {
+    display: grid !important;
+    /* این خط باعث میشه کارت‌ها کنار هم باشن و ریسپانسیو بشن */
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+    width: 100%;
+}
+
+.summary-badge {
+    background-color: var(--admin-bg-color); /* رنگ زمینه کارت سفید/مشکی */
+    border: 1px solid var(--admin-border-color);
+    border-radius: 16px; /* گوشه‌های گردتر */
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 15px; /* فاصله بین آیکون و متن */
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08); /* سایه نرم */
+    transition: transform 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* هاور کارت */
+.summary-badge:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.15);
+}
+
+/* آیکون مربعی رنگی */
+.badge-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    color: white;
+    flex-shrink: 0; /* جلوگیری از جمع شدن آیکون */
+    box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+/* متن‌ها */
+.badge-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.badge-info span {
+    font-size: 13px;
+    color: var(--secondary-text);
+    opacity: 0.8;
+    margin-bottom: 5px;
+    font-weight: normal;
+}
+
+.badge-info strong {
+    font-size: 22px; /* فونت عدد بزرگتر */
+    font-weight: 900;
+    color: var(--admin-text-color);
+    line-height: 1;
+}
+/* =========================================
+   حل قطعی مشکل اسکرول افقی (دراز شدن جدول)
+   ========================================= */
+
+/* 1. جلوگیری از اسکرول شدن کل صفحه مانیتور */
+.admin-main {
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+/* 2. محدود کردن باکس جدول (اگر جدول بزرگ شد، فقط داخل همین باکس اسکرول بخوره) */
+.users-table-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto !important; 
+    /* این خط باعث میشه اسکرول تو موبایل و مک نرم باشه */
+    -webkit-overflow-scrolling: touch; 
+}
+
+/* 3. کنترل سلول‌های جدول (شکستن متون و اعداد طولانی) */
+.users-table td {
+    white-space: normal !important; /* اجازه میده متن‌های بلند برن خط پایین */
+    word-break: break-word !important; /* کلمات یا اعداد چسبیده (مثل همون قیمت طولانی) رو به زور می‌شکنه */
+    max-width: 200px; /* هیچ ستونی حق نداره از 200 پیکسل پهن‌تر بشه */
+    line-height: 1.5;
+}
+
+/* 4. ستون‌های خاص که نباید بشکنند (مثل تاریخ یا دکمه عملیات) */
+.users-table td:last-child,
+.users-table th:last-child {
+    white-space: nowrap !important;
+    max-width: none;
+}
+/* حالت موبایل */
+
+
+
+
+
+
+/* =========================================
+   اسکرول داخلی جدول (Sticky Header)
+   ========================================= */
+
+/* 1. محدود کردن ارتفاع کانتینر جدول و فعال کردن اسکرول عمودی */
+.users-table-container {
+    max-height: 500px; /* حداکثر ارتفاع جدول (میتونی کمتر یا بیشترش کنی) */
+    overflow-y: auto !important; /* فعال کردن اسکرول عمودی */
+    overflow-x: auto !important; /* حفظ اسکرول افقی برای موبایل */
+    -webkit-overflow-scrolling: touch;
+    
+    /* استایل‌های زیبایی برای باکس */
+    border: 1px solid var(--admin-border-color);
+    border-radius: 8px;
+    background-color: var(--admin-bg-color);
+    
+    /* سایه داخلی برای نشون دادن اینکه اسکرول داره */
+    box-shadow: inset 0 -10px 10px -10px rgba(0,0,0,0.1);
+}
+
+/* 2. چسباندن هدر جدول (Sticky) به بالای کادر هنگام اسکرول */
+.users-table th {
+    position: sticky;
+    top: 0;
+    z-index: 10; /* قرار گرفتن هدر روی سطرها */
+    background-color: var(--admin-table-header-bg); /* حتما باید رنگ داشته باشه تا سطرهای زیری معلوم نشن */
+    
+    /* برای اینکه وقتی هدر میچسبه، خط زیرش حفظ بشه */
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* در دارک مود، سایه هدر کمی فرق کنه */
+body.darkmode .users-table th {
+    box-shadow: 0 2px 2px -1px rgba(255, 255, 255, 0.1);
+}
+
+/* 3. سفارشی سازی نوار اسکرول خود جدول (اختیاری ولی قشنگه) */
+.users-table-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.users-table-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+body.darkmode .users-table-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.users-table-container::-webkit-scrollbar-thumb {
+    background: var(--admin-primary-color);
+    border-radius: 4px;
+}
+
+
 
 
 
@@ -826,6 +1100,10 @@ body.darkmode .mini-table td { border-color: rgba(255,255,255,0.05); }
     .admin-layout {
         position: relative;
         overflow-x: hidden;
+    }
+
+    .summary-badges-container {
+        grid-template-columns: 1fr; /* تو موبایل زیر هم */
     }
     
     .admin-sidebar {
@@ -929,8 +1207,9 @@ body.darkmode .mini-table td { border-color: rgba(255,255,255,0.05); }
 
     /* 2. کارت‌های آمار زیر هم قرار بگیرند */
     .dashboard-grid {
-        grid-template-columns: 1fr; /* تک ستونه */
-        gap: 15px;
+        /* در موبایل فقط و فقط ۱ ستون تمام‌عرض (زیر هم) */
+        grid-template-columns: 1fr !important; 
+        gap: 15px !important;
     }
 
     .stat-card {

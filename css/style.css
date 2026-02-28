@@ -2836,6 +2836,37 @@ transition: 0.3s ease-in-out;
   50% { opacity: 0; }
 }
 
+/* ---- استایل‌های مربوط به موجودی و رنگ‌ها ---- */
+.color-dot.disabled {
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+  position: relative;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* علامت ضربدر روی رنگ ناموجود */
+.color-dot.disabled::after {
+  content: '×';
+  position: absolute;
+  color: #ff0000;
+  font-size: 28px;
+  font-weight: bold;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -55%);
+  text-shadow: 0 0 3px white;
+}
+
+/* دکمه زمانی که ماشین کلا ناموجود است */
+.btn-out-of-stock {
+  background-color: #9e9e9e !important;
+  color: #ffffff !important;
+  cursor: not-allowed !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 /* نوار خدمات در موبایل */
 @media (max-width: 768px) {
   .type-effect {
