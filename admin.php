@@ -708,6 +708,7 @@ elseif ($view === 'products') {
                     <input type="checkbox" name="in_slider" id="pInSlider">
                     <label for="pInSlider" style="cursor:pointer; margin-right:5px;">نمایش در اسلایدر بالای سایت (ویژه)</label>
                 </div>
+                
 
                 <div class="file-upload-box">
                     <label style="display:block; margin-bottom:5px; font-weight:bold;">تصویر خودرو</label>

@@ -130,18 +130,20 @@ try {
     // Create PHPMailer instance
     $mail = new PHPMailer(true);
     
-    // Server settings
     $mail->isSMTP();
-    $mail->Host = 'mail.ratindn.ir';   // SMTP server for your domain
+    $mail->Host = 'smtp.gmail.com'; // تغییر به سرور SMTP جیمیل
     $mail->SMTPAuth = true;
-    $mail->Username = 'admin@ratindn.ir';  // your cPanel email
-    $mail->Password = '7vqpM0v?9FaQ2emda';  // the password you created in cPanel
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; 
-    $mail->Port = 465;   // SSL port
+    $mail->Username = 'dnratin@gmail.com'; // جیمیل شما
+    $mail->Password = 'yydd utlt bqkv eaps'; // اپ پسورد ۱۶ رقمی جیمیل شما
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // استفاده از پروتکل امن SSL
+    $mail->Port = 465; // پورت مخصوص SSL جیمیل
     $mail->CharSet = 'UTF-8';
     
+    
+    
     // Recipients
-    $mail->setFrom('admin@ratindn.ir', 'Luxury Cars Verification');
+    // در جیمیل حتماً باید ایمیل فرستنده با ایمیل اکانتی که لاگین کردید یکی باشد
+    $mail->setFrom('dnratin@gmail.com', 'Luxury Cars Verification');
     $mail->addAddress($email);
     
     // Content

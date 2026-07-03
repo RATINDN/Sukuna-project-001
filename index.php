@@ -8,7 +8,20 @@ error_reporting(E_ALL);
 $allProducts = [];
 $sliderProducts = [];
 $gridCars = []; 
-$uniqueBrands = []; // <--- این خط حیاتی است
+$uniqueBrands = [];
+// این کد را در بالای index.php (بخش کدهای PHP) اضافه کنید:
+$user_favorites = [];
+if (isset($_SESSION['user_id'])) {
+    try {
+        $favStmt = $pdo->prepare("SELECT product_id FROM wishlist WHERE user_id = ?");
+        $favStmt->execute([$_SESSION['user_id']]);
+        $user_favorites = $favStmt->fetchAll(PDO::FETCH_COLUMN); // آرایه‌ای از آیدی ماشین‌های لایک شده
+    } catch (PDOException $e) {
+        error_log("Error fetching favorites: " . $e->getMessage());
+    }
+}
+ // <--- این خط حیاتی است
+
 
 try {
   // 1. دریافت همه محصولات
@@ -69,6 +82,8 @@ if (isset($_SESSION['user_id'])) {
         }
     }
 }
+
+
 ?>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -482,11 +497,24 @@ data-id="<?php echo $car['id']; ?>"
 data-inventory="<?php echo $car['inventory']; ?>"
 data-colors="<?php echo htmlspecialchars($car['colors_inventory'] ?? '{}', ENT_QUOTES, 'UTF-8'); ?>"
 data-sound="<?php echo $car['engine_sound'] ?? ''; ?>"
+<?php 
+    // بررسی اینکه آیا این ماشین توسط این کاربر لایک شده یا خیر
+    $is_fav = in_array($car['id'], $user_favorites); 
+    ?>
 >
         
-        <div class="box-2" style="height: 90%; border-radius: 15px; background-image: url('<?php echo $car['image']; ?>');">
-            <div class="child"><h1 style="font-weight: 400;">+</h1></div>
-        </div>
+<div class="box-2" style="height: 90%; border-radius: 15px; background-image: url('<?php echo $car['image']; ?>');">
+          
+          <div class="child"><h1 style="font-weight: 400;">+</h1></div>
+          
+          <!-- دکمه قلب علاقه‌مندی‌ها -->
+          <button class="wishlist-btn <?php echo $is_fav ? 'favorited' : ''; ?>" data-product-id="<?php echo $car['id']; ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            </button>
+      
+      </div>
         <div class="box2" style="display: flex; flex-direction: column; justify-content: space-between;">
             <div class="box-3"><h4 style="font-weight: 400;"><?php echo $car['name']; ?></h4></div>
             <div class="box3" style="height: 50%;">
@@ -570,11 +598,10 @@ data-sound="<?php echo $car['engine_sound'] ?? ''; ?>"
 
 
 
-
-
-
+  
 
       <div class="bow" id="bow">
+        
         <?php if ($logged_in): ?>
         <div class="profile-avatar-container">
         <div class="profile-avatar" id="profileAvatar" style="background-image: url('images/dog.jpg'); background-position: center; background-size: cover; background-repeat: no-repeat; "  >            <span id="userInitial"></span>
@@ -629,6 +656,7 @@ data-sound="<?php echo $car['engine_sound'] ?? ''; ?>"
 
           </div>
         </div>
+        </div>
         <script>
         // Pass PHP variables to JavaScript
         const isLoggedIn = <?php echo json_encode($logged_in); ?>;
@@ -680,13 +708,23 @@ data-id="<?php echo $car['id']; ?>"
 data-inventory="<?php echo $car['inventory']; ?>"
 data-colors="<?php echo htmlspecialchars($car['colors_inventory'] ?? '{}', ENT_QUOTES, 'UTF-8'); ?>"
 data-sound="<?php echo $car['engine_sound'] ?? ''; ?>"
+<?php $is_fav = in_array($car['id'], $user_favorites); ?>
 >
              
-            <div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url('<?php echo $car['image']; ?>');">
-                <div class="child-mobile">
-                    <h1 style="font-weight: 400;">+</h1>
-                </div>
-            </div>
+<div class="box-2-mobile" style="height: 90%; border-radius: 15px; background-image: url('<?php echo $car['image']; ?>');">
+    
+    <div class="child-mobile">
+        <h1 style="font-weight: 400;">+</h1>
+    </div>
+
+    <!-- دکمه قلب علاقه‌مندی‌ها (برای موبایل) -->
+    <button class="wishlist-btn <?php echo $is_fav ? 'favorited' : ''; ?>" data-product-id="<?php echo $car['id']; ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            </button>
+
+</div>
             
             <div class="box2-mobile" style="display: flex; flex-direction: column; justify-content: space-between;">
                 <div class="box-3-mobile">
@@ -1107,6 +1145,8 @@ data-sound="<?php echo $car['engine_sound'] ?? ''; ?>"
   <script src="js/activity_tracker.js"></script>
   <script src="js/profile.js"></script>
   <script src="js/settings.js"></script>
+  <script src="js/wishlist.js"></script>
+  
 
   <script>
   // Check if user just verified their account (from verify.php)
@@ -1186,6 +1226,7 @@ data-sound="<?php echo $car['engine_sound'] ?? ''; ?>"
       </div>
       
       <div class="car-showcase">
+        
         <img id="modalCarImage" src="" alt="تصویر خودرو" class="modal-car-img">
         
         <div class="info-row">
