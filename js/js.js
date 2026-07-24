@@ -1021,258 +1021,502 @@ document.addEventListener('DOMContentLoaded', function() {
 // ======================================================
 // سیستم نهایی باز کردن مودال و ساخت رنگ‌ها (نسخه سالم)
 // ======================================================
-document.addEventListener('click', function (e) {
-  // 1. پیدا کردن باکس محصول
-  const container = e.target.closest('.box, .box-mobile, .swiper-slide');
-  if (!container) return;
+// document.addEventListener('click', function (e) {
+//   // 1. پیدا کردن باکس محصول
+//   const container = e.target.closest('.box, .box-mobile, .swiper-slide, .wishlist-card');
+//   if (!container) return;
 
-  // 2. بررسی لاگین
+//   // 2. بررسی لاگین
+//   if (typeof isLoggedIn !== 'undefined' && !isLoggedIn) {
+//       alert("لطفا ابتدا وارد حساب کاربری شوید.");
+//       window.location.href = "login.php";
+//       return;
+//   }
+
+//   // 3. دریافت اطلاعات از HTML
+//   const id = container.getAttribute('data-id');
+//   const title = container.getAttribute('data-title');
+//   const rawPrice = container.getAttribute('data-price') || '0';
+//   const oldPrice = container.getAttribute('data-old-price');
+//   const imgSrc = container.getAttribute('data-image');
+//   const engineSound = container.getAttribute('data-sound');
+  
+//   // مشخصات فنی
+//   const hp = container.getAttribute('data-hp');
+//   const accel = container.getAttribute('data-accel');
+//   const engine = container.getAttribute('data-engine');
+  
+//   // دریافت JSON رنگ‌ها (مهمترین بخش)
+//   const colorsJSON = container.getAttribute('data-colors') || '{}';
+
+//   if (!title) return;
+
+//   // 4. نمایش اطلاعات در مودال
+//   const formattedPrice = Number(rawPrice).toLocaleString();
+//   let priceHTML = (oldPrice && oldPrice !== "null" && oldPrice !== "") 
+//       ? `<del style="color:red; font-size:0.8em;">${Number(oldPrice).toLocaleString()} تومان</del> ${formattedPrice} تومان`
+//       : `${formattedPrice} تومان`;
+
+//   document.getElementById('modalCarName').innerText = title;
+//   document.getElementById('modalCarPrice').innerHTML = priceHTML;
+//   document.getElementById('modalCarImage').src = imgSrc;
+//   document.getElementById('specHP').innerText = (hp && hp !== '---') ? hp : '---';
+//   document.getElementById('specAccel').innerText = (accel && accel !== '---') ? accel : '---';
+//   document.getElementById('specEngine').innerText = (engine && engine !== '---') ? engine : '---';
+
+//   // ذخیره در متغیر گلوبال برای استفاده در مرحله بعد
+//   contractData.id = id;
+//   contractData.name = title;
+//   contractData.price = formattedPrice + " تومان";
+
+//   // ==========================================
+//   // 5. ساخت دایره‌های رنگ (Create Elements)
+//   // ==========================================
+//   let availableColors = {};
+//   try {
+//       availableColors = JSON.parse(colorsJSON);
+//   } catch(err) { console.error("JSON Error:", err); }
+
+//   // پیدا کردن جایگاه رنگ‌ها در مودال
+//   let colorsContainerDiv = document.getElementById('modalColorsContainer');
+  
+//   // اگر آیدی رو پیدا نکرد، با کلاس پیداش کن (محکم‌کاری)
+//   if (!colorsContainerDiv) {
+//       colorsContainerDiv = document.querySelector('.color-selection-area .colors-container');
+//   }
+
+//   if (colorsContainerDiv) {
+//       colorsContainerDiv.innerHTML = ''; // پاک کردن دایره‌های قبلی
+      
+//       let firstAvailableColorName = null;
+//       let firstAvailableColorQty = 0;
+//       let isAnyColorAvailable = false;
+// // حلقه روی رنگ‌های موجود در دیتابیس
+// const colorKeys = Object.keys(availableColors);
+        
+// if (colorKeys.length > 0) {
+//     colorKeys.forEach(colorName => {
+//         let colorData = availableColors[colorName];
+//         let qty = 0;
+//         let hex = '#ccc'; 
+//         let specificImg = ''; // متغیر عکس رنگ
+
+//         // تشخیص فرمت جدید (آبجکت) یا قدیم (عدد)
+//         if (typeof colorData === 'object' && colorData !== null) {
+//             qty = parseInt(colorData.qty);
+//             hex = colorData.hex;
+//             specificImg = colorData.img || ''; // گرفتن عکس مخصوص رنگ
+//         } else {
+//             qty = parseInt(colorData);
+//             // حدس رنگ برای محصولات قدیمی
+//             if(colorName.includes('مشکی')) hex='#000';
+//             else if(colorName.includes('سفید')) hex='#fff';
+//             else if(colorName.includes('قرمز')) hex='#f00';
+//             else if(colorName.includes('آبی')) hex='#00f';
+//         }
+
+//         // ساختن دایره رنگ
+//         const dot = document.createElement('div');
+//         dot.className = 'color-dot';
+//         dot.setAttribute('data-color', colorName);
+//         dot.style.backgroundColor = hex;
+        
+//         // بردر برای رنگ سفید
+//         if(hex && (hex.toLowerCase() === '#ffffff' || hex.toLowerCase() === '#fff')) {
+//             dot.style.border = '1px solid #ccc';
+//         }
+
+//         if (qty > 0) {
+//             isAnyColorAvailable = true;
+            
+//             // انتخاب اتوماتیک اولین رنگ موجود
+//             if (!firstAvailableColorName) {
+//                 firstAvailableColorName = colorName;
+//                 firstAvailableColorQty = qty;
+//                 dot.classList.add('selected');
+                
+//                 // اگر اولین رنگ عکس داشت، همون اول عکسش رو لود کن
+//                 if(specificImg) {
+//                     document.getElementById('modalCarImage').src = specificImg;
+//                 }
+//             }
+
+//             // ایونت کلیک روی دایره
+//             dot.addEventListener('click', function(e) {
+//                 e.stopPropagation();
+//                 // برداشتن انتخاب بقیه
+//                 colorsContainerDiv.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+//                 this.classList.add('selected');
+                
+//                 // آپدیت داده‌ها
+//                 contractData.color = colorName;
+//                 document.getElementById('selectedColorLabel').innerText = `رنگ انتخاب شده: ${colorName} (موجودی: ${qty})`;
+                
+//                 // ============================================
+//                 // جادوی تغییر عکس با افکت محو شدن (Fade Effect)
+//                 // ============================================
+//                 const carImgEl = document.getElementById('modalCarImage');
+//                 carImgEl.style.transition = "opacity 0.2s ease-in-out";
+//                 carImgEl.style.opacity = 0.5; // عکس رو کمرنگ کن
+                
+//                 setTimeout(() => {
+//                     // عکس رو عوض کن (اگر عکس داشت عکس خودش، وگرنه عکس اصلی ماشین)
+//                     carImgEl.src = specificImg ? specificImg : imgSrc;
+//                     carImgEl.style.opacity = 1; // عکس رو برگردون
+//                 }, 200);
+                
+//                 // فعال کردن دکمه
+//                 const btn = document.querySelector('.btn-primary-modal');
+//                 btn.innerText = 'تایید و تنظیم قرارداد ←';
+//                 btn.classList.remove('btn-out-of-stock');
+//                 btn.onclick = window.goToStep2;
+//             });
+//         } else {
+//             // رنگ ناموجود
+//             dot.classList.add('disabled');
+//         }
+
+//         colorsContainerDiv.appendChild(dot);
+//     });
+//       } else {
+//           colorsContainerDiv.innerHTML = '<span style="font-size:12px; color:red">رنگی تعریف نشده است</span>';
+//       }
+
+//       // --- وضعیت دکمه نهایی ---
+//       const submitBtnModal1 = document.querySelector('.btn-primary-modal'); 
+
+//       if (!isAnyColorAvailable) {
+//           // ناموجود
+//           submitBtnModal1.innerText = 'خودرو در حال حاضر ناموجود است';
+//           submitBtnModal1.classList.add('btn-out-of-stock');
+//           submitBtnModal1.onclick = null; 
+//           document.getElementById('selectedColorLabel').innerText = 'تمامی رنگ‌ها ناموجود است';
+//           contractData.color = '';
+//       } else {
+//           // موجود
+//           submitBtnModal1.innerText = 'تایید و تنظیم قرارداد ←';
+//           submitBtnModal1.classList.remove('btn-out-of-stock');
+//           submitBtnModal1.onclick = window.goToStep2;
+
+//           if (firstAvailableColorName) {
+//               contractData.color = firstAvailableColorName;
+//               document.getElementById('selectedColorLabel').innerText = `رنگ انتخاب شده: ${firstAvailableColorName} (موجودی: ${firstAvailableColorQty})`;
+//           }
+//       }
+//   }
+// // --- 1. مدیریت دکمه صدای موتور ---
+// const soundBtn = document.getElementById('engineSoundBtn');
+// const audioPlayer = document.getElementById('carAudioPlayer');
+
+// // توقف صدای قبلی (اگر داشت پخش می‌شد)
+// audioPlayer.pause();
+// audioPlayer.currentTime = 0;
+// soundBtn.innerHTML = "🔊 صدای موتور";
+// soundBtn.style.background = "#212121";
+
+// if (engineSound && engineSound.trim() !== '') {
+//     soundBtn.style.display = 'flex';
+//     audioPlayer.src = engineSound;
+    
+//     // ایونت کلیک روی دکمه صدا
+//     soundBtn.onclick = function(e) {
+//         e.preventDefault();
+//         if (audioPlayer.paused) {
+//             audioPlayer.play();
+//             soundBtn.innerHTML = "⏸️ توقف صدا";
+//             soundBtn.style.background = "#d32f2f"; // قرمز میشه موقع پخش
+//         } else {
+//             audioPlayer.pause();
+//             soundBtn.innerHTML = "🔊 صدای موتور";
+//             soundBtn.style.background = "#212121";
+//         }
+//     };
+    
+//     // وقتی صدا تموم شد دکمه برگرده حالت اول
+//     audioPlayer.onended = function() {
+//         soundBtn.innerHTML = "🔊 صدای موتور";
+//         soundBtn.style.background = "#212121";
+//     };
+// } else {
+//     soundBtn.style.display = 'none'; // اگه صدا نداشت مخفی میشه
+// }
+
+// // --- 2. مدیریت سیستم روانشناسی FOMO (تعداد بازدیدکنندگان) ---
+// const fomoEl = document.getElementById('fomoCounter');
+// // ساخت یک عدد رندوم بین 2 تا 7 برای شروع
+// let currentViewers = Math.floor(Math.random() * 6) + 2;
+// fomoEl.innerText = currentViewers;
+
+// // هر 5 ثانیه عدد یکم بالا پایین بشه که طبیعی جلوه کنه
+// if(window.fomoInterval) clearInterval(window.fomoInterval);
+// window.fomoInterval = setInterval(() => {
+//     // 70 درصد مواقع ممکنه تغییر کنه
+//     if(Math.random() > 0.3) {
+//         // یا یکی کم میشه یا یکی زیاد (بین حداقل 2 و حداکثر 9)
+//         const change = Math.random() > 0.5 ? 1 : -1;
+//         currentViewers += change;
+//         if(currentViewers < 2) currentViewers = 2;
+//         if(currentViewers > 9) currentViewers = 9;
+//         fomoEl.innerText = currentViewers;
+//     }
+// }, 5000);
+//   // 6. باز کردن مودال
+//   document.getElementById('buyModal').style.display = 'flex';
+//   if (typeof goToStep1 === 'function') goToStep1();
+  
+//   setTimeout(() => {
+//       if (typeof resizeCanvas === 'function') resizeCanvas();
+//       if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+//       isSignatureEmpty = true;
+//   }, 100);
+
+//   // مخفی کردن خطاها
+//   document.querySelectorAll('.contract-modal .error-message').forEach(el => el.style.display = 'none');
+//   document.querySelectorAll('.input-group-modal input').forEach(el => el.classList.remove('invalid', 'valid'));
+// });
+
+
+
+// ============================================================
+// موتور هوشمند باز کردن مودال (Smart Live Modal Opener)
+// ============================================================
+window.openSmartModal = async function(productId) {
+  // 1. بررسی لاگین بودن کاربر
   if (typeof isLoggedIn !== 'undefined' && !isLoggedIn) {
-      alert("لطفا ابتدا وارد حساب کاربری شوید.");
+      alert("لطفا ابتدا وارد حساب کاربری خود شوید.");
       window.location.href = "login.php";
       return;
   }
 
-  // 3. دریافت اطلاعات از HTML
-  const id = container.getAttribute('data-id');
-  const title = container.getAttribute('data-title');
-  const rawPrice = container.getAttribute('data-price') || '0';
-  const oldPrice = container.getAttribute('data-old-price');
-  const imgSrc = container.getAttribute('data-image');
-  const engineSound = container.getAttribute('data-sound');
-  
-  // مشخصات فنی
-  const hp = container.getAttribute('data-hp');
-  const accel = container.getAttribute('data-accel');
-  const engine = container.getAttribute('data-engine');
-  
-  // دریافت JSON رنگ‌ها (مهمترین بخش)
-  const colorsJSON = container.getAttribute('data-colors') || '{}';
-
-  if (!title) return;
-
-  // 4. نمایش اطلاعات در مودال
-  const formattedPrice = Number(rawPrice).toLocaleString();
-  let priceHTML = (oldPrice && oldPrice !== "null" && oldPrice !== "") 
-      ? `<del style="color:red; font-size:0.8em;">${Number(oldPrice).toLocaleString()} تومان</del> ${formattedPrice} تومان`
-      : `${formattedPrice} تومان`;
-
-  document.getElementById('modalCarName').innerText = title;
-  document.getElementById('modalCarPrice').innerHTML = priceHTML;
-  document.getElementById('modalCarImage').src = imgSrc;
-  document.getElementById('specHP').innerText = (hp && hp !== '---') ? hp : '---';
-  document.getElementById('specAccel').innerText = (accel && accel !== '---') ? accel : '---';
-  document.getElementById('specEngine').innerText = (engine && engine !== '---') ? engine : '---';
-
-  // ذخیره در متغیر گلوبال برای استفاده در مرحله بعد
-  contractData.id = id;
-  contractData.name = title;
-  contractData.price = formattedPrice + " تومان";
-
-  // ==========================================
-  // 5. ساخت دایره‌های رنگ (Create Elements)
-  // ==========================================
-  let availableColors = {};
   try {
-      availableColors = JSON.parse(colorsJSON);
-  } catch(err) { console.error("JSON Error:", err); }
+      // 2. درخواست اطلاعات زنده از سرور (بدون نیاز به خواندن HTML)
+      const response = await fetch('api_get_product.php?id=' + productId);
+      const data = await response.json();
 
-  // پیدا کردن جایگاه رنگ‌ها در مودال
-  let colorsContainerDiv = document.getElementById('modalColorsContainer');
-  
-  // اگر آیدی رو پیدا نکرد، با کلاس پیداش کن (محکم‌کاری)
-  if (!colorsContainerDiv) {
-      colorsContainerDiv = document.querySelector('.color-selection-area .colors-container');
-  }
-
-  if (colorsContainerDiv) {
-      colorsContainerDiv.innerHTML = ''; // پاک کردن دایره‌های قبلی
-      
-      let firstAvailableColorName = null;
-      let firstAvailableColorQty = 0;
-      let isAnyColorAvailable = false;
-// حلقه روی رنگ‌های موجود در دیتابیس
-const colorKeys = Object.keys(availableColors);
-        
-if (colorKeys.length > 0) {
-    colorKeys.forEach(colorName => {
-        let colorData = availableColors[colorName];
-        let qty = 0;
-        let hex = '#ccc'; 
-        let specificImg = ''; // متغیر عکس رنگ
-
-        // تشخیص فرمت جدید (آبجکت) یا قدیم (عدد)
-        if (typeof colorData === 'object' && colorData !== null) {
-            qty = parseInt(colorData.qty);
-            hex = colorData.hex;
-            specificImg = colorData.img || ''; // گرفتن عکس مخصوص رنگ
-        } else {
-            qty = parseInt(colorData);
-            // حدس رنگ برای محصولات قدیمی
-            if(colorName.includes('مشکی')) hex='#000';
-            else if(colorName.includes('سفید')) hex='#fff';
-            else if(colorName.includes('قرمز')) hex='#f00';
-            else if(colorName.includes('آبی')) hex='#00f';
-        }
-
-        // ساختن دایره رنگ
-        const dot = document.createElement('div');
-        dot.className = 'color-dot';
-        dot.setAttribute('data-color', colorName);
-        dot.style.backgroundColor = hex;
-        
-        // بردر برای رنگ سفید
-        if(hex && (hex.toLowerCase() === '#ffffff' || hex.toLowerCase() === '#fff')) {
-            dot.style.border = '1px solid #ccc';
-        }
-
-        if (qty > 0) {
-            isAnyColorAvailable = true;
-            
-            // انتخاب اتوماتیک اولین رنگ موجود
-            if (!firstAvailableColorName) {
-                firstAvailableColorName = colorName;
-                firstAvailableColorQty = qty;
-                dot.classList.add('selected');
-                
-                // اگر اولین رنگ عکس داشت، همون اول عکسش رو لود کن
-                if(specificImg) {
-                    document.getElementById('modalCarImage').src = specificImg;
+      if (!data.success) {
+          alert(data.error || 'این خودرو در حال حاضر در دسترس نیست.');
+          
+       // =========================================================
+                    // حذف فیزیکی و فوری کارت خودرو از صفحه اصلی بدون رفرش (UX محشر)
+                    // =========================================================
+                    const card = document.querySelector(`.box[data-id="${productId}"]`) || 
+                                 document.querySelector(`.box-mobile[data-id="${productId}"]`) ||
+                                 document.querySelector(`.swiper-slide[data-id="${productId}"]`);
+                    
+                    if (card) {
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.9)';
+                        card.style.transition = 'all 0.4s ease';
+                        setTimeout(() => {
+                            card.remove();
+                            // در صورت استفاده از اسلایدر سوئیپر، آن را آپدیت کن تا فضای خالی پر شود
+                            if (typeof swiper !== 'undefined') swiper.update(); 
+                        }, 400);
+                    }
+                    return;
                 }
-            }
 
-            // ایونت کلیک روی دایره
-            dot.addEventListener('click', function(e) {
-                e.stopPropagation();
-                // برداشتن انتخاب بقیه
-                colorsContainerDiv.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
-                this.classList.add('selected');
-                
-                // آپدیت داده‌ها
-                contractData.color = colorName;
-                document.getElementById('selectedColorLabel').innerText = `رنگ انتخاب شده: ${colorName} (موجودی: ${qty})`;
-                
-                // ============================================
-                // جادوی تغییر عکس با افکت محو شدن (Fade Effect)
-                // ============================================
-                const carImgEl = document.getElementById('modalCarImage');
-                carImgEl.style.transition = "opacity 0.2s ease-in-out";
-                carImgEl.style.opacity = 0.5; // عکس رو کمرنگ کن
-                
-                setTimeout(() => {
-                    // عکس رو عوض کن (اگر عکس داشت عکس خودش، وگرنه عکس اصلی ماشین)
-                    carImgEl.src = specificImg ? specificImg : imgSrc;
-                    carImgEl.style.opacity = 1; // عکس رو برگردون
-                }, 200);
-                
-                // فعال کردن دکمه
-                const btn = document.querySelector('.btn-primary-modal');
-                btn.innerText = 'تایید و تنظیم قرارداد ←';
-                btn.classList.remove('btn-out-of-stock');
-                btn.onclick = window.goToStep2;
-            });
-        } else {
-            // رنگ ناموجود
-            dot.classList.add('disabled');
-        }
+      
 
-        colorsContainerDiv.appendChild(dot);
-    });
-      } else {
-          colorsContainerDiv.innerHTML = '<span style="font-size:12px; color:red">رنگی تعریف نشده است</span>';
-      }
+      const car = data.product;
 
-      // --- وضعیت دکمه نهایی ---
-      const submitBtnModal1 = document.querySelector('.btn-primary-modal'); 
+      // 3. آماده‌سازی اطلاعات برای نمایش در مودال
+      const formattedPrice = Number(car.price).toLocaleString();
+      let priceHTML = (car.old_price && car.old_price > 0) 
+          ? `<del style="color:red; font-size:0.8em;">${Number(car.old_price).toLocaleString()} تومان</del> ${formattedPrice} تومان`
+          : `${formattedPrice} تومان`;
 
-      if (!isAnyColorAvailable) {
-          // ناموجود
-          submitBtnModal1.innerText = 'خودرو در حال حاضر ناموجود است';
-          submitBtnModal1.classList.add('btn-out-of-stock');
-          submitBtnModal1.onclick = null; 
-          document.getElementById('selectedColorLabel').innerText = 'تمامی رنگ‌ها ناموجود است';
-          contractData.color = '';
-      } else {
-          // موجود
-          submitBtnModal1.innerText = 'تایید و تنظیم قرارداد ←';
-          submitBtnModal1.classList.remove('btn-out-of-stock');
-          submitBtnModal1.onclick = window.goToStep2;
+      // چاپ اطلاعات پایه در مودال
+      document.getElementById('modalCarName').innerText = car.name;
+      document.getElementById('modalCarPrice').innerHTML = priceHTML;
+      document.getElementById('modalCarImage').src = car.image;
+      document.getElementById('specHP').innerText = (car.hp && car.hp !== '---') ? car.hp : '---';
+      document.getElementById('specAccel').innerText = (car.accel && car.accel !== '---') ? car.accel : '---';
+      document.getElementById('specEngine').innerText = (car.engine && car.engine !== '---') ? car.engine : '---';
 
-          if (firstAvailableColorName) {
+      // آپدیت متغیر گلوبال قرارداد
+      if (typeof contractData === 'undefined') window.contractData = {};
+      contractData.id = car.id;
+      contractData.name = car.name;
+      contractData.price = formattedPrice + " تومان";
+
+      // ==========================================
+      // 4. ساخت دایره‌های رنگ با دیتای زنده
+      // ==========================================
+      let availableColors = {};
+      try { availableColors = JSON.parse(car.colors_inventory || '{}'); } catch(e) {}
+
+      let colorsContainerDiv = document.getElementById('modalColorsContainer');
+      if (!colorsContainerDiv) colorsContainerDiv = document.querySelector('.color-selection-area .colors-container');
+
+      if (colorsContainerDiv) {
+          colorsContainerDiv.innerHTML = ''; 
+          let firstAvailableColorName = null;
+          let firstAvailableColorQty = 0;
+          let isAnyColorAvailable = false;
+
+          Object.keys(availableColors).forEach(colorName => {
+              let cData = availableColors[colorName];
+              let qty = typeof cData === 'object' ? parseInt(cData.qty) : parseInt(cData);
+              let hex = typeof cData === 'object' ? cData.hex : '#ccc';
+              let specificImg = typeof cData === 'object' ? (cData.img || '') : '';
+
+              const dot = document.createElement('div');
+              dot.className = 'color-dot';
+              dot.style.backgroundColor = hex;
+              if(hex.toLowerCase() === '#ffffff' || hex.toLowerCase() === '#fff') dot.style.border = '1px solid #ccc';
+
+              if (qty > 0) {
+                  isAnyColorAvailable = true;
+                  if (!firstAvailableColorName) {
+                      firstAvailableColorName = colorName;
+                      firstAvailableColorQty = qty;
+                      dot.classList.add('selected');
+                      if(specificImg) document.getElementById('modalCarImage').src = specificImg;
+                  }
+
+                  dot.addEventListener('click', function(e) {
+                      e.stopPropagation();
+                      colorsContainerDiv.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+                      this.classList.add('selected');
+                      contractData.color = colorName;
+                      document.getElementById('selectedColorLabel').innerText = `رنگ انتخاب شده: ${colorName} (موجودی: ${qty})`;
+
+                      const carImgEl = document.getElementById('modalCarImage');
+                      carImgEl.style.transition = "opacity 0.2s ease-in-out";
+                      carImgEl.style.opacity = 0.5;
+                      setTimeout(() => {
+                          carImgEl.src = specificImg ? specificImg : car.image;
+                          carImgEl.style.opacity = 1;
+                      }, 200);
+
+                      const btn = document.querySelector('.btn-primary-modal');
+                      btn.innerText = 'تایید و تنظیم قرارداد ←';
+                      btn.classList.remove('btn-out-of-stock');
+                      btn.onclick = window.goToStep2;
+                  });
+              } else {
+                  dot.classList.add('disabled');
+              }
+              colorsContainerDiv.appendChild(dot);
+          });
+
+          // وضعیت دکمه نهایی بر اساس موجودی لایو
+          const submitBtnModal1 = document.querySelector('.btn-primary-modal'); 
+          if (!isAnyColorAvailable) {
+              submitBtnModal1.innerText = 'خودرو در حال حاضر ناموجود است';
+              submitBtnModal1.classList.add('btn-out-of-stock');
+              submitBtnModal1.onclick = null; 
+              document.getElementById('selectedColorLabel').innerText = 'تمامی رنگ‌ها ناموجود است';
+              contractData.color = '';
+          } else {
+              submitBtnModal1.innerText = 'تایید و تنظیم قرارداد ←';
+              submitBtnModal1.classList.remove('btn-out-of-stock');
+              submitBtnModal1.onclick = window.goToStep2;
               contractData.color = firstAvailableColorName;
               document.getElementById('selectedColorLabel').innerText = `رنگ انتخاب شده: ${firstAvailableColorName} (موجودی: ${firstAvailableColorQty})`;
           }
       }
+
+      // ==========================================
+      // 5. مدیریت صدای موتور
+      // ==========================================
+      const soundBtn = document.getElementById('engineSoundBtn');
+      const audioPlayer = document.getElementById('carAudioPlayer');
+      if (soundBtn && audioPlayer) {
+          audioPlayer.pause();
+          audioPlayer.currentTime = 0; 
+          soundBtn.innerHTML = "🔊 صدای موتور";
+          soundBtn.style.background = "#212121";
+
+          if (car.engine_sound && car.engine_sound.trim() !== '') { 
+              soundBtn.style.display = 'flex';
+              audioPlayer.src = car.engine_sound;
+
+              soundBtn.onclick = function(e) {
+                  e.preventDefault();
+                  if (audioPlayer.paused) {
+                      audioPlayer.play();
+                      soundBtn.innerHTML = "⏸️ توقف صدا";
+                      soundBtn.style.background = "#d32f2f"; 
+                  } else {
+                      audioPlayer.pause();
+                      soundBtn.innerHTML = "🔊 صدای موتور";
+                      soundBtn.style.background = "#212121";
+                  }
+              };
+
+              audioPlayer.onended = function() {
+                  soundBtn.innerHTML = "🔊 صدای موتور";
+                  soundBtn.style.background = "#212121";
+              };
+          } else { 
+              soundBtn.style.display = 'none'; 
+          }
+      }
+
+      // ==========================================
+      // 6. مدیریت سیستم روانشناسی FOMO
+      // ==========================================
+      const fomoEl = document.getElementById('fomoCounter');
+      if (fomoEl) {
+          let currentViewers = Math.floor(Math.random() * 6) + 2; 
+          fomoEl.innerText = currentViewers;
+
+          if(window.fomoInterval) clearInterval(window.fomoInterval); 
+          window.fomoInterval = setInterval(() => {
+              if(Math.random() > 0.3) { 
+                  const change = Math.random() > 0.5 ? 1 : -1;
+                  currentViewers += change; 
+                  if(currentViewers < 2) currentViewers = 2;
+                  if(currentViewers > 9) currentViewers = 9; 
+                  fomoEl.innerText = currentViewers; 
+              }
+          }, 5000);
+      }
+
+      // ==========================================
+      // 7. نمایش نهایی مودال
+      // ==========================================
+      document.getElementById('buyModal').style.display = 'flex';
+      if (typeof goToStep1 === 'function') goToStep1();
+
+      setTimeout(() => { 
+          if (typeof resizeCanvas === 'function') resizeCanvas(); 
+          const canvas = document.getElementById('signaturePad');
+          if (canvas) {
+              const ctx = canvas.getContext('2d');
+              if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height); 
+          }
+          if (typeof isSignatureEmpty !== 'undefined') isSignatureEmpty = true;
+      }, 100);
+
+      document.querySelectorAll('.contract-modal .error-message').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.input-group-modal input').forEach(el => el.classList.remove('invalid', 'valid'));
+
+  } catch (err) {
+      console.error(err);
+      alert('خطا در ارتباط با سرور. لطفا اینترنت خود را بررسی کنید.');
   }
-// --- 1. مدیریت دکمه صدای موتور ---
-const soundBtn = document.getElementById('engineSoundBtn');
-const audioPlayer = document.getElementById('carAudioPlayer');
+};
 
-// توقف صدای قبلی (اگر داشت پخش می‌شد)
-audioPlayer.pause();
-audioPlayer.currentTime = 0;
-soundBtn.innerHTML = "🔊 صدای موتور";
-soundBtn.style.background = "#212121";
+// ======================================================
+// سیستم یکپارچه گوش دادن به کلیک‌ها (Routing)
+// ======================================================
+document.addEventListener('click', function (e) {
+  const container = e.target.closest('.box, .box-mobile, .swiper-slide, .wishlist-card');
+  if (!container) return;
 
-if (engineSound && engineSound.trim() !== '') {
-    soundBtn.style.display = 'flex';
-    audioPlayer.src = engineSound;
-    
-    // ایونت کلیک روی دکمه صدا
-    soundBtn.onclick = function(e) {
-        e.preventDefault();
-        if (audioPlayer.paused) {
-            audioPlayer.play();
-            soundBtn.innerHTML = "⏸️ توقف صدا";
-            soundBtn.style.background = "#d32f2f"; // قرمز میشه موقع پخش
-        } else {
-            audioPlayer.pause();
-            soundBtn.innerHTML = "🔊 صدای موتور";
-            soundBtn.style.background = "#212121";
-        }
-    };
-    
-    // وقتی صدا تموم شد دکمه برگرده حالت اول
-    audioPlayer.onended = function() {
-        soundBtn.innerHTML = "🔊 صدای موتور";
-        soundBtn.style.background = "#212121";
-    };
-} else {
-    soundBtn.style.display = 'none'; // اگه صدا نداشت مخفی میشه
-}
+  e.preventDefault();
 
-// --- 2. مدیریت سیستم روانشناسی FOMO (تعداد بازدیدکنندگان) ---
-const fomoEl = document.getElementById('fomoCounter');
-// ساخت یک عدد رندوم بین 2 تا 7 برای شروع
-let currentViewers = Math.floor(Math.random() * 6) + 2;
-fomoEl.innerText = currentViewers;
+  const productId = container.getAttribute('data-id');
+  if (!productId) return;
 
-// هر 5 ثانیه عدد یکم بالا پایین بشه که طبیعی جلوه کنه
-if(window.fomoInterval) clearInterval(window.fomoInterval);
-window.fomoInterval = setInterval(() => {
-    // 70 درصد مواقع ممکنه تغییر کنه
-    if(Math.random() > 0.3) {
-        // یا یکی کم میشه یا یکی زیاد (بین حداقل 2 و حداکثر 9)
-        const change = Math.random() > 0.5 ? 1 : -1;
-        currentViewers += change;
-        if(currentViewers < 2) currentViewers = 2;
-        if(currentViewers > 9) currentViewers = 9;
-        fomoEl.innerText = currentViewers;
-    }
-}, 5000);
-  // 6. باز کردن مودال
-  document.getElementById('buyModal').style.display = 'flex';
-  if (typeof goToStep1 === 'function') goToStep1();
-  
-  setTimeout(() => {
-      if (typeof resizeCanvas === 'function') resizeCanvas();
-      if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
-      isSignatureEmpty = true;
-  }, 100);
-
-  // مخفی کردن خطاها
-  document.querySelectorAll('.contract-modal .error-message').forEach(el => el.style.display = 'none');
-  document.querySelectorAll('.input-group-modal input').forEach(el => el.classList.remove('invalid', 'valid'));
+  if (typeof window.openSmartModal === 'function') {
+      window.openSmartModal(productId);
+  } else {
+      alert('سیستم در حال به‌روزرسانی است. لطفا صفحه را رفرش کنید.');
+  }
 });
 
   function updatePreviewText() {
@@ -1285,14 +1529,35 @@ window.fomoInterval = setInterval(() => {
 
   document.getElementById('inputRealName').addEventListener('input', updatePreviewText);
 
-  window.goToStep2 = function() {
-      document.getElementById('inputRealName').value = typeof userName !== 'undefined' ? userName : '';
-      fetch('get_user_data.php').then(r=>r.json()).then(d=>{ if(d.phone) document.getElementById('readOnlyPhone').value = d.phone; });
-      document.getElementById('step1').style.display = 'none';
-      document.getElementById('step2').style.display = 'block';
-      setTimeout(resizeCanvas, 100);
-      updatePreviewText();
+  // ============================================================
+// رفتن به مرحله دوم (فرم قرارداد) همراه با کنترل دسترسی
+// ============================================================
+window.goToStep2 = function() {
+  // 1. گارد امنیتی: اگر کاربر مهمان است، اجازه ورود به فرم را نده و به صفحه لاگین بفرست
+  if (typeof isLoggedIn === 'undefined' || isLoggedIn === false) {
+      // ذخیره آدرس صفحه فعلی تا بعد از لاگین کاربر رو برگردونیم همینجا (UX عالی)
+      sessionStorage.setItem('redirectAfterLogin', window.location.href);
+      
+      alert("لطفا برای تنظیم قرارداد و خرید نهایی، ابتدا وارد حساب کاربری خود شوید.");
+      window.location.href = "login.php";
+      return;
   }
+
+  // 2. اگر لاگین بود، اطلاعاتش رو پر کن و فرم رو نشون بده
+  document.getElementById('inputRealName').value = typeof userName !== 'undefined' ? userName : '';
+  
+  fetch('get_user_data.php')
+      .then(r => r.json())
+      .then(d => { 
+          if(d.phone) document.getElementById('readOnlyPhone').value = d.phone; 
+      })
+      .catch(e => console.error("خطا در دریافت اطلاعات کاربر"));
+
+  document.getElementById('step1').style.display = 'none';
+  document.getElementById('step2').style.display = 'block';
+  setTimeout(resizeCanvas, 100);
+  updatePreviewText();
+}
 
   window.goToStep1 = function() {
       document.getElementById('step1').style.display = 'block';

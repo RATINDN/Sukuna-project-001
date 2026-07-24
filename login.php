@@ -57,6 +57,11 @@ if (isset($_SESSION['login_success'])) {
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/loginstyle.css">
   <link rel="stylesheet" href="css/signup.css">
+  <!-- لینک کردن استایل‌های فریم‌ورک پاپ‌آپ‌های سفارشی -->
+<link rel="stylesheet" href="css/custom_dialogs.css">
+
+<!-- لینک کردن جاوااسکریپت موتور اعلانات سراسری -->
+<script src="js/custom_dialogs.js"></script>
   <!-- فونت وزیر برای فارسی -->
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
@@ -215,14 +220,12 @@ if (isset($_SESSION['login_success'])) {
     });
     <?php endif; ?>
 
-    // Show popup after successful signup (JS/sessionStorage)
+    // Show popup after successful login
     document.addEventListener('DOMContentLoaded', function() {
-      if (sessionStorage.getItem('signupSuccess')) {
-        sessionStorage.removeItem('signupSuccess');
-        const signupPopup = document.getElementById('signupSuccessPopup');
-        if (signupPopup) {
-          signupPopup.style.display = 'block';
-          // Animation handles fade out and hiding
+      if (sessionStorage.getItem('loginSuccess')) {
+        sessionStorage.removeItem('loginSuccess');
+        if (typeof window.showToast === 'function') {
+            window.showToast('ورود با موفقیت انجام شد!', 'success');
         }
       }
     });

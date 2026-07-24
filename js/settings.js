@@ -267,52 +267,17 @@ class ThemeManager {
     return { ...defaultTheme };
   }
 
+// =========================================================
+  // نمایش پیام با استفاده از سیستم یکپارچه توست (Global Toast)
+  // =========================================================
   showNotification(message, type = 'info') {
-    // Remove existing notifications
-    const existingNotifications = document.querySelectorAll('.settings-notification');
-    existingNotifications.forEach(notification => notification.remove());
-
-    // Create new notification
-    const notification = document.createElement('div');
-    notification.className = `settings-notification ${type}`;
-    notification.textContent = message;
-
-    // Style the notification
-    Object.assign(notification.style, {
-      position: 'fixed',
-      top: '20px',
-      right: '20px',
-      backgroundColor: type === 'success' ? '#4CAF50' : '#2196F3',
-      color: 'white',
-      padding: '12px 20px',
-      borderRadius: '8px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-      zIndex: '10001',
-      fontFamily: 'Vazirmatn, sans-serif',
-      fontSize: '14px',
-      opacity: '0',
-      transform: 'translateY(-20px)',
-      transition: 'all 0.3s ease'
-    });
-
-    document.body.appendChild(notification);
-
-    // Animate in
-    setTimeout(() => {
-      notification.style.opacity = '1';
-      notification.style.transform = 'translateY(0)';
-    }, 100);
-
-    // Animate out and remove
-    setTimeout(() => {
-      notification.style.opacity = '0';
-      notification.style.transform = 'translateY(-20px)';
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.parentNode.removeChild(notification);
-        }
-      }, 300);
-    }, 3000);
+    if (typeof window.showToast === 'function') {
+      // ارسال پیام به سیستم مرکزی توست‌ها
+      window.showToast(message, type === 'info' ? 'success' : type);
+    } else {
+      // در صورتی که فایل دیالوگ هنوز لود نشده باشد
+      alert(message);
+    }
   }
 }
 

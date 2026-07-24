@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (profileSection) {
             fetchUserProfile();
             loadUserContracts(); // <--- این خط جدید اضافه شد
+            loadUserWishlist(); // <--- این خط را اضافه کنید
             profileSection.classList.add('active');
         }
     }
@@ -27,6 +28,64 @@ document.addEventListener('DOMContentLoaded', function() {
     function closeProfile() {
         if (profileSection) {
             profileSection.classList.remove('active');
+        }
+    }
+
+    async function loadUserWishlist() {
+        const wishlistContainer = document.getElementById('profileWishlist');
+        if (!wishlistContainer) return;
+    
+        wishlistContainer.innerHTML = '<div class="loader-small">در حال بارگذاری...</div>';
+    
+        try {
+            const response = await fetch('get_user_wishlist.php');
+            const data = await response.json();
+    
+            if (data.success) {
+                if (data.wishlist.length === 0) {
+                    wishlistContainer.innerHTML = '<p style="color: gray; font-size: 12px; width: 100%; text-align: center;">شما هنوز خودرویی را لایک نکرده‌اید.</p>';
+                    return;
+                }
+    
+                let html = '';
+                data.wishlist.forEach(car => {
+                    const isAvailable = car.inventory > 0;
+                    const btnText = isAvailable ? '⚡ خرید سریع' : '❌ ناموجود';
+                    const btnClass = isAvailable ? 'btn-quick-buy' : 'btn-quick-buy btn-out-stock';
+    
+                    // آماده‌سازی ویژگی‌ها برای مودال (تبدیل به استرینگ امن)
+                    const hp = !isNaN(car.hp) ? car.hp + ' hp' : car.hp;
+                    const accel = !isNaN(car.accel) ? car.accel + 's' : car.accel;
+                    const colorsStr = car.colors_inventory ? car.colors_inventory.replace(/"/g, '&quot;') : '{}';
+    
+                    html += `
+                        <div class="wishlist-card" 
+                             data-title="${car.name}" 
+                             data-brand="${car.brand}"
+                             data-price="${car.price}" 
+                             data-old-price="${car.old_price}" 
+                             data-image="${car.image}"
+                             data-hp="${hp}"
+                             data-accel="${accel}"
+                             data-engine="${car.engine}"
+                             data-id="${car.id}"
+                             data-inventory="${car.inventory}"
+                             data-colors="${colorsStr}"
+                             data-sound="${car.engine_sound || ''}">
+                             
+                            <img src="${car.image}" class="wishlist-img" alt="${car.name}">
+                            <div class="wishlist-info">
+                                <h4 class="wishlist-title">${car.name}</h4>
+                                <span class="wishlist-price">${Number(car.price).toLocaleString()} تومان</span>
+                                <button class="${btnClass}" onclick="window.openSmartModal(${car.id})">${btnText}</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                wishlistContainer.innerHTML = html;
+            }
+        } catch (error) {
+            wishlistContainer.innerHTML = '<div class="loader-small">خطا در بارگذاری اطلاعات</div>';
         }
     }
 

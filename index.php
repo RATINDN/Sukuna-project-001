@@ -109,6 +109,11 @@ if (isset($_SESSION['user_id'])) {
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="فروشگاه خودروی لوکس">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <!-- لینک کردن استایل‌های فریم‌ورک پاپ‌آپ‌های سفارشی -->
+<link rel="stylesheet" href="css/custom_dialogs.css">
+
+<!-- لینک کردن جاوااسکریپت موتور اعلانات سراسری -->
+<script src="js/custom_dialogs.js"></script>
   <!-- Add iOS icon tags -->
   <!-- <link rel="apple-touch-icon" href="images/icon-192x192.png"> -->
   <!-- <link rel="icon" type="image/x-icon" href="images/favicon (1).ico">  -->
@@ -507,8 +512,10 @@ data-sound="<?php echo $car['engine_sound'] ?? ''; ?>"
           
           <div class="child"><h1 style="font-weight: 400;">+</h1></div>
           
-          <!-- دکمه قلب علاقه‌مندی‌ها -->
-          <button class="wishlist-btn <?php echo $is_fav ? 'favorited' : ''; ?>" data-product-id="<?php echo $car['id']; ?>">
+      <!-- دکمه قلب علاقه‌مندی‌ها -->
+      <button class="wishlist-btn <?php echo $is_fav ? 'favorited' : ''; ?>" 
+                    data-product-id="<?php echo $car['id']; ?>" 
+                    data-tooltip="افزودن به گاراژ آرزوها (اطلاع از موجودی)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                 </svg>
@@ -601,8 +608,28 @@ data-sound="<?php echo $car['engine_sound'] ?? ''; ?>"
   
 
       <div class="bow" id="bow">
-        
+
         <?php if ($logged_in): ?>
+
+            <!-- 🔔 زنگوله نوتیفیکیشن (اینجا قرار می‌گیرد تا فقط لاگین‌کرده‌ها ببینند) -->
+      <div class="notification-container" id="notificationBell">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-bell-fill" viewBox="0 0 16 16">
+              <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/>
+          </svg>
+          <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+          
+          <!-- دراپ‌دان (لیست پیام‌ها) -->
+          <div class="notification-dropdown" id="notificationDropdown">
+          <div class="notif-header" style="display: flex; justify-content: space-between; align-items: center;">
+    <h4>اعلانات شما</h4>
+    <button id="clearAllNotifsBtn" style="background: none; border: none; color: #f44336; cursor: pointer; font-size: 11px; font-family: 'Vazirmatn'; font-weight: bold;">حذف همه</button>
+</div>
+              <div class="notif-list" id="notifList">
+                  <!-- پیام‌ها اینجا با JS لود میشن -->
+              </div>
+          </div>
+      </div>
+      <!-- پایان زنگوله -->
         <div class="profile-avatar-container">
         <div class="profile-avatar" id="profileAvatar" style="background-image: url('images/dog.jpg'); background-position: center; background-size: cover; background-repeat: no-repeat; "  >            <span id="userInitial"></span>
           </div>
@@ -717,8 +744,10 @@ data-sound="<?php echo $car['engine_sound'] ?? ''; ?>"
         <h1 style="font-weight: 400;">+</h1>
     </div>
 
-    <!-- دکمه قلب علاقه‌مندی‌ها (برای موبایل) -->
-    <button class="wishlist-btn <?php echo $is_fav ? 'favorited' : ''; ?>" data-product-id="<?php echo $car['id']; ?>">
+  <!-- دکمه قلب علاقه‌مندی‌ها برای موبایل -->
+  <button class="wishlist-btn <?php echo $is_fav ? 'favorited' : ''; ?>" 
+                    data-product-id="<?php echo $car['id']; ?>" 
+                    data-tooltip="افزودن به گاراژ آرزوها (اطلاع از موجودی)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
                     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                 </svg>
@@ -1027,7 +1056,18 @@ data-sound="<?php echo $car['engine_sound'] ?? ''; ?>"
           <span id="profileID"></span>
         </div>
       </div>
-
+<!-- بخش جدید: گاراژ آرزوها (علاقه‌مندی‌ها) -->
+<div class="wishlist-profile-section" style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 15px; text-align: right; width: 100%; overflow: hidden;">
+    
+    <h3 style="color: #e91e63; font-size: 1rem; font-weight: bold; margin-bottom: 10px;">❤️ گاراژ آرزوهای من</h3>
+    <p style="font-size: 11px; color: var(--secondary-text); margin: 0 0 15px 0; line-height: 1.6;">
+        خودروهای ناموجود را به این لیست اضافه کنید. به محض شارژ مجدد انبار، از طریق <strong>ایمیل و اعلان‌های سایت</strong> سریع‌تر از دیگران مطلع خواهید شد!
+    </p>
+    
+    <div id="profileWishlist" style="display: flex; gap: 15px; overflow-x: auto; padding-bottom: 15px; scroll-behavior: smooth; width: 100%;">
+        <div class="loader-small">در حال بارگذاری...</div>
+    </div>
+</div>
       <!-- بخش جدید: سوابق خرید -->
       <div class="contracts-section">
         <h3 class="contracts-title">سوابق خرید و قراردادها</h3>
@@ -1146,6 +1186,7 @@ data-sound="<?php echo $car['engine_sound'] ?? ''; ?>"
   <script src="js/profile.js"></script>
   <script src="js/settings.js"></script>
   <script src="js/wishlist.js"></script>
+  <script src="js/notification.js"></script>
   
 
   <script>
@@ -1194,19 +1235,37 @@ data-sound="<?php echo $car['engine_sound'] ?? ''; ?>"
   document.addEventListener('DOMContentLoaded', function() {
     if (sessionStorage.getItem('loginSuccess')) {
       sessionStorage.removeItem('loginSuccess');
-      const loginPopup = document.getElementById('loginSuccessPopup');
-      if (loginPopup) {
-        loginPopup.style.display = 'block';
-        // Animation handles fade out and hiding
+      if (typeof window.showToast === 'function') {
+          window.showToast('ورود با موفقیت انجام شد!', 'success');
+      }
+    }
+    if (sessionStorage.getItem('signupSuccess')) {
+      sessionStorage.removeItem('signupSuccess');
+      if (typeof window.showToast === 'function') {
+          window.showToast('ثبت‌نام با موفقیت انجام شد!', 'success');
       }
     }
   });
 
   // Logout confirmation function
+  // function confirmLogout() {
+  //   if (showConfirm("خروج از اکانت " , "آیا مطمئنید می خواهید از اکانتتان خارج شوید؟")) {
+  //     window.location.href = "logout.php";
+  //   }
+  // }
+
+  // =========================================================
+  // خروج از حساب کاربری (با استفاده از مودال سفارشی)
+  // =========================================================
   function confirmLogout() {
-    if (confirm("آیا مطمئنید می خواهید از اکانتتان خارج شوید؟")) {
-      window.location.href = "logout.php";
-    }
+    showConfirm(
+      "خروج از حساب", 
+      "آیا مطمئنید می خواهید از اکانتتان خارج شوید؟", 
+      function() {
+        // این بخش فقط زمانی اجرا می‌شود که کاربر روی "تایید" کلیک کند
+        window.location.href = "logout.php";
+      }
+    );
   }
   </script>
 
@@ -1437,6 +1496,134 @@ data-sound="<?php echo $car['engine_sound'] ?? ''; ?>"
         // 4. دادن استایل اکتیو به دکمه کلیک شده
         clickedBtn.classList.add('active');
     }
+
+
+
+
+
+
+    // ============================================================
+        // موتور هوشمند باز کردن مودال (Smart Live Modal Opener)
+        // ============================================================
+        window.openSmartModal = async function(productId) {
+       
+
+            try {
+                // 2. درخواست اطلاعات زنده از سرور (بدون نیاز به خواندن HTML)
+                const response = await fetch('api_get_product.php?id=' + productId);
+                const data = await response.json();
+
+                if (!data.success) {
+                    alert(data.error || 'این خودرو در حال حاضر در دسترس نیست.');
+                    return;
+                }
+
+                const car = data.product;
+
+                // 3. آماده‌سازی اطلاعات برای نمایش در مودال
+                const formattedPrice = Number(car.price).toLocaleString();
+                let priceHTML = (car.old_price && car.old_price > 0) 
+                    ? `<del style="color:red; font-size:0.8em;">${Number(car.old_price).toLocaleString()} تومان</del> ${formattedPrice} تومان`
+                    : `${formattedPrice} تومان`;
+
+                // چاپ اطلاعات در مودال
+                document.getElementById('modalCarName').innerText = car.name;
+                document.getElementById('modalCarPrice').innerHTML = priceHTML;
+                document.getElementById('modalCarImage').src = car.image;
+                document.getElementById('specHP').innerText = (car.hp && car.hp !== '---') ? car.hp : '---';
+                document.getElementById('specAccel').innerText = (car.accel && car.accel !== '---') ? car.accel : '---';
+                document.getElementById('specEngine').innerText = (car.engine && car.engine !== '---') ? car.engine : '---';
+
+                // آپدیت متغیر گلوبال قرارداد
+                if (typeof contractData === 'undefined') window.contractData = {};
+                contractData.id = car.id;
+                contractData.name = car.name;
+                contractData.price = formattedPrice + " تومان";
+
+                // 4. پردازش رنگ‌ها و موجودی زنده
+                let availableColors = {};
+                try { availableColors = JSON.parse(car.colors_inventory || '{}'); } catch(e) {}
+
+                let colorsContainerDiv = document.getElementById('modalColorsContainer');
+                if (!colorsContainerDiv) colorsContainerDiv = document.querySelector('.color-selection-area .colors-container');
+
+                if (colorsContainerDiv) {
+                    colorsContainerDiv.innerHTML = ''; 
+                    let firstAvailableColorName = null;
+                    let firstAvailableColorQty = 0;
+                    let isAnyColorAvailable = false;
+
+                    Object.keys(availableColors).forEach(colorName => {
+                        let cData = availableColors[colorName];
+                        let qty = typeof cData === 'object' ? parseInt(cData.qty) : parseInt(cData);
+                        let hex = typeof cData === 'object' ? cData.hex : '#ccc';
+                        let specificImg = typeof cData === 'object' ? (cData.img || '') : '';
+
+                        const dot = document.createElement('div');
+                        dot.className = 'color-dot';
+                        dot.style.backgroundColor = hex;
+                        if(hex.toLowerCase() === '#ffffff' || hex.toLowerCase() === '#fff') dot.style.border = '1px solid #ccc';
+
+                        if (qty > 0) {
+                            isAnyColorAvailable = true;
+                            if (!firstAvailableColorName) {
+                                firstAvailableColorName = colorName;
+                                firstAvailableColorQty = qty;
+                                dot.classList.add('selected');
+                                if(specificImg) document.getElementById('modalCarImage').src = specificImg;
+                            }
+
+                            dot.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                colorsContainerDiv.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+                                this.classList.add('selected');
+                                contractData.color = colorName;
+                                document.getElementById('selectedColorLabel').innerText = `رنگ انتخاب شده: ${colorName} (موجودی: ${qty})`;
+
+                                const carImgEl = document.getElementById('modalCarImage');
+                                carImgEl.style.opacity = 0.5;
+                                setTimeout(() => {
+                                    carImgEl.src = specificImg ? specificImg : car.image;
+                                    carImgEl.style.opacity = 1;
+                                }, 200);
+
+                                const btn = document.querySelector('.btn-primary-modal');
+                                btn.innerText = 'تایید و تنظیم قرارداد ←';
+                                btn.classList.remove('btn-out-of-stock');
+                                btn.onclick = window.goToStep2;
+                            });
+                        } else {
+                            dot.classList.add('disabled');
+                        }
+                        colorsContainerDiv.appendChild(dot);
+                    });
+
+                    // وضعیت دکمه نهایی بر اساس موجودی لایو
+                    const submitBtnModal1 = document.querySelector('.btn-primary-modal'); 
+                    if (!isAnyColorAvailable) {
+                        submitBtnModal1.innerText = 'خودرو در حال حاضر ناموجود است';
+                        submitBtnModal1.classList.add('btn-out-of-stock');
+                        submitBtnModal1.onclick = null; 
+                        document.getElementById('selectedColorLabel').innerText = 'تمامی رنگ‌ها ناموجود است';
+                        contractData.color = '';
+                    } else {
+                        submitBtnModal1.innerText = 'تایید و تنظیم قرارداد ←';
+                        submitBtnModal1.classList.remove('btn-out-of-stock');
+                        submitBtnModal1.onclick = window.goToStep2;
+                        contractData.color = firstAvailableColorName;
+                        document.getElementById('selectedColorLabel').innerText = `رنگ انتخاب شده: ${firstAvailableColorName} (موجودی: ${firstAvailableColorQty})`;
+                    }
+                }
+
+                // 5. نمایش مودال
+                document.getElementById('buyModal').style.display = 'flex';
+                if (typeof goToStep1 === 'function') goToStep1();
+                
+            } catch (err) {
+                console.error(err);
+                alert('خطا در ارتباط با سرور. لطفا اینترنت خود را بررسی کنید.');
+            }
+        };
 </script>
 </body>
 

@@ -9,14 +9,21 @@ if (!isset($_GET['id']) || !isset($_SESSION['user_id'])) {
 
 $id = $_GET['id'];
 $user_id = $_SESSION['user_id'];
+$is_admin = (isset($_SESSION['role']) && $_SESSION['role'] == 1);
 
-// دریافت اطلاعات قرارداد
-$stmt = $pdo->prepare("SELECT * FROM contracts WHERE id = ? AND user_id = ?");
-$stmt->execute([$id, $user_id]);
+// اگر ادمین باشد، می‌تواند همه قراردادها را ببیند. اگر کاربر عادی باشد، فقط قرارداد خودش را می‌بیند.
+if ($is_admin) {
+    $stmt = $pdo->prepare("SELECT * FROM contracts WHERE id = ?");
+    $stmt->execute([$id]);
+} else {
+    $stmt = $pdo->prepare("SELECT * FROM contracts WHERE id = ? AND user_id = ?");
+    $stmt->execute([$id, $user_id]);
+}
+
 $contract = $stmt->fetch();
 
 if (!$contract) {
-    die("قرارداد یافت نشد.");
+    die("قرارداد یافت نشد. (عدم دسترسی یا حذف شده)");
 }
 ?>
 <!DOCTYPE html>
@@ -303,7 +310,7 @@ if (!$contract) {
             <div class="sign-box">
                 <strong>امضای خریدار</strong>
                 <br>
-                <img src="<?php echo $contract['signature']; ?>" style="max-height: 80px; max-width: 150px; margin-top: 5px;">
+                <img src="<?php echo htmlspecialchars($contract['signature'], ENT_QUOTES, 'UTF-8'); ?>" style="max-height: 80px; max-width: 150px; margin-top: 5px;">
                 <br>
                 <small style="font-size: 10px; color: #666;">(امضای دیجیتال ثبت شده در سیستم)</small>
             </div>

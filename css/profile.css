@@ -385,3 +385,42 @@
     color: #4CAF50;
     font-size: 13px;
 }
+
+/* ۱. پرده تاریک پشت (بدون اسکرول - کاملاً ثابت و فیکس) */
+.profile-section {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px);
+    display: flex;
+    justify-content: center;
+    align-items: center; /* کارت را دقیقاً در مرکز صفحه نگه می‌دارد */
+    overflow: hidden; /* ❌ اسکرول کل صفحه را کاملاً می‌بندد ❌ */
+    z-index: 1050;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* ۲. خود کارت پروفایل (اسکرول داخلی فقط همینجا اتفاق می‌افتد) */
+.profile-card {
+    background: var(--bg-color, #2c2c2c);
+    color: var(--text-color, #ffffff);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+    position: relative;
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+    
+    /* 👇 جادوی اسکرول داخلی اینجاست 👇 */
+    max-height: 85vh; /* حداکثر ارتفاع کارت (۸۵٪ ارتفاع مانیتور/گوشی) */
+    overflow-y: auto; /* فعال شدن اسکرول فقط و فقط داخل خود کارت */
+    overflow-x: hidden;
+}

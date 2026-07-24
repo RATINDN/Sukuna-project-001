@@ -71,7 +71,7 @@ if ($view === 'dashboard') {
 // بقیه لاجیک‌ها (کاربران و قراردادها) بدون تغییر...
 elseif ($view === 'users') {
     try {
-        // علاوه بر اطلاعات کاربر، تعداد خریدهای موفقش رو هم همونجا میشماریم
+        // دریافت تمام کاربران به همراه تعداد خریدهای موفق برای فیلتر زنده در جاوااسکریپت
         $stmt = $pdo->prepare("
             SELECT c.*, 
             (SELECT COUNT(*) FROM contracts WHERE user_id = c.id AND status = 'paid') as paid_count 
@@ -80,6 +80,12 @@ elseif ($view === 'users') {
         ");
         $stmt->execute();
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // محاسبه آمار برای کارت‌های بالای صفحه
+        $totalUsersCount = count($users);
+        $adminCount = count(array_filter($users, function($u) { return $u['role'] == 1; }));
+        $normalUserCount = $totalUsersCount - $adminCount;
+
     } catch (PDOException $e) { $error = $e->getMessage(); }
 } elseif ($view === 'contracts') {
     try {
@@ -88,15 +94,43 @@ elseif ($view === 'users') {
         $contracts = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) { $error = $e->getMessage(); }
 }
+elseif ($view === 'reports') {
+    try {
+        // آمار ایمیل‌ها
+        $stmtStats = $pdo->query("SELECT status, COUNT(*) as cnt FROM email_queue GROUP BY status");
+        $emailStats = ['pending' => 0, 'sent' => 0, 'failed' => 0, 'processing' => 0];
+        while($r = $stmtStats->fetch(PDO::FETCH_ASSOC)) { $emailStats[$r['status']] = $r['cnt']; }
+        
+        $totalNotifs = $pdo->query("SELECT COUNT(*) FROM notifications")->fetchColumn();
+        
+        // واکشی 300 ایمیل آخر
+        $stmtEmails = $pdo->query("SELECT * FROM email_queue ORDER BY id DESC LIMIT 300");
+        $emails = $stmtEmails->fetchAll(PDO::FETCH_ASSOC);
 
+        // واکشی 300 نوتیفیکیشن آخر به همراه نام کاربر
+        $stmtNotifs = $pdo->query("
+            SELECT n.*, c.user_name 
+            FROM notifications n 
+            JOIN car c ON n.user_id = c.id 
+            ORDER BY n.created_at DESC 
+            LIMIT 300
+        ");
+        $admin_notifs = $stmtNotifs->fetchAll(PDO::FETCH_ASSOC);
+
+    } catch (PDOException $e) { $error = $e->getMessage(); }
+}
 elseif ($view === 'products') {
     try {
-        // دریافت محصولات
-        $stmt = $pdo->query("SELECT * FROM products ORDER BY created_at DESC");
+        // دریافت محصولات به همراه تعداد لایک‌هایی که در جدول wishlist خورده‌اند
+        $stmt = $pdo->query("
+            SELECT p.*, COUNT(w.id) as likes_count 
+            FROM products p 
+            LEFT JOIN wishlist w ON p.id = w.product_id 
+            GROUP BY p.id 
+            ORDER BY p.created_at DESC
+        ");
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // دریافت لیست برندها (برای فیلتر و پیشنهاد در فرم)
-        // این خط تمام برندهای یکتا رو از دیتابیس میکشه بیرون
         $brandStmt = $pdo->query("SELECT DISTINCT brand FROM products WHERE brand IS NOT NULL AND brand != '' ORDER BY brand ASC");
         $uniqueBrands = $brandStmt->fetchAll(PDO::FETCH_COLUMN);
 
@@ -116,6 +150,11 @@ elseif ($view === 'products') {
     <link rel="stylesheet" href="css/loginstyle.css">
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <!-- لینک کردن استایل‌های فریم‌ورک پاپ‌آپ‌های سفارشی -->
+<link rel="stylesheet" href="css/custom_dialogs.css">
+
+<!-- لینک کردن جاوااسکریپت موتور اعلانات سراسری -->
+<script src="js/custom_dialogs.js"></script>
     <!-- اضافه کردن کتابخانه قدرتمند Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -131,6 +170,7 @@ elseif ($view === 'products') {
                 <a href="admin.php?view=users" class="nav-link <?php echo $view === 'users' ? 'active' : ''; ?>">👥 کاربران</a>
                 <a href="admin.php?view=contracts" class="nav-link <?php echo $view === 'contracts' ? 'active' : ''; ?>">📄 قراردادها</a>
                 <a href="admin.php?view=products" class="nav-link <?php echo $view === 'products' ? 'active' : ''; ?>">🚗 مدیریت محصولات</a>
+                <a href="admin.php?view=reports" class="nav-link <?php echo $view === 'reports' ? 'active' : ''; ?>">📡 گزارشات سیستم</a>
                 <hr style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
                 <a href="index.php" class="back-to-site">بازگشت به سایت</a>
             </div>
@@ -138,6 +178,7 @@ elseif ($view === 'products') {
 
         <!-- Main Content -->
         <div class="admin-main">
+            
             <div class="admin-header">
                 <div class="header-left">
                     <button id="menuToggle" class="menu-toggle"><i class="fas fa-bars"></i></button>
@@ -146,6 +187,7 @@ elseif ($view === 'products') {
                               if($view === 'dashboard') echo 'داشبورد مدیریتی';
                              elseif($view === 'contracts') echo 'مدیریت قراردادها';
                              elseif($view === 'products') echo 'مدیریت محصولات'; // <--- این خط جدید است
+                             elseif($view === 'reports') echo 'گزارشات سیستم'; /* این خط اضافه شد */
                             else echo 'مدیریت کاربران';
                           ?>
                     </h2>
@@ -263,22 +305,67 @@ elseif ($view === 'products') {
             </div>
             <?php endif; ?>
 
-            <?php if ($view !== 'dashboard'): ?>
+            <?php if ($view !== 'dashboard' && $view !== 'reports'): ?>
             
-            <!-- 1. نوار ابزار بالا (فیلتر + دکمه اکسل) -->
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 15px; gap: 10px;">
-                <?php if ($view === 'users'): ?>
-                <div class="filter-container" style="display: flex; align-items: center; gap: 10px;">
-                    <label style="font-weight: bold;">نمایش بر اساس وضعیت:</label>
-                    <select id="userFilterSelect" onchange="applyUserFilter()" style="padding: 8px 15px; border-radius: 8px; border: 1px solid var(--admin-border-color); background: var(--admin-bg-color); color: var(--admin-text-color); font-family: 'Vazirmatn'; cursor: pointer;">
-                        <option value="all">👥 همه کاربران</option>
+           <!-- 1. نوار ابزار بالا (فیلتر + دکمه اکسل) -->
+           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 15px; gap: 10px;">
+                
+           <?php if ($view === 'users'): ?>
+                <!-- فیلترهای زنده (بدون رفرش) برای بخش کاربران -->
+                <div class="filter-container" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    
+                    <select id="userStatusFilter" onchange="applyGlobalUserFilter()" style="padding: 8px; border-radius: 8px; border: 1px solid var(--admin-border-color); background: var(--admin-bg-color); color: var(--admin-text-color); font-family: 'Vazirmatn'; cursor: pointer;">
+                        <option value="all">👥 همه وضعیت‌ها</option>
                         <option value="online">🟢 فقط آنلاین‌ها</option>
                         <option value="offline">🔴 فقط آفلاین‌ها</option>
                     </select>
+
+                    <select id="userRoleFilter" onchange="applyGlobalUserFilter()" style="padding: 8px; border-radius: 8px; border: 1px solid var(--admin-border-color); background: var(--admin-bg-color); color: var(--admin-text-color); font-family: 'Vazirmatn'; cursor: pointer;">
+                        <option value="all">🛡️ همه نقش‌ها</option>
+                        <option value="1">🛡️ مدیران سیستم</option>
+                        <option value="0">👤 کاربران عادی</option>
+                    </select>
+
+                    <select id="userOrdersFilter" onchange="applyGlobalUserFilter()" style="padding: 8px; border-radius: 8px; border: 1px solid var(--admin-border-color); background: var(--admin-bg-color); color: var(--admin-text-color); font-family: 'Vazirmatn'; cursor: pointer;">
+                        <option value="all">🛒 سوابق خرید (همه)</option>
+                        <option value="3plus">💎 عضو الماس (۳+ خرید)</option>
+                        <option value="1plus">👑 عضو طلایی (۱ تا ۲ خرید)</option>
+                        <option value="0">🥉 بدون خرید موفق</option>
+                    </select>
+
+
+                    <!-- سیستم مرتب‌سازی کاربران -->
+                    <select id="userSortFilter" onchange="applyGlobalUserFilter()" style="padding: 8px; border-radius: 8px; border: 1px solid var(--admin-border-color); background: var(--admin-bg-color); color: var(--admin-text-color); font-family: 'Vazirmatn'; cursor: pointer;">
+                        <option value="newest" <?php echo (!isset($_GET['sort']) || $_GET['sort'] == 'newest') ? 'selected' : ''; ?>>🕒 جدیدترین ثبت‌نام‌ها</option>
+                        <option value="oldest" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'oldest') ? 'selected' : ''; ?>>⏳ قدیمی‌ترین ثبت‌نام‌ها</option>
+                        <option value="active_desc" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'active_desc') ? 'selected' : ''; ?>>🟢 اخیراً فعال (تازه‌ترین حضور)</option>
+                        <option value="active_asc" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'active_asc') ? 'selected' : ''; ?>>🔴 بیشترین زمان غیبت (غیرفعال‌ترین)</option>
+                    </select>
+
+                   <!-- فیلتر یکپارچه بازه زمانی (Date Range & Quick Presets) -->
+                   <div style="display: flex; align-items: center; gap: 8px; background: var(--admin-bg-color); border: 1px solid var(--admin-border-color); border-radius: 8px; padding: 6px 10px;">
+                        
+                        <!-- دکمه‌های سریع (بدون پس‌زمینه) -->
+                        <select id="userQuickDate" onchange="applyQuickDateFilter()" style="border: none; outline: none; background: transparent; color: var(--admin-primary-color); font-family: 'Vazirmatn'; font-size: 12px; font-weight: bold; cursor: pointer;">
+                            <option value="custom">📅 تاریخ دلخواه...</option>
+                            <option value="all">همه زمان‌ها</option>
+                            <option value="7days">۷ روز گذشته</option>
+                            <option value="30days">۳۰ روز گذشته</option>
+                            <option value="6months">۶ ماه گذشته</option>
+                        </select>
+
+                        <!-- خط جداکننده زیبا -->
+                        <div style="width: 1px; height: 20px; background: var(--admin-border-color); margin: 0 2px;"></div>
+
+                        <label style="font-size: 12px; color: var(--admin-text-color); font-weight: bold;">از:</label>
+                        <input type="date" id="userFromDate" onchange="resetQuickDateAndFilter()" style="border: none; outline: none; background: transparent; color: var(--admin-text-color); font-family: 'Vazirmatn'; font-size: 12px; cursor: pointer;">
+                        
+                        <label style="font-size: 12px; color: var(--admin-text-color); font-weight: bold; margin-left: 5px;">تا:</label>
+                        <input type="date" id="userToDate" onchange="resetQuickDateAndFilter()" style="border: none; outline: none; background: transparent; color: var(--admin-text-color); font-family: 'Vazirmatn'; font-size: 12px; cursor: pointer;">
+                    </div>
                 </div>
                 
                 <?php elseif ($view === 'contracts'): ?>
-                <!-- منوی جدید فیلتر قراردادها -->
                 <div class="filter-container" style="display: flex; align-items: center; gap: 10px;">
                     <label style="font-weight: bold;">فیلتر قراردادها:</label>
                     <select id="contractFilterSelect" onchange="applyContractFilter()" style="padding: 8px 15px; border-radius: 8px; border: 1px solid var(--admin-border-color); background: var(--admin-bg-color); color: var(--admin-text-color); font-family: 'Vazirmatn'; cursor: pointer;">
@@ -290,78 +377,96 @@ elseif ($view === 'products') {
                 </div>
 
                 <?php elseif ($view === 'products'): ?>
-                <!-- فیلتر پیشرفته محصولات -->
                 <div class="filter-container" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                     
-                    <!-- فیلتر برند -->
+                    <?php 
+                        // خواندن مقادیر از لینک برای نگه داشتن وضعیت دراپ‌دان‌ها بعد از رفرش
+                        $bFilter = $_GET['brand'] ?? 'all';
+                        $sFilter = $_GET['status'] ?? 'all';
+                        $srtFilter = $_GET['sort'] ?? 'newest';
+                    ?>
+
+                    <!-- فیلتر برندها -->
                     <select id="productBrandFilter" onchange="applyProductFilter()" style="padding: 8px; border-radius: 8px; border: 1px solid var(--admin-border-color); background: var(--admin-bg-color); color: var(--admin-text-color); font-family: 'Vazirmatn'; cursor: pointer;">
-                        <option value="all">🚗 همه برندها</option>
+                        <option value="all" <?php echo $bFilter === 'all' ? 'selected' : ''; ?>>🚗 همه برندها</option>
                         <?php foreach($uniqueBrands as $br): ?>
-                            <option value="<?php echo $br; ?>"><?php echo $br; ?></option>
+                            <option value="<?php echo htmlspecialchars($br, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $bFilter === $br ? 'selected' : ''; ?>><?php echo htmlspecialchars($br, ENT_QUOTES, 'UTF-8'); ?></option>
                         <?php endforeach; ?>
                     </select>
 
-                    <!-- فیلتر وضعیت -->
+                    <!-- فیلتر وضعیت و موجودی -->
                     <select id="productStatusFilter" onchange="applyProductFilter()" style="padding: 8px; border-radius: 8px; border: 1px solid var(--admin-border-color); background: var(--admin-bg-color); color: var(--admin-text-color); font-family: 'Vazirmatn'; cursor: pointer;">
-                        <option value="all">📊 همه وضعیت‌ها</option>
-                        <option value="discount">🔥 تخفیف‌دارها</option>
-                        <option value="slider">⭐ ویژه (اسلایدر)</option>
-                        <option value="out_of_stock">❌ ناموجودها</option>
-                        <option value="in_stock">✅ موجودها</option>
+                        <option value="all" <?php echo $sFilter === 'all' ? 'selected' : ''; ?>>📊 همه وضعیت‌ها</option>
+                        <option value="in_stock" <?php echo $sFilter === 'in_stock' ? 'selected' : ''; ?>>✅ فقط موجود در انبار</option>
+                        <option value="out_of_stock" <?php echo $sFilter === 'out_of_stock' ? 'selected' : ''; ?>>❌ فقط ناموجودها</option>
+                        <option value="discount" <?php echo $sFilter === 'discount' ? 'selected' : ''; ?>>🔥 تخفیف‌دارها</option>
+                        <option value="slider" <?php echo $sFilter === 'slider' ? 'selected' : ''; ?>>⭐ ویژه (اسلایدر)</option>
+                    </select>
+
+                    <!-- سیستم مرتب‌سازی پیشرفته (Sorting) -->
+                    <select id="productSortFilter" onchange="applyProductFilter()" style="padding: 8px; border-radius: 8px; border: 1px solid var(--admin-border-color); background: var(--admin-bg-color); color: var(--admin-text-color); font-family: 'Vazirmatn'; cursor: pointer;">
+                        <option value="newest" <?php echo $srtFilter === 'newest' ? 'selected' : ''; ?>>🕒 جدیدترین محصولات (زمان ثبت)</option>
+                        <option value="oldest" <?php echo $srtFilter === 'oldest' ? 'selected' : ''; ?>>⏳ قدیمی‌ترین محصولات</option>
+                        <option value="updated_desc" <?php echo $srtFilter === 'updated_desc' ? 'selected' : ''; ?>>🔄 اخیراً ویرایش شده</option>
+                        <option value="updated_asc" <?php echo $srtFilter === 'updated_asc' ? 'selected' : ''; ?>>🕰️ قدیمی‌ترین ویرایش</option>
+                        <option value="likes_desc" <?php echo $srtFilter === 'likes_desc' ? 'selected' : ''; ?>>❤️ محبوب‌ترین‌ها (بیشترین تقاضا)</option>
+                        <option value="likes_asc" <?php echo $srtFilter === 'likes_asc' ? 'selected' : ''; ?>>💔 کمترین تقاضا</option>
+                        <option value="price_desc" <?php echo $srtFilter === 'price_desc' ? 'selected' : ''; ?>>💰 گران‌ترین به ارزان‌ترین</option>
+                        <option value="price_asc" <?php echo $srtFilter === 'price_asc' ? 'selected' : ''; ?>>📉 ارزان‌ترین به گران‌ترین</option>
                     </select>
 
                 </div>
                 <?php else: ?>
-                <div></div> <!-- پر کننده جای خالی برای اینکه دکمه اکسل بره سمت چپ -->
+                <div></div> 
                 <?php endif; ?>
 
+                <?php if ($view !== 'reports'): ?>
                 <a href="export_excel.php?type=<?php echo $view; ?>" class="btn-excel"><i class="fas fa-file-excel"></i> دانلود گزارش اکسل</a>
+                <?php endif; ?>
             </div>
-
-            <!-- 2. نوار آماری (لینک دار شده) -->
-            <div class="summary-badges-container">
+<!-- 2. نوار آماری (لینک دار شده با جاوااسکریپت) -->
+<div class="summary-badges-container">
                 
-                <?php if ($view === 'users'): ?>
-                    <div class="summary-badge" onclick="window.location.href='admin.php?view=users&filter=all'" style="cursor: pointer;">
+<?php if ($view === 'users'): ?>
+                    <div class="summary-badge" onclick="filterFromCard('all')" style="cursor: pointer;">
                         <div class="badge-icon" style="background: linear-gradient(135deg, #2196F3, #1976D2);"><i class="fas fa-users"></i></div>
-                        <div class="badge-info"><span>کل کاربران سیستم</span><strong><?php echo number_format(count($users)); ?></strong></div>
+                        <div class="badge-info"><span>کل کاربران (یافت شده)</span><strong id="card-total-users"><?php echo number_format($totalUsersCount); ?></strong></div>
                     </div>
-                    <div class="summary-badge">
+                    <div class="summary-badge" onclick="filterFromCard('admin')" style="cursor: pointer;">
                         <div class="badge-icon" style="background: linear-gradient(135deg, #00C853, #009624);"><i class="fas fa-user-shield"></i></div>
-                        <div class="badge-info"><span>تعداد مدیران</span><strong><?php echo number_format(count(array_filter($users, function($u){return $u['role'] == 1;}))); ?></strong></div>
+                        <div class="badge-info"><span>مدیران (یافت شده)</span><strong id="card-admin-users"><?php echo number_format($adminCount); ?></strong></div>
                     </div>
-                    <div class="summary-badge">
+                    <div class="summary-badge" onclick="filterFromCard('normal')" style="cursor: pointer;">
                         <div class="badge-icon" style="background: linear-gradient(135deg, #FF9800, #F57C00);"><i class="fas fa-user"></i></div>
-                        <div class="badge-info"><span>کاربران عادی</span><strong><?php echo number_format(count(array_filter($users, function($u){return $u['role'] == 0;}))); ?></strong></div>
+                        <div class="badge-info"><span>کاربران عادی (یافت شده)</span><strong id="card-normal-users"><?php echo number_format($normalUserCount); ?></strong></div>
                     </div>
 
-                <?php elseif ($view === 'contracts'): ?>
-                    <!-- کارت‌های قرارداد لینک‌دار شدند -->
+                    <?php elseif ($view === 'contracts'): ?>
                     <div class="summary-badge" onclick="window.location.href='admin.php?view=contracts&filter=all'" style="cursor: pointer;">
                         <div class="badge-icon" style="background: linear-gradient(135deg, #9C27B0, #7B1FA2);"><i class="fas fa-file-contract"></i></div>
-                        <div class="badge-info"><span>کل قراردادها</span><strong><?php echo number_format(count($contracts)); ?></strong></div>
+                        <div class="badge-info"><span>کل قراردادها (یافت شده)</span><strong id="card-total-contracts"><?php echo number_format(count($contracts)); ?></strong></div>
                     </div>
                     <div class="summary-badge" onclick="window.location.href='admin.php?view=contracts&filter=paid'" style="cursor: pointer;">
                         <div class="badge-icon" style="background: linear-gradient(135deg, #4CAF50, #388E3C);"><i class="fas fa-check-double"></i></div>
-                        <div class="badge-info"><span>موفق (پرداخت شده)</span><strong><?php echo number_format(count(array_filter($contracts, function($c){return $c['status'] == 'paid';}))); ?></strong></div>
+                        <div class="badge-info"><span>موفق (یافت شده)</span><strong id="card-paid-contracts"><?php echo number_format(count(array_filter($contracts, function($c){return $c['status'] == 'paid';}))); ?></strong></div>
                     </div>
                     <div class="summary-badge" onclick="window.location.href='admin.php?view=contracts&filter=pending'" style="cursor: pointer;">
                         <div class="badge-icon" style="background: linear-gradient(135deg, #FFC107, #FFA000);"><i class="fas fa-hourglass-half"></i></div>
-                        <div class="badge-info"><span>در انتظار</span><strong><?php echo number_format(count(array_filter($contracts, function($c){return $c['status'] == 'pending';}))); ?></strong></div>
+                        <div class="badge-info"><span>در انتظار (یافت شده)</span><strong id="card-pending-contracts"><?php echo number_format(count(array_filter($contracts, function($c){return $c['status'] == 'pending';}))); ?></strong></div>
                     </div>
                     <div class="summary-badge" onclick="window.location.href='admin.php?view=contracts&filter=rejected'" style="cursor: pointer;">
                         <div class="badge-icon" style="background: linear-gradient(135deg, #f44336, #d32f2f);"><i class="fas fa-ban"></i></div>
-                        <div class="badge-info"><span>رد شده</span><strong><?php echo number_format(count(array_filter($contracts, function($c){return $c['status'] == 'rejected';}))); ?></strong></div>
+                        <div class="badge-info"><span>رد شده (یافت شده)</span><strong id="card-rejected-contracts"><?php echo number_format(count(array_filter($contracts, function($c){return $c['status'] == 'rejected';}))); ?></strong></div>
                     </div>
 
-                <?php elseif ($view === 'products'): ?>
+                    <?php elseif ($view === 'products'): ?>
                     <div class="summary-badge">
                         <div class="badge-icon" style="background: linear-gradient(135deg, #3F51B5, #303F9F);"><i class="fas fa-car-side"></i></div>
-                        <div class="badge-info"><span>تنوع خودروها</span><strong><?php echo number_format(count($products)); ?></strong></div>
+                        <div class="badge-info"><span>تنوع خودروها (یافت شده)</span><strong id="card-total-products"><?php echo number_format(count($products)); ?></strong></div>
                     </div>
                     <div class="summary-badge">
                         <div class="badge-icon" style="background: linear-gradient(135deg, #009688, #00796B);"><i class="fas fa-warehouse"></i></div>
-                        <div class="badge-info"><span>موجودی کل انبار</span><strong><?php echo number_format(array_sum(array_column($products, 'inventory'))); ?></strong></div>
+                        <div class="badge-info"><span>موجودی انبار (یافت شده)</span><strong id="card-total-inventory"><?php echo number_format(array_sum(array_column($products, 'inventory'))); ?></strong></div>
                     </div>
                 <?php endif; ?>
 
@@ -370,10 +475,14 @@ elseif ($view === 'products') {
             <div class="users-table-container">
                 <table class="users-table">
                     <?php if ($view === 'users'): ?>
-                    <thead><tr><th>شناسه</th><th>نام کاربری</th><th>ایمیل</th><th>تلفن</th><th>نقش</th><th>وضعیت</th><th>فعالیت</th><th>عملیات</th></tr></thead>
-                    <tbody>
+                        <!-- اضافه کردن تیتر تاریخ عضویت -->
+                        <thead><tr><th>شناسه</th><th>نام کاربری</th><th>ایمیل</th><th>تلفن</th><th>عضویت</th><th>نقش</th><th>وضعیت</th><th>فعالیت</th><th>عملیات</th></tr></thead>                    <tbody>
                         <?php foreach ($users as $user): ?>
-                        <tr data-user-id="<?php echo $user['id']; ?>">
+                            <tr data-user-id="<?php echo $user['id']; ?>" 
+                            data-role="<?php echo $user['role']; ?>" 
+                            data-orders="<?php echo $user['paid_count']; ?>"
+                            data-activity="<?php echo strtotime($user['last_activity'] ?? '0'); ?>"
+                            data-created="<?php echo strtotime($user['created_at']); ?>">
                             <td><?php echo $user['id']; ?></td>
                             <td>
                                 <?php echo htmlspecialchars($user['user_name']); ?>
@@ -389,6 +498,11 @@ elseif ($view === 'products') {
                                 ?>
                             </td>                            <td><?php echo htmlspecialchars($user['email']); ?></td>
                             <td><?php echo htmlspecialchars($user['phone']); ?></td>
+                              <!-- ستون جدید: تاریخ عضویت -->
+                              <!-- ستون تاریخ عضویت (اصلاح شده برای جلوگیری از شکستن خط) -->
+                            <td style="font-size: 11px; color: gray; white-space: nowrap;" dir="ltr">
+                                <?php echo isset($user['created_at']) ? date('Y/m/d', strtotime($user['created_at'])) : 'قدیمی'; ?>
+                            </td>
                             <td><?php echo $user['role'] == 1 ? 'مدیر' : 'کاربر عادی'; ?></td>
                             <td><?php echo $user['status'] == 1 ? 'تایید شده' : 'تایید نشده'; ?></td>
                             <td class="activity-status-cell" data-user-id="<?php echo $user['id']; ?>"><span class="activity-status">...</span></td>
@@ -414,9 +528,23 @@ elseif ($view === 'products') {
                             <td><?php echo htmlspecialchars($contract['car_name']); ?></td>
                             <td><?php echo htmlspecialchars($contract['car_price']); ?></td>
                             <td><?php if($contract['status'] == 'pending'): ?><span class="badge badge-warning">در انتظار</span><?php elseif($contract['status'] == 'paid'): ?><span class="badge badge-success">نهایی شده</span><?php else: ?><span class="badge" style="background:red; color:white;">رد شده</span><?php endif; ?></td>
-                            <td dir="ltr"><?php echo date('Y/m/d H:i', strtotime($contract['created_at'])); ?></td>
-                            <td class="actions"><button class="view-contract-btn" data-contract="<?php echo htmlspecialchars(json_encode($contract), ENT_QUOTES, 'UTF-8'); ?>">مدیریت</button></td>
-                        </tr>
+                                <td style="font-size: 11px; color: gray; text-align: center; line-height: 1.5;" dir="ltr">
+                                ثبت: <?php echo date('Y/m/d H:i', strtotime($contract['created_at'])); ?><br>
+                                <?php if($contract['status'] === 'paid' && !empty($contract['paid_at'])): ?>
+                                    <span style="color: #2e7d32; font-weight: bold;">پرداخت: <?php echo date('Y/m/d H:i', strtotime($contract['paid_at'])); ?></span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="actions" style="display: flex; gap: 5px; justify-content: center; align-items: center;">
+                                <button class="view-contract-btn" data-contract="<?php echo htmlspecialchars(json_encode($contract), ENT_QUOTES, 'UTF-8'); ?>">مدیریت</button>
+                                
+                                <!-- دکمه چاپ سند (در تب جدید باز می‌شود) -->
+                                <a href="print_contract.php?id=<?php echo $contract['id']; ?>" target="_blank" class="btn-edit" style="background: #2196F3; text-decoration: none; padding: 6px 10px; font-size: 13px; display: inline-block;">چاپ 🖨️</a>
+                                
+                                <!-- دکمه حذف هوشمند (برای قراردادهای پرداخت شده مخفی می‌شود) -->
+                                <?php if($contract['status'] !== 'paid'): ?>
+                                    <button onclick="deleteContractAdmin(<?php echo $contract['id']; ?>)" class="delete-btn" style="padding: 6px 10px; font-size: 13px;">حذف 🗑️</button>
+                                <?php endif; ?>
+                            </td>                        </tr>
                         <?php endforeach; ?>
                     </tbody>
 
@@ -424,13 +552,15 @@ elseif ($view === 'products') {
                     <!-- بخش ۳: جدول محصولات (اصلاح شده و حرفه‌ای) -->
                     <!-- ========================== -->
                     <?php elseif ($view === 'products'): ?>
-                    <thead>
+                        <thead>
                         <tr>
                             <th>تصویر</th>
                             <th>نام خودرو</th>
                             <th>برند</th>
-                            <th>وضعیت قیمت و تخفیف</th> <!-- تغییر نام ستون -->
+                            <th>وضعیت قیمت و تخفیف</th>
+                            <th>میزان تقاضا</th>
                             <th>موجودی</th>
+                            <th>زمان ثبت / ویرایش</th> <!-- این تیتر اضافه شد -->
                             <th>وضعیت</th>
                             <th>عملیات</th>
                         </tr>
@@ -446,12 +576,17 @@ elseif ($view === 'products') {
 
                         <?php foreach ($products as $p): ?>
                         <!-- اضافه کردن دیتا برای فیلتر -->
-                        <tr 
-                            data-brand="<?php echo $p['brand']; ?>" 
+                        <tr class="product-item-row"
+                            data-id="<?php echo $p['id']; ?>"
+                            data-brand="<?php echo htmlspecialchars($p['brand'], ENT_QUOTES, 'UTF-8'); ?>" 
                             data-discount="<?php echo (!empty($p['old_price']) && $p['old_price'] > 0) ? '1' : '0'; ?>"
                             data-slider="<?php echo $p['in_slider']; ?>"
                             data-stock="<?php echo ($p['inventory'] > 0) ? '1' : '0'; ?>"
-                        >
+                            data-inventory="<?php echo $p['inventory']; ?>"
+                            data-price="<?php echo $p['price']; ?>"
+                            data-likes="<?php echo $p['likes_count']; ?>"
+                            data-created="<?php echo strtotime($p['created_at']); ?>"
+                            data-updated="<?php echo strtotime($p['updated_at'] ?? $p['created_at']); ?>">
 <!-- نمایش عکس و صدای موتور در جدول -->
 <td style="text-align: center;">
                                 <img src="<?php echo htmlspecialchars($p['image']); ?>" class="product-img-thumb" alt="car" style="margin-bottom: 5px;">
@@ -490,9 +625,31 @@ elseif ($view === 'products') {
 
                                 </div>
                             </td>
-
+                            <td style="text-align: center;">
+    <div style="font-size: 14px; font-weight: bold; color: #e91e63;">
+        <?php echo $p['likes_count']; ?> ❤️
+    </div>
+    
+    <?php if ($p['inventory'] == 0 && $p['likes_count'] > 0): ?>
+        <!-- سیستم هوشمند: اگر ناموجود بود ولی مردم لایک کرده بودند، هشدار بده! -->
+        <span style="display: block; margin-top: 5px; background: #ff9800; color: white; padding: 3px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; animation: pulse 1.5s infinite;">
+            🔥 پیشنهاد شارژ انبار
+        </span>
+    <?php elseif ($p['likes_count'] >= 5): ?>
+        <!-- اگر لایک‌ها بالای 5 تا بود، برچسب محبوب بزن -->
+        <span style="display: block; margin-top: 5px; background: #9c27b0; color: white; padding: 2px 5px; border-radius: 4px; font-size: 9px;">
+            ⭐ بسیار محبوب
+        </span>
+    <?php endif; ?>
+</td>
                             <td><strong style="font-size: 16px; color: var(--admin-primary-color);"><?php echo $p['inventory']; ?></strong></td>
-                            
+                            <!-- ستون جدید: زمان ثبت و ویرایش -->
+                            <td style="font-size: 11px; color: gray; text-align: left;" dir="ltr">
+                                ثبت: <?php echo isset($p['created_at']) ? date('Y/m/d H:i', strtotime($p['created_at'])) : '-'; ?><br>
+                                <?php if(isset($p['updated_at']) && $p['updated_at'] !== $p['created_at']): ?>
+                                    ویرایش: <?php echo date('Y/m/d H:i', strtotime($p['updated_at'])); ?>
+                                <?php endif; ?>
+                            </td>
                             <td>
                                 <?php echo $p['in_slider'] ? '<span class="badge badge-success">اسلایدر</span>' : '<span class="badge" style="background: #757575; color: white;">عادی</span>'; ?>
                             </td>
@@ -509,6 +666,384 @@ elseif ($view === 'products') {
                 </table>
             </div>
             <?php endif; ?>
+            <?php if ($view === 'reports'): ?>
+  <!-- هدر ابزارها ایمیل + دراپ‌دان -->
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 15px; gap: 10px;">
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <!-- فیلتر ایمیل‌ها -->
+            <select id="emailStatusFilter" onchange="applyReportFilters()" style="padding: 8px; border-radius: 8px; border: 1px solid var(--admin-border-color); background: var(--admin-bg-color); color: var(--admin-text-color); font-family: 'Vazirmatn'; cursor: pointer;">
+                <option value="all">📧 همه ایمیل‌ها</option>
+                <option value="sent">✅ ارسال شده</option>
+                <option value="pending">⏳ در انتظار</option>
+                <option value="failed">❌ ناموفق</option>
+            </select>
+            
+            <button onclick="bulkDeleteEmails('failed')" style="background: var(--admin-danger-color); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: 'Vazirmatn'; font-weight: bold;">🗑️ حذف همه ناموفق‌ها</button>
+            <button onclick="retryAllFailedEmails()" style="background: var(--admin-secondary-color); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: 'Vazirmatn'; font-weight: bold;">🔄 تلاش مجدد برای همه</button>
+            <button onclick="bulkDeleteEmails('sent')" style="background: #757575; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: 'Vazirmatn'; font-weight: bold;">🧹 پاکسازی ارسال‌شده‌ها</button>
+            <button id="btnDelSelEmail" onclick="deleteSelected('email')" style="display:none; background: #e91e63; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: 'Vazirmatn'; font-weight: bold;"></button>
+        </div>
+        <a href="export_excel.php?type=reports" class="btn-excel"><i class="fas fa-file-excel"></i> دانلود گزارش اکسل</a>
+    </div>
+
+    <!-- مینی داشبورد آماری (لینک‌دار شده) -->
+    <div class="summary-badges-container">
+        <div class="summary-badge" onclick="filterReports('email', 'sent')" style="cursor: pointer;">
+            <div class="badge-icon" style="background: linear-gradient(135deg, #4CAF50, #388E3C);"><i class="fas fa-paper-plane"></i></div>
+            <div class="badge-info"><span>ایمیل‌های موفق</span><strong id="live-sent"><?php echo number_format($emailStats['sent']); ?></strong></div>
+        </div>
+        <div class="summary-badge" onclick="filterReports('email', 'pending')" style="cursor: pointer;">
+            <div class="badge-icon" style="background: linear-gradient(135deg, #FFC107, #FFA000);"><i class="fas fa-hourglass-half"></i></div>
+            <div class="badge-info"><span>در صف انتظار</span><strong id="live-pending"><?php echo number_format($emailStats['pending'] + $emailStats['processing']); ?></strong></div>
+        </div>
+        <div class="summary-badge" onclick="filterReports('email', 'failed')" style="cursor: pointer;">
+            <div class="badge-icon" style="background: linear-gradient(135deg, #f44336, #d32f2f);"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="badge-info"><span>خطا در ارسال</span><strong id="live-failed"><?php echo number_format($emailStats['failed']); ?></strong></div>
+        </div>
+        <div class="summary-badge" onclick="filterReports('notif', 'all')" style="cursor: pointer;">
+            <div class="badge-icon" style="background: linear-gradient(135deg, #9C27B0, #7B1FA2);"><i class="fas fa-bell"></i></div>
+            <div class="badge-info"><span>کل نوتیفیکیشن‌ها</span><strong><?php echo number_format($totalNotifs); ?></strong></div>
+        </div>
+    </div>
+
+    <!-- جدول گزارشات ایمیل -->
+    <div class="users-table-container">
+        <table class="users-table">
+            <thead>
+                <tr>
+                <th style="width: 30px;"><input type="checkbox" id="selectAllEmails" onclick="toggleAll(this, 'email-cb')"></th>
+                    <th>گیرنده</th>
+                    <th>موضوع ایمیل</th>
+                    <th>وضعیت</th>
+                    <th>زمان ایجاد / ارسال</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if(empty($emails)) echo "<tr><td colspan='5' style='text-align:center;'>هیچ گزارشی یافت نشد.</td></tr>"; ?>
+                <?php foreach ($emails as $em): ?>
+                    <tr class="email-item-row" id="email-row-<?php echo $em['id']; ?>" data-status="<?php echo $em['status']; ?>">
+                <td><input type="checkbox" class="email-cb" value="<?php echo $em['id']; ?>" onclick="checkSelection('email')"></td>
+                    <td>
+                        <div style="font-weight:bold; font-size: 13px;"><?php echo htmlspecialchars($em['recipient_name'], ENT_QUOTES, 'UTF-8'); ?></div>
+                        <div style="color:gray; font-size: 11px; direction: ltr; text-align: right;"><?php echo htmlspecialchars($em['recipient_email'], ENT_QUOTES, 'UTF-8'); ?></div>
+                    </td>
+                    <td style="font-size: 12px; max-width: 250px; white-space: normal; line-height: 1.5;">
+                        <?php echo htmlspecialchars($em['subject'], ENT_QUOTES, 'UTF-8'); ?>
+                    </td>
+                    <td>
+                        <?php if($em['status'] == 'sent'): ?>
+                            <span class="badge badge-success">ارسال شده</span>
+                        <?php elseif($em['status'] == 'failed'): ?>
+                            <span class="badge" style="background:#f44336; color:white;">ناموفق</span>
+                        <?php else: ?>
+                            <span class="badge badge-warning">در صف انتظار</span>
+                        <?php endif; ?>
+                    </td>
+                    <td style="font-size: 11px; color: gray;" dir="ltr">
+                        ایجاد: <?php echo $em['created_at']; ?><br>
+                        ارسال: <?php echo $em['sent_at'] ? $em['sent_at'] : '-'; ?>
+                    </td>
+                    <td class="actions">
+                        <?php if($em['status'] == 'failed'): ?>
+                            <!-- دکمه تلاش مجدد فقط برای ایمیل‌های ناموفق -->
+                            <button onclick="retryEmail(<?php echo $em['id']; ?>)" style="background: var(--admin-secondary-color); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-family:'Vazirmatn';">تلاش مجدد 🔄</button>
+                        <?php endif; ?>
+                        <button onclick="deleteEmail(<?php echo $em['id']; ?>)" class="delete-btn" style="padding: 5px 10px; font-size: 11px;">حذف 🗑️</button>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+
+  <!-- ============================================== -->
+    <!-- بخش دوم گزارشات: مدیریت نوتیفیکیشن‌ها + دراپ‌دان -->
+    <!-- ============================================== -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin: 40px 0 15px 0; gap: 10px; border-top: 2px dashed var(--admin-border-color); padding-top: 30px;">
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <h3 style="margin: 0; color: var(--admin-primary-color);">🔔 تاریخچه نوتیفیکیشن‌ها</h3>
+            
+            <!-- فیلتر نوتیفیکیشن‌ها -->
+            <select id="notifTypeFilter" onchange="applyReportFilters()" style="padding: 8px; border-radius: 8px; border: 1px solid var(--admin-border-color); background: var(--admin-bg-color); color: var(--admin-text-color); font-family: 'Vazirmatn'; cursor: pointer;">
+                <option value="all">🔔 همه اعلان‌ها</option>
+                <option value="new_product">🆕 محصول جدید</option>
+                <option value="restock">🔥 شارژ انبار</option>
+                <option value="ticket_reply">💬 پاسخ تیکت</option>
+                <option value="system_broadcast">📢 پیام همگانی</option>
+            </select>
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+            <button id="btnDelSelNotif" onclick="deleteSelected('notif')" style="display:none; background: #e91e63; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: 'Vazirmatn'; font-weight: bold;"></button>
+            <button onclick="bulkDeleteNotifs()" style="background: var(--admin-danger-color); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: 'Vazirmatn'; font-weight: bold;">🗑️ حذف کل اعلانات سایت</button>
+        </div>
+    </div>
+
+    <div class="users-table-container">
+        <table class="users-table">
+            <thead>
+                <tr>
+                <th style="width: 30px;"><input type="checkbox" id="selectAllNotifs" onclick="toggleAll(this, 'notif-cb')"></th>
+                    <th>گیرنده پیام</th>
+                    <th>نوع اعلان</th>
+                    <th>محتوای پیام</th>
+                    <th>وضعیت</th>
+                    <th>زمان ارسال</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if(empty($admin_notifs)) echo "<tr><td colspan='6' style='text-align:center;'>هیچ اعلانی در سیستم ثبت نشده است.</td></tr>"; ?>
+                <?php foreach ($admin_notifs as $n): ?>
+                    <tr class="notif-item-row" id="notif-admin-row-<?php echo $n['id']; ?>" data-type="<?php echo $n['type']; ?>">
+                <td><input type="checkbox" class="notif-cb" value="<?php echo $n['id']; ?>" onclick="checkSelection('notif')"></td>
+                    <td style="font-weight:bold; font-size: 13px;"><?php echo htmlspecialchars($n['user_name']); ?></td>
+                    <td>
+                        <?php 
+                            if($n['type'] == 'new_product') echo '<span class="badge" style="background:#9c27b0; color:white;">محصول جدید</span>';
+                            elseif($n['type'] == 'restock') echo '<span class="badge" style="background:#ff9800; color:white;">شارژ انبار</span>';
+                            elseif($n['type'] == 'ticket_reply') echo '<span class="badge" style="background:#2196F3; color:white;">پاسخ تیکت</span>';
+                            else echo '<span class="badge" style="background:#757575; color:white;">عمومی</span>';
+                        ?>
+                    </td>
+                    <td style="font-size: 12px; max-width: 250px; white-space: normal; line-height: 1.5;">
+                        <strong style="display: block; margin-bottom: 5px;"><?php echo htmlspecialchars($n['title']); ?></strong>
+                        <span style="color: var(--secondary-text);"><?php echo htmlspecialchars($n['message']); ?></span>
+                    </td>
+                    <td>
+                        <?php if($n['is_read'] == 1): ?>
+                            <span style="color: #4CAF50; font-size: 11px;">👁️ خوانده شده</span>
+                        <?php else: ?>
+                            <span style="color: gray; font-size: 11px;">✉️ تحویل داده شده</span>
+                        <?php endif; ?>
+                    </td>
+                    <td style="font-size: 11px; color: gray;" dir="ltr"><?php echo $n['created_at']; ?></td>
+                    <td class="actions">
+                        <button onclick="deleteAdminNotif(<?php echo $n['id']; ?>)" class="delete-btn" style="padding: 5px 10px; font-size: 11px;">حذف 🗑️</button>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+
+   <!-- اسکریپت‌های اختصاصی بخش گزارشات سیستم -->
+   <script>
+        // ==========================================
+        // 1. عملیات مدیریت نوتیفیکیشن‌ها
+        // ==========================================
+        function deleteAdminNotif(id) {
+            if(!confirm('آیا از حذف این نوتیفیکیشن از پنل کاربر مطمئن هستید؟')) return;
+            fetch('admin_actions.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `action=delete_notif_admin&notif_id=${id}`
+            }).then(r => r.json()).then(d => {
+                if(d.success) {
+                    const row = document.getElementById('notif-admin-row-' + id);
+                    if(row) {
+                        row.style.opacity = '0';
+                        setTimeout(() => row.remove(), 300);
+                    }
+                }
+            });
+        }
+
+        function bulkDeleteNotifs() {
+            if(!confirm('هشدار! با این کار تمام نوتیفیکیشن‌های کاربران از دیتابیس پاک خواهد شد. آیا مطمئن هستید؟')) return;
+            fetch('admin_actions.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `action=delete_bulk_notifs_admin`
+            }).then(r => r.json()).then(d => {
+                if(d.success) location.reload();
+            });
+        }
+
+        // ==========================================
+        // 2. عملیات مدیریت ایمیل‌ها
+        // ==========================================
+        function retryEmail(id) {
+            if(!confirm('آیا می‌خواهید این ایمیل دوباره به صف ارسال برگردد؟')) return;
+            fetch('admin_actions.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `action=retry_email&email_id=${id}`
+            }).then(r => r.json()).then(d => {
+                if(d.success) location.reload();
+            });
+        }
+
+        function retryAllFailedEmails() {
+            if(!confirm('آیا می‌خواهید تمام ایمیل‌های ناموفق دوباره به صف ارسال برگردند؟')) return;
+            fetch('admin_actions.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `action=retry_all_failed`
+            }).then(r => r.json()).then(d => {
+                if(d.success) location.reload();
+            });
+        }
+
+        function deleteEmail(id) {
+            if(!confirm('آیا از حذف این گزارش مطمئن هستید؟')) return;
+            fetch('admin_actions.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `action=delete_email&email_id=${id}`
+            }).then(r => r.json()).then(d => {
+                if(d.success) {
+                    const row = document.getElementById('email-row-' + id);
+                    if(row) {
+                        row.style.opacity = '0';
+                        setTimeout(() => row.remove(), 300);
+                    }
+                }
+            });
+        }
+
+        function bulkDeleteEmails(type) {
+            const msg = type === 'failed' ? 'آیا از حذف تمام ایمیل‌های ناموفق مطمئن هستید؟' : 'آیا از پاکسازی تمام گزارش‌های ارسال‌شده مطمئن هستید؟';
+            if(!confirm(msg)) return;
+            
+            fetch('admin_actions.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `action=delete_bulk_emails&del_type=${type}`
+            }).then(r => r.json()).then(d => {
+                if(d.success) location.reload();
+            });
+        }
+
+        // ==========================================
+        // 3. سیستم انتخاب گروهی (Bulk Selection)
+        // ==========================================
+        function toggleAll(source, className) {
+            const checkboxes = document.querySelectorAll('.' + className);
+            checkboxes.forEach(cb => {
+                const row = cb.closest('tr');
+                if (row.style.display !== 'none') {
+                    cb.checked = source.checked;
+                }
+            });
+            const type = className.split('-')[0];
+            checkSelection(type);
+        }
+
+        function checkSelection(type) {
+            const checkedBoxes = document.querySelectorAll(`.${type}-cb:checked`);
+            const btn = document.getElementById(`btnDelSel${type === 'email' ? 'Email' : 'Notif'}`);
+            
+            if (checkedBoxes.length > 0) {
+                btn.style.display = 'inline-block';
+                btn.innerText = `حذف ${checkedBoxes.length} مورد انتخاب شده 🗑️`;
+                btn.style.animation = "popBadge 0.3s ease"; 
+            } else {
+                btn.style.display = 'none';
+                document.getElementById(`selectAll${type === 'email' ? 'Emails' : 'Notifs'}`).checked = false;
+            }
+        }
+
+        async function deleteSelected(type) {
+            const checkedBoxes = document.querySelectorAll(`.${type}-cb:checked`);
+            if (checkedBoxes.length === 0) return;
+
+            if (!confirm(`آیا از حذف برای همیشه ${checkedBoxes.length} مورد مطمئن هستید؟`)) return;
+
+            const ids = Array.from(checkedBoxes).map(cb => cb.value);
+            const actionName = type === 'email' ? 'delete_selected_emails' : 'delete_selected_notifs';
+
+            try {
+                const res = await fetch('admin_actions.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `action=${actionName}&ids=${JSON.stringify(ids)}`
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    checkedBoxes.forEach(cb => {
+                        const row = cb.closest('tr');
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(20px)';
+                        row.style.transition = 'all 0.3s ease';
+                        setTimeout(() => row.remove(), 300);
+                    });
+                    document.getElementById(`btnDelSel${type === 'email' ? 'Email' : 'Notif'}`).style.display = 'none';
+                    document.getElementById(`selectAll${type === 'email' ? 'Emails' : 'Notifs'}`).checked = false;
+                }
+            } catch (err) {
+                console.error('خطا در حذف گروهی:', err);
+            }
+        }
+
+    // ==========================================
+        // موتور مانیتورینگ زنده (Live AJAX Polling)
+        // ==========================================
+        setInterval(async () => {
+            try {
+                const res = await fetch('api_live_reports.php');
+                const data = await res.json();
+                
+                if (data.success) {
+                    // 1. آپدیت کردن اعداد مینی‌داشبورد
+                    const pendingTotal = (data.stats.pending || 0) + (data.stats.processing || 0);
+                    
+                    const elSent = document.getElementById('live-sent');
+                    if(elSent) elSent.innerText = new Intl.NumberFormat().format(data.stats.sent || 0);
+                    
+                    const elPending = document.getElementById('live-pending');
+                    if(elPending) elPending.innerText = new Intl.NumberFormat().format(pendingTotal);
+                    
+                    const elFailed = document.getElementById('live-failed');
+                    if(elFailed) elFailed.innerText = new Intl.NumberFormat().format(data.stats.failed || 0);
+
+                    // 2. آپدیت زنده جدول و رنگ‌ها
+                    data.emails.forEach(em => {
+                        const row = document.getElementById('email-row-' + em.id);
+                        if (row) {
+                            // 🟢 LINE 1: This goes right here, inside the "if(row)" block! 
+                            // It updates the secret HTML attribute so the filter knows the new status.
+                            row.setAttribute('data-status', em.status);
+
+                            const statusTd = row.cells[3]; 
+                            const timeTd = row.cells[4];   
+                            const actionTd = row.cells[5]; 
+
+                            if (em.status === 'sent') {
+                                statusTd.innerHTML = '<span class="badge badge-success">ارسال شده</span>';
+                                if(!timeTd.innerHTML.includes(em.sent_at)) {
+                                    timeTd.innerHTML = timeTd.innerHTML.split('<br>')[0] + '<br>ارسال: ' + em.sent_at;
+                                }
+                                if(actionTd.innerHTML.includes('تلاش مجدد')) {
+                                    actionTd.innerHTML = `<button onclick="deleteEmail(${em.id})" class="delete-btn" style="padding: 5px 10px; font-size: 11px;">حذف 🗑️</button>`;
+                                }
+                            } 
+                            else if (em.status === 'failed') {
+                                statusTd.innerHTML = '<span class="badge" style="background:#f44336; color:white;">ناموفق</span>';
+                                actionTd.innerHTML = `
+                                    <button onclick="retryEmail(${em.id})" style="background: var(--admin-secondary-color); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-family:'Vazirmatn'; margin-left: 5px;">تلاش مجدد 🔄</button>
+                                    <button onclick="deleteEmail(${em.id})" class="delete-btn" style="padding: 5px 10px; font-size: 11px;">حذف 🗑️</button>
+                                `;
+                            } 
+                            else {
+                                statusTd.innerHTML = '<span class="badge badge-warning">در صف انتظار</span>';
+                                actionTd.innerHTML = `<button onclick="deleteEmail(${em.id})" class="delete-btn" style="padding: 5px 10px; font-size: 11px;">حذف 🗑️</button>`;
+                            }
+                        }
+                    }); // <-- End of the forEach loop
+
+                    // 🟢 LINE 2: This goes right here, OUTSIDE the loop, but INSIDE "if (data.success)"!
+                    // After all rows are updated, this triggers the filter to hide/show the newly updated rows.
+                    if(typeof applyReportFilters === 'function') applyReportFilters();
+                }
+            } catch (err) {
+                console.log("در حال تلاش برای اتصال لایو...");
+            }
+        }, 5000);
+    </script>
+<?php endif; ?>
         </div>
     </div>
 
@@ -730,7 +1265,27 @@ elseif ($view === 'products') {
                     <input type="file" name="engine_sound" id="pSound" accept="audio/mp3, audio/wav, audio/ogg">
                     <p style="font-size:11px; color:#666; margin-top:5px;">فرمت‌های مجاز: MP3, WAV (حجم کمتر از 2 مگابایت)</p>
                 </div>
+<!-- سیستم هوشمند اعلان محصول جدید -->
+<div class="input-group" id="notificationSettingsGroup" style="margin-top: 15px; border-top: 1px dashed var(--admin-border-color); padding-top: 15px;">
+    
+    <!-- انتخاب گروه هدف -->
+    <label style="color: var(--admin-primary-color); font-weight: bold; margin-bottom: 5px; display: block;">📢 چه کسانی از این محصول باخبر شوند؟</label>
+    <select name="notif_target" id="pNotifTarget" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px; font-family:'Vazirmatn'; background:#fff; margin-bottom: 15px;">
+        <option value="none">🔕 بدون ارسال اعلان (اضافه شدن در سکوت)</option>
+        <option value="diamond">💎 فقط کاربران الماس (۳ خرید به بالا)</option>
+        <option value="gold_diamond">👑 کاربران طلایی و الماس (حداقل ۱ خرید)</option>
+        <option value="all">👥 ارسال برای تمام کاربران سایت</option>
+    </select>
 
+    <!-- انتخاب روش ارسال -->
+    <label style="color: var(--admin-primary-color); font-weight: bold; margin-bottom: 5px; display: block;">نحوه ارسال اعلان (جلوگیری از اسپم)</label>
+    <select name="notif_method" id="pNotifMethod" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px; font-family:'Vazirmatn'; background:#fff;">
+        <option value="bell_only">🔔 فقط زنگوله سایت (بدون ارسال ایمیل)</option>
+        <option value="both">📧 زنگوله سایت + ارسال ایمیل</option>
+    </select>
+    <small style="color: gray; display:block; margin-top:5px; font-size: 11px;">پیشنهاد: ایمیل را فقط برای خودروهای بسیار خاص روشن کنید.</small>
+
+</div>
                 <button type="submit" class="btn-update" style="width:100%; padding:12px; margin-top:10px;">ذخیره تغییرات</button>
             </form>
         </div>
@@ -926,13 +1481,19 @@ elseif ($view === 'products') {
         themeObserver.observe(document.body, { attributes: true });
 
         <?php endif; ?>
-        
         // ============================================================
-        // 1. تنظیمات اولیه و خواندن پارامترهای URL
+        // تنظیمات اولیه و خواندن پارامترهای URL (برای تمام بخش‌ها)
         // ============================================================
         const urlParams = new URLSearchParams(window.location.search);
         const searchParam = urlParams.get('search');
         const filterParam = urlParams.get('filter');
+        const roleParam = urlParams.get('role');
+        const ordersParam = urlParams.get('orders');
+        const brandParam = urlParams.get('brand');
+        const statusParam = urlParams.get('status');
+        const sortParam = urlParams.get('sort');
+        const fromParam = urlParams.get('from'); // اضافه شد
+        const toParam = urlParams.get('to');     // اضافه شد
         const currentView = urlParams.get('view') || 'dashboard';
 
         // اعمال سرچ اگر در URL بود
@@ -940,23 +1501,46 @@ elseif ($view === 'products') {
             const searchInput = document.getElementById('admin-search');
             if (searchInput) {
                 searchInput.value = searchParam;
-                // تریگر کردن رویداد برای فیلتر شدن جدول
                 setTimeout(() => { searchInput.dispatchEvent(new Event('input')); }, 100);
             }
         }
 
-        // اعمال فیلترها بر اساس URL
-        if (filterParam) {
-            if (currentView === 'users' && document.getElementById('userFilterSelect')) {
-                document.getElementById('userFilterSelect').value = filterParam;
-                setTimeout(applyUserFilter, 100);
-            }
-            if (currentView === 'contracts' && document.getElementById('contractFilterSelect')) {
+        // اعمال فیلترهای تمام صفحات بر اساس URL
+        if (currentView === 'users') {
+            if (filterParam && document.getElementById('userStatusFilter')) document.getElementById('userStatusFilter').value = filterParam;
+            if (roleParam && document.getElementById('userRoleFilter')) document.getElementById('userRoleFilter').value = roleParam;
+            if (ordersParam && document.getElementById('userOrdersFilter')) document.getElementById('userOrdersFilter').value = ordersParam;
+            if (sortParam && document.getElementById('userSortFilter')) document.getElementById('userSortFilter').value = sortParam;
+            if (fromParam && document.getElementById('userFromDate')) document.getElementById('userFromDate').value = fromParam;
+            if (toParam && document.getElementById('userToDate')) document.getElementById('userToDate').value = toParam;
+            
+            // اجرای خودکار فیلتر هنگام لود شدن صفحه
+            if (filterParam || roleParam || ordersParam || sortParam || fromParam || toParam) setTimeout(applyGlobalUserFilter, 100);
+        }
+        else if (currentView === 'contracts') {
+            if (filterParam && document.getElementById('contractFilterSelect')) {
                 document.getElementById('contractFilterSelect').value = filterParam;
                 setTimeout(applyContractFilter, 100);
             }
+        } 
+        else if (currentView === 'products') {
+            if (brandParam && document.getElementById('productBrandFilter')) document.getElementById('productBrandFilter').value = brandParam;
+            if (statusParam && document.getElementById('productStatusFilter')) document.getElementById('productStatusFilter').value = statusParam;
+            
+            // اگر فیلتری در لینک بود، آن را روی جدول اعمال کن
+            if (brandParam || statusParam) setTimeout(applyProductFilter, 100);
         }
 
+        else if (currentView === 'products') {
+            if (brandParam && document.getElementById('productBrandFilter')) document.getElementById('productBrandFilter').value = brandParam;
+            if (statusParam && document.getElementById('productStatusFilter')) document.getElementById('productStatusFilter').value = statusParam;
+            // خواندن فیلتر مرتب‌سازی از لینک
+            if (sortParam && document.getElementById('productSortFilter')) document.getElementById('productSortFilter').value = sortParam;
+            
+            if (brandParam || statusParam || sortParam) setTimeout(applyProductFilter, 100);
+            // در لحظه لود شدن صفحه اجرا کنیم تا ردیف‌های جدول به صورت فیزیکی جابه‌جا و مرتب شوند
+            setTimeout(applyProductFilter, 100);
+        }
         // شروع آپدیت وضعیت آنلاین بودن
         updateActivityStatuses();
         statusUpdateInterval = setInterval(updateActivityStatuses, 30000);
@@ -985,22 +1569,48 @@ elseif ($view === 'products') {
         // ============================================================
         // 3. جستجوی زنده در جداول (Search Input)
         // ============================================================
+        // const searchInput = document.getElementById('admin-search');
+        // if (searchInput) {
+        //     searchInput.addEventListener('input', function() {
+        //         const term = this.value.toLowerCase();
+        //         const rows = document.querySelectorAll('.users-table tbody tr');
+                
+        //         rows.forEach(row => {
+        //             // فقط سطرهای اصلی رو فیلتر کن (نه هدر یا دکمه افزودن)
+        //             if(row.getElementsByTagName('td').length > 1) {
+        //                 const text = row.innerText.toLowerCase();
+        //                 row.style.display = text.includes(term) ? '' : 'none';
+        //             }
+        //         });
+        //     });
+        // }
+
+        // ============================================================
+        // 3. جستجوی زنده یکپارچه (Unified Live Search)
+        // ============================================================
         const searchInput = document.getElementById('admin-search');
         if (searchInput) {
             searchInput.addEventListener('input', function() {
-                const term = this.value.toLowerCase();
-                const rows = document.querySelectorAll('.users-table tbody tr');
-                
-                rows.forEach(row => {
-                    // فقط سطرهای اصلی رو فیلتر کن (نه هدر یا دکمه افزودن)
-                    if(row.getElementsByTagName('td').length > 1) {
-                        const text = row.innerText.toLowerCase();
-                        row.style.display = text.includes(term) ? '' : 'none';
-                    }
-                });
+                // به جای اینکه سرچ خودش تصمیم بگیرد، به توابع فیلتر می‌گوید اجرا شوند
+                // تا هم سرچ و هم دراپ‌دان‌ها همزمان بررسی شوند
+                if (typeof applyGlobalUserFilter === 'function' && document.getElementById('userStatusFilter')) {
+                    applyGlobalUserFilter();
+                } else if (typeof applyProductFilter === 'function' && document.getElementById('productBrandFilter')) {
+                    applyProductFilter();
+                } else if (typeof applyContractFilter === 'function' && document.getElementById('contractFilterSelect')) {
+                    applyContractFilter();
+                } else {
+                    // حالت پیش‌فرض برای صفحاتی که فیلتر پیشرفته ندارند
+                    const term = this.value.toLowerCase();
+                    const rows = document.querySelectorAll('.users-table tbody tr');
+                    rows.forEach(row => {
+                        if(row.getElementsByTagName('td').length > 1) {
+                            row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none';
+                        }
+                    });
+                }
             });
         }
-
 
         // ============================================================
         // 4. مدیریت مودال‌های تایید (حذف و ارتقا)
@@ -1032,14 +1642,8 @@ elseif ($view === 'products') {
                     body: bodyData
                 }).then(r => r.json()).then(d => {
                     if (d.success) {
-                        if (currentAction === 'delete') {
-                            // حذف سطر جدول بدون ریلود (برای کاربران)
-                            document.querySelector(`tr[data-user-id="${currentTargetId}"]`)?.remove();
-                        } else {
-                            // برای بقیه موارد ریلود کن
-                            window.location.reload();
-                        }
-                        showSuccess('عملیات با موفقیت انجام شد');
+                        // برای آپدیت شدن آمار بالای صفحه، حتماً صفحه را رفرش می‌کنیم
+                        window.location.reload();
                     } else {
                         alert(d.error || 'خطایی رخ داد');
                     }
@@ -1370,13 +1974,12 @@ elseif ($view === 'products') {
         document.getElementById('confirmationModal').style.display = 'flex';
     }
 
-    // نمایش پیام موفقیت
-    function showSuccess(msg) {
-        const popup = document.getElementById('successPopup');
-        if (popup) {
-            popup.textContent = msg;
-            popup.style.display = 'block';
-            setTimeout(() => popup.style.display = 'none', 3000);
+   // نمایش پیام موفقیت با سیستم جدید
+   function showSuccess(msg) {
+        if (typeof window.showToast === 'function') {
+            window.showToast(msg, 'success');
+        } else {
+            alert(msg);
         }
     }
 
@@ -1397,48 +2000,299 @@ elseif ($view === 'products') {
     }
 
     // فیلتر قراردادها
-    window.applyContractFilter = function() {
-        const filter = document.getElementById('contractFilterSelect');
-        if (!filter) return;
+    // window.applyContractFilter = function() {
+    //     const filter = document.getElementById('contractFilterSelect');
+    //     if (!filter) return;
         
-        const filterValue = filter.value;
-        const rows = document.querySelectorAll('.users-table tbody tr');
+    //     const filterValue = filter.value;
+    //     const rows = document.querySelectorAll('.users-table tbody tr');
 
-        rows.forEach(row => {
-            const status = row.getAttribute('data-status');
-            if(!status) return;
+    //     rows.forEach(row => {
+    //         const status = row.getAttribute('data-status');
+    //         if(!status) return;
             
-            if (filterValue === 'all') row.style.display = '';
-            else row.style.display = (status === filterValue) ? '' : 'none';
-        });
-    }
+    //         if (filterValue === 'all') row.style.display = '';
+    //         else row.style.display = (status === filterValue) ? '' : 'none';
+    //     });
+    // }
+
+   // =========================================================
+        // فیلتر قراردادها (همراه با آپدیت آدرس URL)
+        // =========================================================
+        // window.applyContractFilter = function() {
+        //     const searchTerm = document.getElementById('admin-search')?.value.toLowerCase() || '';
+        //     const filter = document.getElementById('contractFilterSelect');
+        //     if (!filter) return;
+            
+        //     const filterValue = filter.value;
+
+        //     // آپدیت کردن آدرس URL به صورت سایلنت
+        //     const currentUrl = new URL(window.location);
+        //     currentUrl.searchParams.set('filter', filterValue);
+        //     window.history.replaceState({}, '', currentUrl);
+
+        //     const rows = document.querySelectorAll('.users-table tbody tr');
+        //     rows.forEach(row => {
+        //         const status = row.getAttribute('data-status');
+        //         if(!status) return;
+                
+        //         const rowText = row.innerText.toLowerCase();
+        //         let matchSearch = rowText.includes(searchTerm);
+        //         let matchStatus = (filterValue === 'all') || (status === filterValue);
+                
+        //         row.style.display = (matchSearch && matchStatus) ? '' : 'none';
+        //     });
+        // }
+
+        // =========================================================
+        // فیلتر قراردادها (داینامیک)
+        // =========================================================
+        window.applyContractFilter = function() {
+            const searchTerm = document.getElementById('admin-search')?.value.toLowerCase() || '';
+            const filter = document.getElementById('contractFilterSelect');
+            if (!filter) return;
+            const filterValue = filter.value;
+
+            const currentUrl = new URL(window.location);
+            currentUrl.searchParams.set('filter', filterValue);
+            window.history.replaceState({}, '', currentUrl);
+
+            const rows = document.querySelectorAll('.users-table tbody tr');
+            
+            // شمارنده‌های زنده
+            let vTotal = 0, vPaid = 0, vPending = 0, vRejected = 0;
+
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                if(!status) return;
+                
+                const rowText = row.innerText.toLowerCase();
+                let matchSearch = rowText.includes(searchTerm);
+                let matchStatus = (filterValue === 'all') || (status === filterValue);
+                
+                if (matchSearch && matchStatus) {
+                    row.style.display = '';
+                    vTotal++;
+                    if (status === 'paid') vPaid++;
+                    else if (status === 'pending') vPending++;
+                    else if (status === 'rejected') vRejected++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // آپدیت کارت‌های بالای صفحه قراردادها
+            const cTotal = document.getElementById('card-total-contracts');
+            const cPaid = document.getElementById('card-paid-contracts');
+            const cPending = document.getElementById('card-pending-contracts');
+            const cRejected = document.getElementById('card-rejected-contracts');
+            
+            if(cTotal) cTotal.innerText = new Intl.NumberFormat().format(vTotal);
+            if(cPaid) cPaid.innerText = new Intl.NumberFormat().format(vPaid);
+            if(cPending) cPending.innerText = new Intl.NumberFormat().format(vPending);
+            if(cRejected) cRejected.innerText = new Intl.NumberFormat().format(vRejected);
+        }
 
     // فیلتر محصولات
-    window.applyProductFilter = function() {
-        const brandFilter = document.getElementById('productBrandFilter').value;
-        const statusFilter = document.getElementById('productStatusFilter').value;
-        const rows = document.querySelectorAll('.users-table tbody tr');
+    // window.applyProductFilter = function() {
+    //     const brandFilter = document.getElementById('productBrandFilter').value;
+    //     const statusFilter = document.getElementById('productStatusFilter').value;
+    //     const rows = document.querySelectorAll('.users-table tbody tr');
 
-        rows.forEach(row => {
-            if (!row.hasAttribute('data-brand')) return;
+    //     rows.forEach(row => {
+    //         if (!row.hasAttribute('data-brand')) return;
 
-            const rowBrand = row.getAttribute('data-brand');
-            const hasDiscount = row.getAttribute('data-discount') === '1';
-            const inSlider = row.getAttribute('data-slider') === '1';
-            const hasStock = row.getAttribute('data-stock') === '1';
+    //         const rowBrand = row.getAttribute('data-brand');
+    //         const hasDiscount = row.getAttribute('data-discount') === '1';
+    //         const inSlider = row.getAttribute('data-slider') === '1';
+    //         const hasStock = row.getAttribute('data-stock') === '1';
 
-            let brandMatch = (brandFilter === 'all') || (rowBrand === brandFilter);
-            let statusMatch = false;
+    //         let brandMatch = (brandFilter === 'all') || (rowBrand === brandFilter);
+    //         let statusMatch = false;
 
-            if (statusFilter === 'all') statusMatch = true;
-            else if (statusFilter === 'discount') statusMatch = hasDiscount;
-            else if (statusFilter === 'slider') statusMatch = inSlider;
-            else if (statusFilter === 'out_of_stock') statusMatch = !hasStock;
-            else if (statusFilter === 'in_stock') statusMatch = hasStock;
+    //         if (statusFilter === 'all') statusMatch = true;
+    //         else if (statusFilter === 'discount') statusMatch = hasDiscount;
+    //         else if (statusFilter === 'slider') statusMatch = inSlider;
+    //         else if (statusFilter === 'out_of_stock') statusMatch = !hasStock;
+    //         else if (statusFilter === 'in_stock') statusMatch = hasStock;
 
-            row.style.display = (brandMatch && statusMatch) ? '' : 'none';
-        });
-    }
+    //         row.style.display = (brandMatch && statusMatch) ? '' : 'none';
+    //     });
+    // }
+
+    // =========================================================
+        // فیلتر و مرتب‌سازی محصولات (Instant DOM Sorting Engine)
+        // =========================================================
+        // window.applyProductFilter = function() {
+        //     const searchTerm = document.getElementById('admin-search')?.value.toLowerCase() || '';
+        //     const brandFilter = document.getElementById('productBrandFilter')?.value || 'all';
+        //     const statusFilter = document.getElementById('productStatusFilter')?.value || 'all';
+        //     const sortFilter = document.getElementById('productSortFilter')?.value || 'newest';
+
+        //     // 1. آپدیت کردن آدرس URL به صورت سایلنت
+        //     const currentUrl = new URL(window.location);
+        //     currentUrl.searchParams.set('brand', brandFilter);
+        //     currentUrl.searchParams.set('status', statusFilter);
+        //     currentUrl.searchParams.set('sort', sortFilter);
+        //     window.history.replaceState({}, '', currentUrl);
+
+        //     const tbody = document.querySelector('.users-table tbody');
+        //     // فقط ردیف‌های مربوط به محصولات را می‌گیریم (دکمه افزودن محصول را نادیده می‌گیریم)
+        //     const rows = Array.from(tbody.querySelectorAll('tr.product-item-row'));
+
+        //     // 2. اعمال فیلتر (مخفی یا نمایان کردن)
+        //     rows.forEach(row => {
+        //         const rowText = row.innerText.toLowerCase();
+        //         const rowBrand = row.getAttribute('data-brand');
+        //         const hasDiscount = row.getAttribute('data-discount') === '1';
+        //         const inSlider = row.getAttribute('data-slider') === '1';
+        //         const hasStock = row.getAttribute('data-stock') === '1';
+
+        //         let matchSearch = rowText.includes(searchTerm);
+        //         let brandMatch = (brandFilter === 'all') || (rowBrand === brandFilter);
+        //         let statusMatch = false;
+
+        //         if (statusFilter === 'all') statusMatch = true;
+        //         else if (statusFilter === 'discount') statusMatch = hasDiscount;
+        //         else if (statusFilter === 'slider') statusMatch = inSlider;
+        //         else if (statusFilter === 'in_stock') statusMatch = hasStock;
+        //         else if (statusFilter === 'out_of_stock') statusMatch = !hasStock;
+
+        //         row.style.display = (matchSearch && brandMatch && statusMatch) ? '' : 'none';
+        //     });
+
+        //     // // 3. اعمال مرتب‌سازی (Sorting)
+        //     // rows.sort((a, b) => {
+        //     //     const priceA = parseFloat(a.getAttribute('data-price')) || 0;
+        //     //     const priceB = parseFloat(b.getAttribute('data-price')) || 0;
+        //     //     const likesA = parseInt(a.getAttribute('data-likes')) || 0;
+        //     //     const likesB = parseInt(b.getAttribute('data-likes')) || 0;
+        //     //     const idA = parseInt(a.getAttribute('data-id')) || 0;
+        //     //     const idB = parseInt(b.getAttribute('data-id')) || 0;
+
+        //     //     switch(sortFilter) {
+        //     //         case 'price_desc': return priceB - priceA; // گران‌ترین
+        //     //         case 'price_asc':  return priceA - priceB; // ارزان‌ترین
+        //     //         case 'likes_desc': return likesB - likesA; // محبوب‌ترین
+        //     //         case 'likes_asc':  return likesA - likesB; // کمترین لایک
+        //     //         case 'newest': 
+        //     //         default:           return idB - idA;       // جدیدترین (بر اساس ID)
+        //     //     }
+        //     // });
+
+        //     // 3. اعمال مرتب‌سازی فوق‌سریع (Sorting) بر اساس اعداد و زمان
+        //     rows.sort((a, b) => {
+        //         const priceA = parseFloat(a.getAttribute('data-price')) || 0;
+        //         const priceB = parseFloat(b.getAttribute('data-price')) || 0;
+                
+        //         const likesA = parseInt(a.getAttribute('data-likes')) || 0;
+        //         const likesB = parseInt(b.getAttribute('data-likes')) || 0;
+                
+        //         // زمان‌ها به صورت عدد (Timestamp) از PHP دریافت شده‌اند
+        //         const createdA = parseInt(a.getAttribute('data-created')) || 0;
+        //         const createdB = parseInt(b.getAttribute('data-created')) || 0;
+                
+        //         const updatedA = parseInt(a.getAttribute('data-updated')) || 0;
+        //         const updatedB = parseInt(b.getAttribute('data-updated')) || 0;
+
+        //         switch(sortFilter) {
+        //             case 'price_desc':   return priceB - priceA;     // گران‌ترین
+        //             case 'price_asc':    return priceA - priceB;     // ارزان‌ترین
+        //             case 'likes_desc':   return likesB - likesA;     // محبوب‌ترین
+        //             case 'likes_asc':    return likesA - likesB;     // کمترین تقاضا
+        //             case 'updated_desc': return updatedB - updatedA; // اخیراً ویرایش شده
+        //             case 'updated_asc':  return updatedA - updatedB; // قدیمی‌ترین ویرایش
+        //             case 'oldest':       return createdA - createdB; // قدیمی‌ترین ثبت
+        //             case 'newest': 
+        //             default:             return createdB - createdA; // جدیدترین ثبت (بر اساس تاریخ واقعی)
+        //         }
+        //     });
+
+        //     // 4. چیدن مجدد ردیف‌ها در صفحه (DOM Reordering بدون رفرش)
+        //     rows.forEach(row => tbody.appendChild(row));
+        // }
+
+        // =========================================================
+        // فیلتر و مرتب‌سازی محصولات (داینامیک)
+        // =========================================================
+        window.applyProductFilter = function() {
+            const searchTerm = document.getElementById('admin-search')?.value.toLowerCase() || '';
+            const brandFilter = document.getElementById('productBrandFilter')?.value || 'all';
+            const statusFilter = document.getElementById('productStatusFilter')?.value || 'all';
+            const sortFilter = document.getElementById('productSortFilter')?.value || 'newest';
+
+            const currentUrl = new URL(window.location);
+            currentUrl.searchParams.set('brand', brandFilter);
+            currentUrl.searchParams.set('status', statusFilter);
+            currentUrl.searchParams.set('sort', sortFilter);
+            window.history.replaceState({}, '', currentUrl);
+
+            const tbody = document.querySelector('.users-table tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr.product-item-row'));
+
+            // شمارنده‌های زنده محصولات
+            let vVariety = 0;
+            let vInventory = 0;
+
+            rows.forEach(row => {
+                const rowText = row.innerText.toLowerCase();
+                const rowBrand = row.getAttribute('data-brand');
+                const hasDiscount = row.getAttribute('data-discount') === '1';
+                const inSlider = row.getAttribute('data-slider') === '1';
+                const hasStock = row.getAttribute('data-stock') === '1';
+                const rowInvCount = parseInt(row.getAttribute('data-inventory')) || 0;
+
+                let matchSearch = rowText.includes(searchTerm);
+                let brandMatch = (brandFilter === 'all') || (rowBrand === brandFilter);
+                let statusMatch = false;
+
+                if (statusFilter === 'all') statusMatch = true;
+                else if (statusFilter === 'discount') statusMatch = hasDiscount;
+                else if (statusFilter === 'slider') statusMatch = inSlider;
+                else if (statusFilter === 'in_stock') statusMatch = hasStock;
+                else if (statusFilter === 'out_of_stock') statusMatch = !hasStock;
+
+                if (matchSearch && brandMatch && statusMatch) {
+                    row.style.display = '';
+                    vVariety++;
+                    vInventory += rowInvCount;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // آپدیت کارت‌های بالای صفحه محصولات
+            const cVariety = document.getElementById('card-total-products');
+            const cInventory = document.getElementById('card-total-inventory');
+            if(cVariety) cVariety.innerText = new Intl.NumberFormat().format(vVariety);
+            if(cInventory) cInventory.innerText = new Intl.NumberFormat().format(vInventory);
+
+            // اعمال مرتب‌سازی
+            rows.sort((a, b) => {
+                const priceA = parseFloat(a.getAttribute('data-price')) || 0;
+                const priceB = parseFloat(b.getAttribute('data-price')) || 0;
+                const likesA = parseInt(a.getAttribute('data-likes')) || 0;
+                const likesB = parseInt(b.getAttribute('data-likes')) || 0;
+                const createdA = parseInt(a.getAttribute('data-created')) || 0;
+                const createdB = parseInt(b.getAttribute('data-created')) || 0;
+                const updatedA = parseInt(a.getAttribute('data-updated')) || 0;
+                const updatedB = parseInt(b.getAttribute('data-updated')) || 0;
+
+                switch(sortFilter) {
+                    case 'price_desc':   return priceB - priceA;
+                    case 'price_asc':    return priceA - priceB;
+                    case 'likes_desc':   return likesB - likesA;
+                    case 'likes_asc':    return likesA - likesB;
+                    case 'updated_desc': return updatedB - updatedA;
+                    case 'updated_asc':  return updatedA - updatedB;
+                    case 'oldest':       return createdA - createdB;
+                    case 'newest': 
+                    default:             return createdB - createdA;
+                }
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
+        }
 
     // آپدیت زنده وضعیت‌ها
     function updateActivityStatuses() {
@@ -1495,7 +2349,10 @@ elseif ($view === 'products') {
                     }
 
                     // اعمال مجدد فیلتر اگر در صفحه کاربران هستیم
-                    if(document.getElementById('userFilterSelect')) applyUserFilter();
+                    // اعمال مجدد فیلتر زنده با توابع جدید
+                    if(document.getElementById('userStatusFilter') && typeof applyGlobalUserFilter === 'function') {
+                        applyGlobalUserFilter();
+                    }
                 }
             })
             .catch(e => console.error(e));
@@ -1517,6 +2374,249 @@ elseif ($view === 'products') {
     window.addEventListener('beforeunload', function() {
         if (statusUpdateInterval) clearInterval(statusUpdateInterval);
     });
+// =========================================================
+        // فیلترهای زنده و بدون رفرش (Instant DOM Filtering)
+        // =========================================================
+
+        // کلیک روی کارت‌های بالای صفحه برای تغییر سلکت‌باکس‌ها
+        window.filterFromCard = function(type) {
+            document.getElementById('userStatusFilter').value = 'all';
+            document.getElementById('userOrdersFilter').value = 'all';
+            
+            if (type === 'admin') {
+                document.getElementById('userRoleFilter').value = '1';
+            } else if (type === 'normal') {
+                document.getElementById('userRoleFilter').value = '0';
+            } else {
+                document.getElementById('userRoleFilter').value = 'all';
+            }
+            
+            applyGlobalUserFilter(); // اجرای فیلتر به صورت آنی
+        }
+        window.applyGlobalUserFilter = function() {
+            const searchTerm = document.getElementById('admin-search')?.value.toLowerCase() || '';
+            const statusFilter = document.getElementById('userStatusFilter')?.value || 'all';
+            const roleFilter = document.getElementById('userRoleFilter')?.value || 'all';
+            const ordersFilter = document.getElementById('userOrdersFilter')?.value || 'all';
+            const sortFilter = document.getElementById('userSortFilter')?.value || 'newest';
+            const fromDate = document.getElementById('userFromDate')?.value || '';
+            const toDate = document.getElementById('userToDate')?.value || '';
+
+            // تبدیل تاریخ‌ها به ثانیه (Timestamp) برای مقایسه ریاضی
+            const fromStamp = fromDate ? new Date(fromDate).getTime() / 1000 : 0;
+            const toStamp = toDate ? (new Date(toDate).getTime() / 1000) + 86399 : Infinity; // +86399 یعنی تا پایان همان روز
+
+            // آپدیت کردن آدرس URL
+            const currentUrl = new URL(window.location);
+            currentUrl.searchParams.set('filter', statusFilter);
+            currentUrl.searchParams.set('role', roleFilter);
+            currentUrl.searchParams.set('orders', ordersFilter);
+            currentUrl.searchParams.set('sort', sortFilter);
+            if(fromDate) currentUrl.searchParams.set('from', fromDate); else currentUrl.searchParams.delete('from');
+            if(toDate) currentUrl.searchParams.set('to', toDate); else currentUrl.searchParams.delete('to');
+            window.history.replaceState({}, '', currentUrl);
+            
+            const tbody = document.querySelector('.users-table tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            // شمارنده‌های زنده برای کارت‌های بالای صفحه
+            let visibleTotal = 0;
+            let visibleAdmins = 0;
+            let visibleNormals = 0;
+
+            // 1. اعمال فیلترها
+            rows.forEach(row => {
+                if(!row.hasAttribute('data-role')) return;
+
+                const rowText = row.innerText.toLowerCase();
+                const rowStatus = row.getAttribute('data-status') || 'offline';
+                const rowRole = row.getAttribute('data-role');
+                const rowOrders = parseInt(row.getAttribute('data-orders') || '0');
+                const rowCreated = parseInt(row.getAttribute('data-created')) || 0;
+
+                let matchSearch = rowText.includes(searchTerm);
+                let matchStatus = (statusFilter === 'all') || (statusFilter === 'online' && rowStatus === 'online') || (statusFilter === 'offline' && rowStatus !== 'online');
+                let matchRole = (roleFilter === 'all') || (rowRole === roleFilter);
+                
+                let matchOrders = false;
+                if (ordersFilter === 'all') matchOrders = true;
+                else if (ordersFilter === '3plus' && rowOrders >= 3) matchOrders = true;
+                else if (ordersFilter === '1plus' && rowOrders >= 1 && rowOrders < 3) matchOrders = true;
+                else if (ordersFilter === '0' && rowOrders === 0) matchOrders = true;
+
+                // فیلتر تاریخ عضویت
+                let matchDate = true;
+                if (rowCreated > 0) {
+                    if (fromStamp > 0 && rowCreated < fromStamp) matchDate = false;
+                    if (toStamp !== Infinity && rowCreated > toStamp) matchDate = false;
+                }
+
+                // نمایش سطر و آپدیت شمارنده‌ها
+                if (matchSearch && matchStatus && matchRole && matchOrders && matchDate) {
+                    row.style.display = '';
+                    visibleTotal++;
+                    if (rowRole === '1') visibleAdmins++; else visibleNormals++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // آپدیت زنده کارت‌های بالای صفحه
+            const cardTotal = document.getElementById('card-total-users');
+            const cardAdmin = document.getElementById('card-admin-users');
+            const cardNormal = document.getElementById('card-normal-users');
+            if(cardTotal) cardTotal.innerText = new Intl.NumberFormat().format(visibleTotal);
+            if(cardAdmin) cardAdmin.innerText = new Intl.NumberFormat().format(visibleAdmins);
+            if(cardNormal) cardNormal.innerText = new Intl.NumberFormat().format(visibleNormals);
+
+            // 2. اعمال مرتب‌سازی
+            rows.sort((a, b) => {
+                if(!a.hasAttribute('data-user-id') || !b.hasAttribute('data-user-id')) return 0;
+                const idA = parseInt(a.getAttribute('data-user-id')) || 0;
+                const idB = parseInt(b.getAttribute('data-user-id')) || 0;
+                const activityA = parseInt(a.getAttribute('data-activity')) || 0;
+                const activityB = parseInt(b.getAttribute('data-activity')) || 0;
+
+                switch(sortFilter) {
+                    case 'active_desc': return activityB - activityA; 
+                    case 'active_asc':  return activityA - activityB; 
+                    case 'oldest':      return idA - idB;             
+                    case 'newest': 
+                    default:            return idB - idA;             
+                }
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // ==========================================
+        // حذف هوشمند قرارداد
+        // ==========================================
+        window.deleteContractAdmin = function(id) {
+            if(!confirm('آیا از حذف این قرارداد مطمئن هستید؟\n\nنکته: در صورتی که قرارداد در حالت "در انتظار" باشد، خودرو به صورت خودکار به انبار باز می‌گردد.')) return;
+            
+            fetch('admin_actions.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `action=delete_contract&contract_id=${id}`
+            }).then(r => r.json()).then(d => {
+                if(d.success) {
+                    // رفرش صفحه برای آپدیت شدن آمار بالای صفحه و موجودی انبار
+                    window.location.reload();
+                } else {
+                    alert(d.error || 'خطایی رخ داد');
+                }
+            }).catch(err => console.error('خطا در ارتباط با سرور:', err));
+        }
+
+        // =========================================================
+        // منطق دکمه‌های سریع تاریخ (Quick Date Presets)
+        // =========================================================
+        window.applyQuickDateFilter = function() {
+            const preset = document.getElementById('userQuickDate').value;
+            const fromInput = document.getElementById('userFromDate');
+            const toInput = document.getElementById('userToDate');
+            
+            if (preset === 'custom') return;
+
+            if (preset === 'all') {
+                fromInput.value = '';
+                toInput.value = '';
+            } else {
+                const today = new Date();
+                const pastDate = new Date();
+                
+                if (preset === '7days') pastDate.setDate(today.getDate() - 7);
+                else if (preset === '30days') pastDate.setDate(today.getDate() - 30);
+                else if (preset === '6months') pastDate.setMonth(today.getMonth() - 6);
+
+                // فرمت کردن تاریخ به YYYY-MM-DD
+                fromInput.value = pastDate.toISOString().split('T')[0];
+                toInput.value = today.toISOString().split('T')[0];
+            }
+            
+            // اجرای فیلتر اصلی
+            applyGlobalUserFilter();
+        }
+
+        // اگر کاربر دستی تقویم را تغییر داد، دراپ‌دان برگردد روی "تاریخ دلخواه"
+        window.resetQuickDateAndFilter = function() {
+            document.getElementById('userQuickDate').value = 'custom';
+            applyGlobalUserFilter();
+        }
+
+        // ==========================================
+        // فیلتر هوشمند بخش گزارشات
+        // ==========================================
+        window.filterReports = function(table, value) {
+            if (table === 'email') {
+                document.getElementById('emailStatusFilter').value = value;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (table === 'notif') {
+                document.getElementById('notifTypeFilter').value = value;
+                document.getElementById('notifTypeFilter').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            applyReportFilters();
+        }
+
+        window.applyReportFilters = function() {
+            const searchTerm = document.getElementById('admin-search')?.value.toLowerCase() || '';
+            const emailStatus = document.getElementById('emailStatusFilter')?.value || 'all';
+            const notifType = document.getElementById('notifTypeFilter')?.value || 'all';
+
+            // آپدیت URL
+            const currentUrl = new URL(window.location);
+            currentUrl.searchParams.set('email_status', emailStatus);
+            currentUrl.searchParams.set('notif_type', notifType);
+            window.history.replaceState({}, '', currentUrl);
+
+            // فیلتر جدول ایمیل‌ها
+            document.querySelectorAll('.email-item-row').forEach(row => {
+                const status = row.getAttribute('data-status');
+                const matchSearch = row.innerText.toLowerCase().includes(searchTerm);
+                const matchStatus = (emailStatus === 'all') || (status === emailStatus) || (emailStatus === 'pending' && status === 'processing');
+                row.style.display = (matchSearch && matchStatus) ? '' : 'none';
+            });
+
+            // فیلتر جدول نوتیفیکیشن‌ها
+            document.querySelectorAll('.notif-item-row').forEach(row => {
+                const type = row.getAttribute('data-type');
+                const matchSearch = row.innerText.toLowerCase().includes(searchTerm);
+                const matchType = (notifType === 'all') || (type === notifType);
+                row.style.display = (matchSearch && matchType) ? '' : 'none';
+            });
+        }
+
+    // ============================================================
+// شبیه‌ساز ربات سرور (Cron Job Simulator) مخصوص لوکال‌هاست
+// ============================================================
+// این تابع هر 30 ثانیه یک‌بار فایل ارسال ایمیل را در پس‌زمینه اجرا می‌کند
+setInterval(() => {
+fetch('cron_mailer.php?token=LUXURY_CAR_CRON_SECRET_2026_XYZ')
+        .then(response => response.text())
+        .then(data => {
+            // اگر ایمیلی ارسال شده باشد، در کنسول مرورگر لاگ می‌اندازد (برای تست شما)
+            if(data && !data.includes("No pending emails")) {
+                console.log("🤖 گزارش ربات پس‌زمینه: " + data);
+            }
+        })
+        .catch(error => console.error("خطا در اجرای ربات:", error));
+}, 30000); // 30000 میلی‌ثانیه = 30 ثانیه
+
+// ============================================================
+        // شبیه‌ساز ربات قراردادها (Auto-Reject Simulator)
+        // ============================================================
+        // این تابع هر 5 دقیقه یک‌بار اجرا می‌شود تا قراردادهای رها شده را لغو کند
+        setInterval(() => {
+            fetch('cron_contracts.php?token=LUXURY_CAR_CRON_SECRET_2026_XYZ')
+                .then(response => response.text())
+                .then(data => {
+                    if(data && !data.includes("No expired contracts found")) {
+                        console.log("🧹 گزارش ربات قراردادها: " + data);
+                    }
+                })
+                .catch(error => console.error("خطا در اجرای ربات قرارداد:", error));
+        }, 300000); // 300000 میلی‌ثانیه = 5 دقیقه
 </script>
 </body>
 </html>

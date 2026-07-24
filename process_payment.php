@@ -9,7 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
 
     try {
         // آپدیت وضعیت قرارداد به "پرداخت شده"
-        $stmt = $pdo->prepare("UPDATE contracts SET status = 'paid' WHERE id = ? AND user_id = ?");
+        // $stmt = $pdo->prepare("UPDATE contracts SET status = 'paid' WHERE id = ? AND user_id = ?");
+        // تغییر وضعیت به پرداخت شده و ثبت زمان دقیق پرداخت
+        $stmt = $pdo->prepare("UPDATE contracts SET status = 'paid', paid_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?");
         $stmt->execute([$contract_id, $user_id]);
 
         // شبیه‌سازی تاخیر بانک

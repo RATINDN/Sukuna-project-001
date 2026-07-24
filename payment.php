@@ -35,6 +35,11 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>درگاه پرداخت امن | لوکس کار</title>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+    <!-- لینک کردن استایل‌های فریم‌ورک پاپ‌آپ‌های سفارشی -->
+<link rel="stylesheet" href="css/custom_dialogs.css">
+
+<!-- لینک کردن جاوااسکریپت موتور اعلانات سراسری -->
+<script src="js/custom_dialogs.js"></script>
     <style>
         * { box-sizing: border-box; }
         body {

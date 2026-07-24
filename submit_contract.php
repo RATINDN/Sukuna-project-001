@@ -25,44 +25,63 @@ try {
     $stmtUser->execute([$user_id]);
     $userRow = $stmtUser->fetch(PDO::FETCH_ASSOC);
     $phone = $userRow['phone'] ?? '---';
+// 3. دریافت داده‌ها از فرم
+$product_id = isset($_POST['product_id']) ? $_POST['product_id'] : null;
+$expected_price_text = $_POST['car_price'] ?? ''; // قیمتی که کاربر با حروف و کاما دیده است
+$car_color = $_POST['car_color'] ?? ''; 
+$real_name = $_POST['real_name'] ?? '';
+$national_id = $_POST['national_id'] ?? '';
+$address = $_POST['address'] ?? '';
+$postal_code = $_POST['postal_code'] ?? '';
+$signature = $_POST['signature'] ?? '';
 
-    // 3. دریافت داده‌ها از فرم
-    $product_id = isset($_POST['product_id']) ? $_POST['product_id'] : null;
-    $car_name = $_POST['car_name'] ?? '';
-    $car_price = $_POST['car_price'] ?? '';
-    $car_color = $_POST['car_color'] ?? ''; 
-    $real_name = $_POST['real_name'] ?? '';
-    $national_id = $_POST['national_id'] ?? '';
-    $address = $_POST['address'] ?? '';
-    $postal_code = $_POST['postal_code'] ?? '';
-    $signature = $_POST['signature'] ?? '';
+// ============================================================
+// بررسی امنیتی امضا (جلوگیری از حملات XSS)
+// ============================================================
+if (!preg_match('/^data:image\/(png|jpeg|jpg);base64,[A-Za-z0-9+\/]+=*$/', $signature)) {
+    throw new Exception('فرمت امضا نامعتبر است. تلاش برای نفوذ مسدود شد.');
+}
+if (strlen($signature) < 500) {
+    throw new Exception('امضا دریافت نشد یا ناقص است.');
+}
 
-    if (strlen($signature) < 500) {
-        throw new Exception('امضا دریافت نشد یا ناقص است.');
-    }
+if (!$product_id) {
+    throw new Exception('خطا در شناسایی محصول. لطفا صفحه را رفرش کنید.');
+}
 
-    if (!$product_id) {
-        throw new Exception('خطا در شناسایی محصول. لطفا صفحه را رفرش کنید.');
-    }
+// شروع تراکنش امن
+$pdo->beginTransaction();
 
-    $tracking_code = 'LX-' . mt_rand(10000, 99999);
-    $contract_text = "اینجانب $real_name متعهد به خرید خودروی $car_name به رنگ $car_color به قیمت $car_price می‌باشم.";
+// گرفتن اطلاعات زنده از دیتابیس
+$stmtProd = $pdo->prepare("SELECT name, price, inventory, colors_inventory FROM products WHERE id = ? FOR UPDATE");
+$stmtProd->execute([$product_id]);
+$product = $stmtProd->fetch(PDO::FETCH_ASSOC);
 
-    // شروع تراکنش امن
-    $pdo->beginTransaction();
+if (!$product) {
+    throw new Exception('محصول مورد نظر یافت نشد.');
+}
 
-    // 4. بررسی موجودی رنگ قبل از ثبت نهایی (قفل کردن سطر)
-    $stmtProd = $pdo->prepare("SELECT inventory, colors_inventory FROM products WHERE id = ? FOR UPDATE");
-    $stmtProd->execute([$product_id]);
-    $product = $stmtProd->fetch(PDO::FETCH_ASSOC);
+// ============================================================
+// اعتبارسنجی تفاوت قیمت (Price Match Validation)
+// ============================================================
+// استخراج فقط اعداد از قیمتی که کاربر فرستاده (حذف کاما، فاصله و حروف)
+$expected_clean_number = preg_replace('/[^0-9]/', '', $expected_price_text);
+$live_clean_number = $product['price'];
 
-    if (!$product) {
-        throw new Exception('محصول مورد نظر یافت نشد.');
-    }
+// مقایسه ریاضی قیمت‌ها (امن‌ترین روش ممکن)
+if ($expected_clean_number !== (string)$live_clean_number) {
+    throw new Exception('قیمت این خودرو لحظاتی پیش در سایت به‌روزرسانی شد. لطفاً برای مشاهده قیمت جدید صفحه را رفرش کنید.');
+}
 
-    // دیکد کردن JSON رنگ‌ها
-    $colorsArr = json_decode($product['colors_inventory'], true);
-    if (!is_array($colorsArr)) $colorsArr = [];
+// استخراج قیمت و نام واقعی از سرور برای چاپ در قرارداد
+$car_name = $product['name'];
+$car_price = number_format($product['price']) . " تومان"; 
+$tracking_code = 'LX-' . mt_rand(10000, 99999);
+$contract_text = "اینجانب $real_name متعهد به خرید خودروی $car_name به رنگ $car_color به قیمت $car_price می‌باشم.";
+
+// دیکد کردن JSON رنگ‌ها
+$colorsArr = json_decode($product['colors_inventory'], true);
+if (!is_array($colorsArr)) $colorsArr = [];
     
     // بررسی موجودی رنگ انتخابی
     $currentQty = 0;

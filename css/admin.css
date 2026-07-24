@@ -20,6 +20,8 @@
 
 /* Dark mode variables */
 .darkmode {
+    color-scheme: dark ; /* این خط جادویی تمام تقویم‌ها و دراپ‌دان‌های مرورگر را تاریک می‌کند */
+
     --admin-bg-color: #121212;
     --admin-text-color: #f5f5f5;
     --admin-border-color:white;
@@ -1065,6 +1067,16 @@ body.darkmode .users-table-container::-webkit-scrollbar-track {
 
 
 
+/* استایل‌دهی به لیست‌های بازشونده (Options) در دارک مود */
+body.darkmode select option {
+    background-color: var(--admin-bg-color) ;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
 
 
 

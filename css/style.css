@@ -3649,8 +3649,138 @@ body:not(.darkmode) .profile-dropdown {
   animation: heartPop 0.3s ease-in-out;
 }
 
+/* استایل سیستم Notification */
+.notification-container {
+  position: relative;
+  cursor: pointer;
+  margin-left: 20px;
+  display: flex;
+  align-items: center;
+  color: var(--text-color);
+}
+
+.notification-container svg {
+  transition: transform 0.3s;
+}
+.notification-container:hover svg {
+  transform: rotate(15deg);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background-color: #f44336;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  min-width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid var(--bg-color);
+  animation: popBadge 0.3s ease-in-out;
+}
+
+@keyframes popBadge { 0% {transform: scale(0);} 100% {transform: scale(1);} }
+
+/* اصلاح جایگاه دراپ‌دان برای دسکتاپ و جلوگیری از بیرون زدن */
+.notification-dropdown {
+  position: absolute;
+  top: 150%;
+  /* چون زنگوله سمت راست سایت است، باید از راست صفر باشد تا به سمت چپ (داخل صفحه) باز شود */
+  right: 0; 
+  left: auto;
+  transform: none;
+  width: 320px;
+  max-width: 90vw;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  display: none;
+  flex-direction: column;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+/* جلوگیری از کش آمدن باکس توسط کلمات خیلی طولانی (بدون اسپیس) */
+.notif-msg { 
+  font-size: 11px; 
+  color: var(--secondary-text); 
+  line-height: 1.6; 
+  word-wrap: break-word; /* شکستن زوریِ کلمات طولانی */
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* ریسپانسیو اختصاصی و شیک برای موبایل (شبیه اپلیکیشن‌ها) */
+@media (max-width: 768px) {
+  .notification-dropdown {
+      position: fixed; /* در موبایل به صفحه می‌چسبد نه به زنگوله */
+      top: 70px; /* کمی پایین‌تر از هدر */
+      left: 5%;
+      right: 5%;
+      width: 90%; /* ۹۰ درصد عرض گوشی را می‌گیرد */
+  }
+}
+
+.notif-header {
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+  text-align: right;
+  background: rgba(0,0,0,0.02);
+}
+.notif-header h4 { margin: 0; font-size: 14px; }
+
+.notif-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.notif-item {
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+  text-align: right;
+  transition: background 0.2s;
+}
+.notif-item:hover { background: var(--hover-color-li); }
+.notif-item.unread { background: rgba(33, 150, 243, 0.05); border-right: 3px solid #2196F3; }
+.notif-title { font-weight: bold; font-size: 12px; margin-bottom: 5px; color: var(--text-color); }
+.notif-time { font-size: 9px; color: gray; margin-top: 5px; display: block; direction: ltr; text-align: left;}
 
 
+
+
+/* استایل کارت‌های گاراژ آرزوها در پروفایل */
+.wishlist-card {
+  min-width: 160px;
+  max-width: 160px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.wishlist-card:hover { transform: translateY(-3px); }
+.wishlist-img { height: 100px; width: 100%; object-fit: cover; }
+.wishlist-info { padding: 10px; display: flex; flex-direction: column; gap: 5px; flex-grow: 1;}
+.wishlist-title { font-size: 12px; font-weight: bold; color: var(--text-color); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.wishlist-price { font-size: 11px; color: #4CAF50; font-weight: bold; }
+.btn-quick-buy { background: #e91e63; color: white; border: none; border-radius: 6px; padding: 6px; font-size: 11px; cursor: pointer; width: 100%; font-family: 'Vazirmatn'; font-weight: bold; margin-top: auto;}
+.btn-out-stock { background: #9e9e9e; cursor: not-allowed; }
+
+/* زیباسازی اسکرول‌بار افقی */
+#profileWishlist::-webkit-scrollbar { height: 6px; }
+#profileWishlist::-webkit-scrollbar-thumb { background: #e91e63; border-radius: 3px; }
+#profileWishlist::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
 
 html, body {
   font-family: 'Vazirmatn', sans-serif !important;
@@ -3663,4 +3793,65 @@ h1, h2, h3, h4, h5, h6 {
 
 button, input, select, textarea {
   font-family: 'Vazirmatn', sans-serif !important;
+}
+
+
+/* =========================================================
+   تولتیپ اختصاصی دکمه علاقه‌مندی‌ها (اصلاح شده جهت جلوگیری از برش)
+   ========================================================= */
+   .wishlist-btn[data-tooltip]::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 50%;
+    /* تغییر جهت باز شدن به سمت راست (داخل عکس ماشین) */
+    left: calc(100% + 10px); 
+    transform: translateY(-50%) translateX(10px);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: bold;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    /* انیمیشن نرم و فنری */
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: none;
+    font-family: 'Vazirmatn', sans-serif;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* مثلث کوچک کنار تولتیپ */
+.wishlist-btn[data-tooltip]::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 2px); /* تنظیم جهت مثلث */
+    transform: translateY(-50%) translateX(10px);
+    border-width: 5px;
+    border-style: solid;
+    /* جهت مثلث به سمت دکمه */
+    border-color: transparent rgba(0, 0, 0, 0.85) transparent transparent; 
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: none;
+}
+
+/* نمایش تولتیپ هنگام هاور شدن موس */
+.wishlist-btn:hover[data-tooltip]::before,
+.wishlist-btn:hover[data-tooltip]::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) translateX(0);
+}
+
+/* حذف تولتیپ در تمام دستگاه‌های لمسی (موبایل، آیپد، تبلت) */
+/* این دستور به جای اندازه صفحه، بررسی می‌کند که آیا دستگاه موس دارد یا خیر */
+@media (hover: none) {
+    .wishlist-btn[data-tooltip]::before,
+    .wishlist-btn[data-tooltip]::after {
+        display: none !important; 
+    }
 }
